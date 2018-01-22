@@ -21,11 +21,11 @@ public class Main
         System.out.println();
 
         CharStream input = CharStreams.fromFileName(arguments[0]);
-        ArithmeticLexer lexer = new ArithmeticLexer(input);
+        FloydLexer lexer = new FloydLexer(input);
         
         // Read tokens from lexer
         Token t = lexer.nextToken();
-        while (t.getType() != ArithmeticLexer.EOF) {
+        while (t.getType() != FloydLexer.EOF) {
           System.out.println(arguments[0] + ":" + t.getLine() + ":" + t.getText());
           t = lexer.nextToken();
 

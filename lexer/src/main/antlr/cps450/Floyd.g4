@@ -1,4 +1,4 @@
-grammar Arithmetic;
+grammar Floyd;
 
 start : ;
 
