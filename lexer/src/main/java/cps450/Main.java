@@ -26,7 +26,10 @@ public class Main
                     System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":" + "cr");
                 }
                 else if (t.getType() == FloydLexer.COMMENT) {
-                    System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":" + "COMMENT");
+                    System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":" + "THIS SHOULD NEVER APPEAR");
+                }
+                else if (t.getType() == FloydLexer.LINE_EXTENSION) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":" + "THIS SHOULD ALSO NEVER APPEAR.");
                 }
                 else if (t.getType() == FloydLexer.IDENTIFIER) {
                     System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":" + "identifier:" + t.getText());

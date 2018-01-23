@@ -86,6 +86,10 @@ CR
 :('\r\n'|'\n'|'\r')
 ;
 
+LINE_EXTENSION
+: '_' CR -> skip
+;
+
 WS
    : [ \t] + -> skip
    ;
@@ -99,7 +103,7 @@ INTEGER_LITERAL
 ;
 
 STRING_LITERAL
-:'"' ( '\\' [tnfr"\\] | ~[\u000D\u000A\\"] )* '"'
+:'"' ( '\\' [tnfr"\\] | ~[\r\n\\"] )* '"'
 ;
 
 UNTERMINATED_STRING_ERROR
