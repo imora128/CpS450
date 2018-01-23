@@ -31,6 +31,12 @@ public class Main
                 else if (t.getType() == FloydLexer.IDENTIFIER) {
                     System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":" + "identifier:" + t.getText());
                 }
+                else if (t.getType() == FloydLexer.INTEGER_LITERAL) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":integer_literal:" + t.getText());
+                }
+                 else if (t.getType() == FloydLexer.STRING_LITERAL) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":string lit:" + t.getText());
+                }
                 else if (t.getType() == FloydLexer.BOOLEAN) {
                     System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":" + "keyword:boolean");
                 }

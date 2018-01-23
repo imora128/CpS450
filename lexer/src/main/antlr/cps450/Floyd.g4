@@ -83,18 +83,30 @@ WHILE
 ;
 
 COMMENT
-: '~' ~[\r\n]* CR
+: '~' ~[\r\n]* -> skip
 ;
 
 CR
-:('\u000A' | '\u000D''\u000A')
-//:('\r\n'|'\n'|'\r')
+//: 'r'? 'n' 
+:('\r\n'|'\n'|'\r')
 ;
 
 WS
-   : [ \r\n\t] + -> skip
+   : [ \t] + -> skip
    ;
 
 IDENTIFIER
 : ('a'..'z' | 'A'..'Z' | '_')+
+;
+
+INTEGER_LITERAL
+: ('-')? ('0'..'9')
+;
+STRING_LITERAL
+//:'"' [ a-zA-Z0-9]? '"'
+:'"' ( '\\' [tnfr"\\] | ~[\u000D\u000A\\"] )* '"'
+;
+
+PREDEFINED_OPERATOR
+:[&+-*/>>+>]
 ;
