@@ -1,5 +1,19 @@
-#Not done yet
-I have to add more to  unit testing, but I'm checking to see if it compiles on Jenkins
+##Report
+Hours spent: 10 hours
+Known bugs: None known.
+Academic Integrity Statement: All code is my own. I visited websites to brush up on regular expression rules, ANTLR rules, and Java library methods.
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Readme
 
