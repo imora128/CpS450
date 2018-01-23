@@ -37,6 +37,15 @@ public class Main
                 else if (t.getType() == FloydLexer.STRING_LITERAL) {
                     System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":string lit:" + t.getText());
                 }
+                else if (t.getType() == FloydLexer.UNTERMINATED_STRING_ERROR) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":Unterminated string:\"Unterminated");
+                }
+                else if (t.getType() == FloydLexer.ILLEGAL_STRING_ERROR) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":Illegal string:" + t.getText());
+                }
+                else if (t.getType() == FloydLexer.UNKNOWN_CHAR) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":Unrecognized char: " + t.getText());
+                }
                 else if (t.getType() == FloydLexer.PREDEFINED_OPERATOR) {
                     System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
                 }
