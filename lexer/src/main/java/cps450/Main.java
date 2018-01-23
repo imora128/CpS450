@@ -40,6 +40,30 @@ public class Main
                 else if (t.getType() == FloydLexer.PREDEFINED_OPERATOR) {
                     System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
                 }
+                else if (t.getType() == FloydLexer.ASSIGNMENT_OPERATOR) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+                }
+                else if (t.getType() == FloydLexer.L_PAR) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+                }
+                else if (t.getType() == FloydLexer.R_PAR) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+                }
+                else if (t.getType() == FloydLexer.R_BRACKET) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+                }
+                else if (t.getType() == FloydLexer.L_BRACKET) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+                }
+                else if (t.getType() == FloydLexer.SEMICOLON) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+                }
+                else if (t.getType() == FloydLexer.COLON) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+                }
+                else if (t.getType() == FloydLexer.PERIOD) {
+                    System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+                }
                 else if (t.getType() == FloydLexer.BOOLEAN) {
                     System.out.println(arguments[1] + ":" + t.getLine() + ":" + t.getCharPositionInLine()+ ":" + "keyword:boolean");
                 }

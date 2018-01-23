@@ -105,3 +105,39 @@ STRING_LITERAL
 PREDEFINED_OPERATOR
 : ('&' | '+' | '-' | '*' | '/' | '>' | '>=' | '=')
 ;
+
+ASSIGNMENT_OPERATOR
+: ':='
+;
+
+L_PAR
+: '('
+;
+
+R_PAR
+: ')'
+;
+
+R_BRACKET
+: '['
+;
+
+L_BRACKET
+: ']'
+;
+
+COMMA
+: ','
+;
+
+SEMICOLON
+: ';'
+;
+
+COLON
+: ':'
+;
+
+PERIOD
+: '.'
+;
