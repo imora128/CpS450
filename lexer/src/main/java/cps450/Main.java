@@ -62,11 +62,29 @@ public class Main
             else if (t.getType() == FloydLexer.UNKNOWN_CHAR) {
                 System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":Unrecognized char: " + t.getText());
             }
-            else if (t.getType() == FloydLexer.PREDEFINED_OPERATOR && parsedArgs.ds == true) {
+            else if (t.getType() == FloydLexer.AMPERSAND && parsedArgs.ds == true) {
                 System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
             }
-            else if (t.getType() == FloydLexer.ASSIGNMENT_OPERATOR && parsedArgs.ds == true) {
+            else if (t.getType() == FloydLexer.PLUS && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
+            }
+            else if (t.getType() == FloydLexer.MINUS && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
+            }
+            else if (t.getType() == FloydLexer.TIMES && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
+            }
+            else if (t.getType() == FloydLexer.DIV && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
+            }
+            else if (t.getType() == FloydLexer.GT && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
+            }
+            else if (t.getType() == FloydLexer.GE && parsedArgs.ds == true) {
                 System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":'" + t.getText() + "'");
+            }
+            else if (t.getType() == FloydLexer.EQ && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":operator:'" + t.getText() + "'");
             }
             else if (t.getType() == FloydLexer.L_PAR && parsedArgs.ds == true) {
                 System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":'" + t.getText() + "'");

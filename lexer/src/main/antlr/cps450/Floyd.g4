@@ -105,7 +105,7 @@ IDENTIFIER
 ;
 
 INTEGER_LITERAL
-: ('-')? ('0'..'9')
+: '-'? ('0'..'9')+
 ;
 
 STRING_LITERAL
@@ -120,19 +120,53 @@ ILLEGAL_STRING_ERROR
 :'"' ('\\' ~[tnfr"\\] | ~[\r\n\\])* '"'
 ;
 
-PREDEFINED_OPERATOR
-: ('&' | '+' | '-' | '*' | '/' | '>' | '>=' | '=')
+AMPERSAND
+: '&'
 ;
+
+PLUS
+: '+'
+;
+
+MINUS
+: '-'
+;
+
+TIMES
+: '*'
+;
+
+DIV
+: '/'
+;
+
+GT
+: '>'
+;
+
+GE
+: '>='
+;
+
+EQ
+: '='
+;
+
+
+
+// PREDEFINED_OPERATOR
+// : ('&' | '+' | '-' | '*'. | '/' | '>' | '>=' | '=')
+// ;
 
 ASSIGNMENT_OPERATOR
 : ':='
 ;
 
-L_PAR
+R_PAR
 : '('
 ;
 
-R_PAR
+L_PAR
 : ')'
 ;
 
