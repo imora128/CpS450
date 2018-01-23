@@ -1,3 +1,9 @@
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: Floyd.g4
+Description: Contains the rules used to generate the scanner
+*/
 grammar Floyd;
 
 start : ;
