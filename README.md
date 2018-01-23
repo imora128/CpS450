@@ -20,7 +20,7 @@ gradlew install
 To run this project, execute:
 
 ```
-build/install/lexer/bin/lexer math.txt
+build/install/lexer/bin/lexer demo.floyd
 ```
 
 ## Project Structure
@@ -29,4 +29,5 @@ build/install/lexer/bin/lexer math.txt
 * **/src/main/java/cps450/Main.java** contains the main Java entry point
 * **/src/test/java/cps450/LexerTest.java** contains a unit test
 * **/src/test/resources/cps450/lexertest.txt** contains a data file read by the unit test
+* **/src/main/java/cps450/Option.java** contains the Option class that parses and stores cmdline arguments into its instance variables.
 
