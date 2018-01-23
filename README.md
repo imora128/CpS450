@@ -1,6 +1,6 @@
 # Report
-**Hours spent:** 10 hours <br/>
-**Known bugs:** None known. <br/>
+**Hours spent:** 12 hours <br/>
+**Known bugs:** Octal escape sequences not working. If I can fix before 10, I'll update the repository. <br/>
 **Academic Integrity Statement:** All code is my own. I visited websites to brush up on regular expression rules, ANTLR rules, and Java library methods.
 
 

@@ -10,19 +10,6 @@ import org.antlr.v4.runtime.Token;
 import org.junit.Test;
 
 public class LexerTest {
-	//ArithmeticLexer lex;
-
-	// @Test
-	// public void testSuccessfulScan() throws IOException {
-	// 	CharStream input = CharStreams.fromStream(
-	// 			getClass().getResourceAsStream("lexertest.txt"));
-	// 	lex = new ArithmeticLexer(input);
-
-	// 	assertNextToken(ArithmeticLexer.SCIENTIFIC_NUMBER, "2.5");
-	// 	assertNextToken(ArithmeticLexer.DIV);
-	// 	assertNextToken(ArithmeticLexer.SCIENTIFIC_NUMBER, "3.6e12");
-	// 	assertNextToken(ArithmeticLexer.EOF);
-
 	FloydLexer lex;
 
 	@Test
@@ -92,16 +79,30 @@ public class LexerTest {
 		assertNextToken(FloydLexer.SEMICOLON, ";");
 		assertNextToken(FloydLexer.PERIOD, ".");
 
-		//fixing ambiguity with minus and integer literal
+		//FIXED ambiguity with minus and integer literal
 		assertNextToken(FloydLexer.CR);
 		assertNextToken(FloydLexer.INTEGER_LITERAL, "-94");
 		assertNextToken(FloydLexer.MINUS);
+
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.STRING_LITERAL);
+
+		//ERRORS
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.UNKNOWN_CHAR, "%");
+		assertNextToken(FloydLexer.UNKNOWN_CHAR, "}");
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.ILLEGAL_STRING_ERROR);
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.UNTERMINATED_STRING_ERROR);
+
+
 
 	}
 
 	private void assertNextToken(int type, String value) throws IOException {
 		Token tok = lex.nextToken();
-		System.err.println(tok.getLine() + ":" + tok.getCharPositionInLine() + ":" + tok.getText());
+		System.err.println(tok.getLine() + ":" + tok.getCharPositionInLine() + ":" + tok.getText() + ":" + tok.getType());
 		assertTrue(tok.getType() == type);
 		assertTrue(tok.getText().equals(value));
 

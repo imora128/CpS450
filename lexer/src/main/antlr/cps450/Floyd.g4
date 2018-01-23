@@ -152,12 +152,6 @@ EQ
 : '='
 ;
 
-
-
-// PREDEFINED_OPERATOR
-// : ('&' | '+' | '-' | '*'. | '/' | '>' | '>=' | '=')
-// ;
-
 ASSIGNMENT_OPERATOR
 : ':='
 ;
@@ -193,7 +187,6 @@ COLON
 PERIOD
 : '.'
 ;
-
 UNKNOWN_CHAR
-    :   .
-    ;
+: .
+;
