@@ -135,12 +135,26 @@ public class Main
                 }
                 
 
-            //System.out.println(arguments[1] + ":" + t.getLine() + "," + t.getText());
             t = lexer.nextToken();
-        //display only lexical errors
         } 
         }else if (arguments.length == 1) { 
-            System.out.println("DO ONLY LEXICAL ERRORS");
+            //display only lexical errors
+            CharStream input = CharStreams.fromFileName(arguments[0]);
+            FloydLexer lexer = new FloydLexer(input);
+            
+            // Read tokens from lexer
+            Token t = lexer.nextToken();
+            while (t.getType() != FloydLexer.EOF) {
+                if (t.getType() == FloydLexer.UNTERMINATED_STRING_ERROR) {
+                    System.out.println(arguments[0] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":Unterminated string:\"Unterminated");
+                }
+                else if (t.getType() == FloydLexer.ILLEGAL_STRING_ERROR) {
+                    System.out.println(arguments[0] + ":" + t.getLine() + "," + t.getCharPositionInLine()+ ":Illegal string:" + t.getText());
+                }
+                
+
+            t = lexer.nextToken();
+            } 
         }
         else {
             System.out.println("usage:");
