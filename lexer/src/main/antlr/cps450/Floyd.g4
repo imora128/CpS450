@@ -2,96 +2,99 @@ grammar Floyd;
 
 start : ;
 
+BOOLEAN
+: 'boolean'
+;
 
-VARIABLE
-   : VALID_ID_START VALID_ID_CHAR*
-   ;
+BEGIN
+: 'begin'
+;
 
+CLASS
+: 'class'
+;
 
-fragment VALID_ID_START
-   : ('a' .. 'z') | ('A' .. 'Z') | '_'
-   ;
+ELSE
+: 'else'
+;
 
+END
+: 'end'
+;
 
-fragment VALID_ID_CHAR
-   : VALID_ID_START | ('0' .. '9')
-   ;
+FALSE
+: 'false'
+;
 
+FROM
+: 'from'
+;
 
-SCIENTIFIC_NUMBER
-   : NUMBER (E SIGN? NUMBER)?
-   ;
+IF
+: 'if'
+;
 
-fragment NUMBER
-   : ('0' .. '9') + ('.' ('0' .. '9') +)?
-   ;
+INHERITS
+: 'inherits'
+;
 
+INT
+: 'int'
+;
 
-fragment E
-   : 'E' | 'e'
-   ;
+IS
+: 'is'
+;
 
+LOOP
+: 'loop'
+;
 
-fragment SIGN
-   : ('+' | '-')
-   ;
+ME
+: 'me'
+;
 
+NEW
+: 'new'
+;
 
-LPAREN
-   : '('
-   ;
+NOT
+: 'not'
+;
 
+NULL
+: 'null'
+;
 
-RPAREN
-   : ')'
-   ;
+STRING
+: 'string'
+;
 
+THEN
+: 'then'
+;
 
-PLUS
-   : '+'
-   ;
+TRUE
+: 'true'
+;
 
+WHILE
+: 'while'
+;
 
-MINUS
-   : '-'
-   ;
+COMMENT
+: '~' ~[\r\n]* CR
+;
 
-
-TIMES
-   : '*'
-   ;
-
-
-DIV
-   : '/'
-   ;
-
-
-GT
-   : '>'
-   ;
-
-
-LT
-   : '<'
-   ;
-
-
-EQ
-   : '='
-   ;
-
-
-POINT
-   : '.'
-   ;
-
-
-POW
-   : '^'
-   ;
-
+CR
+:('\u000A' | '\u000D''\u000A')
+//:('\r\n'|'\n'|'\r')
+;
 
 WS
    : [ \r\n\t] + -> skip
    ;
+
+IDENTIFIER
+: ('a'..'z' | 'A'..'Z' | '_')+
+;
