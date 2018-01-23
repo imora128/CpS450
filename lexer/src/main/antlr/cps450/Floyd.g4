@@ -58,10 +58,6 @@ NEW
 : 'new'
 ;
 
-NOT
-: 'not'
-;
-
 NULL
 : 'null'
 ;
@@ -103,10 +99,9 @@ INTEGER_LITERAL
 : ('-')? ('0'..'9')
 ;
 STRING_LITERAL
-//:'"' [ a-zA-Z0-9]? '"'
 :'"' ( '\\' [tnfr"\\] | ~[\u000D\u000A\\"] )* '"'
 ;
 
 PREDEFINED_OPERATOR
-:[&+-*/>>+>]
+: ('&' | '+' | '-' | '*' | '/' | '>' | '>=' | '=')
 ;
