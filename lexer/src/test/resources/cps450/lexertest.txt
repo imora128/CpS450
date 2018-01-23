@@ -1,2 +1,4 @@
 class Main is
-    pi:int
+    pi:int ~comment test
+    "This is a string"
+    

@@ -34,7 +34,12 @@ public class LexerTest {
 		assertNextToken(FloydLexer.CLASS, "class");
 		assertNextToken(FloydLexer.IDENTIFIER, "Main");
 		assertNextToken(FloydLexer.IS, "is");
-		//assertNextToken(FloydLexer.IDENTIFIER, "cr");
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.IDENTIFIER, "pi");
+		assertNextToken(FloydLexer.COLON, ":");
+		assertNextToken(FloydLexer.INT, "int");
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.STRING_LITERAL, "\"This is a string\"");
 
 
 	}
