@@ -1,5 +1,5 @@
 # Report
-Hours spent: 10 hours
+Hours spent: 10 hours <br/>
 Known bugs: None known.
 Academic Integrity Statement: All code is my own. I visited websites to brush up on regular expression rules, ANTLR rules, and Java library methods.
 
