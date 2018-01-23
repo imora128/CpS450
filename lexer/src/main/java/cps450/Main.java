@@ -158,7 +158,7 @@ public class Main
         }
         else {
             System.out.println("usage:");
-            System.out.println("  lexer <filename>");
+            System.out.println("  lexer [-ds] <filename>");
             System.exit(1);
         }
 
