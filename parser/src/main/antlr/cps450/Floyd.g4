@@ -10,6 +10,9 @@ start
 : CR? class_ (CR class_)* CR?
 ;
 
+cr 
+: CR+
+;
 class_
 : CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS CR var_decl* method_decl* END IDENTIFIER
 ;
@@ -38,12 +41,54 @@ type
 
 //stub
 statement_list
-: var_decl*
+: (statement CR)*
+;
+
+statement
+: assignment_stmt
+| if_stmt
+| loop_stmt
+| call_stmt
+;
+assignment_stmt
+: IDENTIFIER ('[' expression ']')* ASSIGNMENT_OPERATOR expression
+;
+
+if_stmt
+: IF expression THEN CR statement_list (ELSE CR statement_list)? END IF
+;
+
+loop_stmt
+: LOOP WHILE expression CR statement_list END LOOP
+;
+
+call_stmt
+: (expression PERIOD)? IDENTIFIER R_PAR (expression_list)? L_PAR
+;
+
+expression_list
+: (expression)* expression
 ;
 
 expression
 : INTEGER_LITERAL
 ;
+
+// expression
+// : (IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME)
+// | NEW type
+// | expression binary_op expression
+// | unary_op expression
+// | R_PAR expression L_PAR
+// | (expression PERIOD)? IDENTIFIER R_PAR expression_list? L_PAR
+// | IDENTIFIER '[' expression ']' ('[' expression ']')*
+// ;
+// unary_op
+// :
+// ;
+// binary_op
+// :
+// ;
 BOOLEAN
 : 'boolean'
 ;

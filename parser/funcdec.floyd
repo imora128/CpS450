@@ -1,8 +1,12 @@
 ~ Test2.floyd
 class Main is 
+  
   start() is
   begin
-   	x:= 5
-   	z:= 6
+    if x > 5 then
+      x:= -5 + 5 
+      z:= not a or c
+
+       
+    end if
   end start
- end Main
