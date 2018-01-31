@@ -21,9 +21,9 @@ test1.floyd:3,87:keyword:then
 test1.floyd:3,92:keyword:true
 test1.floyd:3,97:keyword:while
 test1.floyd:3,102:cr
-test1.floyd:4,1:identifier:asdf23 
-test1.floyd:4,8:identifier:_asdf5 
-test1.floyd:4,15:int lit:2  
+test1.floyd:4,1:identifier:asdf23
+test1.floyd:4,8:identifier:_asdf5
+test1.floyd:4,15:int lit:2
 test1.floyd:4,16:identifier:af_2_
 test1.floyd:5,1:int lit:1234
 test1.floyd:5,6:int lit:0
@@ -34,7 +34,7 @@ test1.floyd:6,4:'('
 test1.floyd:6,5:')'
 test1.floyd:6,7:'['
 test1.floyd:6,8:']'
-test1.floyd:6,10:',' 
+test1.floyd:6,10:','
 test1.floyd:6,12:';'
 test1.floyd:6,14:':'
 test1.floyd:6,16:'.'
@@ -44,5 +44,5 @@ test1.floyd:6,20:operator:'*'
 test1.floyd:6,21:operator:'/'
 test1.floyd:6,23:operator:'&'
 test1.floyd:6,24:cr
-test1.floyd:7,1:Unrecognized char: %    
+test1.floyd:7,1:Unrecognized char: %
 test1.floyd:7,2:cr

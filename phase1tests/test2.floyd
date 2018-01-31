@@ -1,19 +1,19 @@
-test2.floyd:1,1:string lit:"This is a test."            
-test2.floyd:1,20:cr            
-test2.floyd:2,1:string lit:"String w/ named escapes\t\f\n\r\"\\"            
-test2.floyd:2,38:cr            
-test2.floyd:3,1:string lit:"String w/ octal escapes\034\056"            
-test2.floyd:3,35:string lit:"Standard String"            
-test2.floyd:3,52:cr            
-test2.floyd:4,1:string lit:"String w/ named & octal escapes \034\n\""            
-test2.floyd:4,43:cr            
-test2.floyd:5,1:Illegal string:"String w/ illegal escape \q"            
-test2.floyd:5,30:cr            
-test2.floyd:6,1:Illegal string:"String w/ illegal escape \099"            
-test2.floyd:6,32:cr            
-test2.floyd:7,1:Unterminated string:"An unterminated string...             
-test2.floyd:7,28:cr            
-test2.floyd:8,1:Unterminated string:"            
-test2.floyd:8,2:cr            
-test2.floyd:9,1:Unrecognized char: %            
+test2.floyd:1,1:string lit:"This is a test."
+test2.floyd:1,20:cr
+test2.floyd:2,1:string lit:"String w/ named escapes\t\f\n\r\"\\"
+test2.floyd:2,38:cr
+test2.floyd:3,1:string lit:"String w/ octal escapes\034\056"
+test2.floyd:3,35:string lit:"Standard String"
+test2.floyd:3,52:cr
+test2.floyd:4,1:string lit:"String w/ named & octal escapes \034\n\""
+test2.floyd:4,43:cr
+test2.floyd:5,1:Illegal string:"String w/ illegal escape \q"
+test2.floyd:5,30:cr
+test2.floyd:6,1:Illegal string:"String w/ illegal escape \099"
+test2.floyd:6,32:cr
+test2.floyd:7,1:Unterminated string:"An unterminated string...
+test2.floyd:7,28:cr
+test2.floyd:8,1:Unterminated string:"
+test2.floyd:8,2:cr
+test2.floyd:9,1:Unrecognized char: %
 test2.floyd:9,2:cr

@@ -47,7 +47,7 @@ public class Main
                 System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "identifier:" + t.getText());
             }
             else if (t.getType() == FloydLexer.INTEGER_LITERAL && parsedArgs.ds == true) {
-                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":integer_literal:" + t.getText());
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":int lit:" + t.getText());
             }
             else if (t.getType() == FloydLexer.STRING_LITERAL && parsedArgs.ds == true) {
                 System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":string lit:" + t.getText());
@@ -171,6 +171,12 @@ public class Main
             }
             else if (t.getType() == FloydLexer.OR && parsedArgs.ds == true) {
                 System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "keyword:or");
+            }
+            else if (t.getType() == FloydLexer.ASSIGNMENT_OPERATOR && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "':='");
+            }
+            else if (t.getType() == FloydLexer.COMMA && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "','");
             }
             
 
