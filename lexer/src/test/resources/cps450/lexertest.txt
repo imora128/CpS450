@@ -14,4 +14,7 @@ end
     % }
     "invaid\o"
     "asdadasd
+    "Hi, \"Tom\", \nHow are \034\036things\222 today?" "test"
+    and
+    "String w/ octal escapes"
     

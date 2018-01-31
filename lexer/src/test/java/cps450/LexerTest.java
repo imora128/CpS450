@@ -95,6 +95,13 @@ public class LexerTest {
 		assertNextToken(FloydLexer.ILLEGAL_STRING_ERROR);
 		assertNextToken(FloydLexer.CR);
 		assertNextToken(FloydLexer.UNTERMINATED_STRING_ERROR);
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.STRING_LITERAL);
+		assertNextToken(FloydLexer.STRING_LITERAL);
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.AND);
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.STRING_LITERAL);
 
 
 

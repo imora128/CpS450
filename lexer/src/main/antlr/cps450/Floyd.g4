@@ -12,6 +12,9 @@ BOOLEAN
 : 'boolean'
 ;
 
+AND
+: 'and'
+;
 BEGIN
 : 'begin'
 ;
@@ -109,7 +112,7 @@ INTEGER_LITERAL
 ;
 
 STRING_LITERAL
-:'"' ( '\\' [tnfr"\\] | ~[\r\n\\"] )* '"'
+:'"' ( ('\\' [tnfr"\\]) | ('\\' ('0'..'7')('0'..'7')('0'..'7')) |  ~[\r\n\\"] )* '"'
 ;
 
 UNTERMINATED_STRING_ERROR
