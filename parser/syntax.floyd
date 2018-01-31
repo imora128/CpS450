@@ -1,4 +1,5 @@
 ~test
 class Main is
-a2: boolean
+	xa:int
+
 end Main

@@ -29,9 +29,6 @@ public class Main
         //System.out.println("DS: " + parsedArgs.ds + " DP: " + parsedArgs.dp + " filenames: 1: " + parsedArgs.fileName.get(0) + " 2:"+  parsedArgs.fileName.get(1));
         //will worry about exception handling later
         CharStream input = CharStreams.fromFileName(parsedArgs.fileName.get(0));
-        //--------
-        //CHANGES FRMO HERE ON DOWN
-        //---------
         MyFloydLexer lexer = new MyFloydLexer(input, parsedArgs.ds, parsedArgs);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         FloydParser parser = new FloydParser(tokens);

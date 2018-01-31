@@ -7,11 +7,11 @@ Description: Contains the rules used to generate the scanner
 grammar Floyd;
 
 start 
-: CR? class_
+: CR? class_ (CR class_)* CR?
 ;
 
 class_
-: CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS CR
+: CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS
 | var_decl*
 //| method_decl*
 | END IDENTIFIER
@@ -23,6 +23,8 @@ var_decl
 
 type
 : (INT | STRING | BOOLEAN)
+| IDENTIFIER
+| type '[' (expression)* ']'
 ;
 
 expression
@@ -133,7 +135,8 @@ WS
    ;
 
 IDENTIFIER
-: ('a'..'z' | 'A'..'Z' |  '_')+ ('0'..'9' | 'a'..'z' | 'A'..'Z' |  '_')*
+//: ('a'..'z' | 'A'..'Z' |  '_')+ ('0'..'9' | 'a'..'z' | 'A'..'Z' |  '_')*
+: ('a'..'z' | 'A'..'Z' |  '_'). ('0'..'9' | 'a'..'z' | 'A'..'Z' |  '_')*
 ;
 
 INTEGER_LITERAL
