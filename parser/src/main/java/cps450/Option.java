@@ -6,6 +6,8 @@ Description: Defines the Option class. It is responsible for parsing the cmd lin
 as instance variables.
 */
 package cps450;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 Class Name: Option
@@ -15,11 +17,12 @@ Instance vars:
 */
 public class Option {
      boolean ds;
-     String fileName;
+     boolean dp;
+     List<String> fileName = new ArrayList<String>();
 
     Option() {
         ds = false;
-        fileName = "";
+        dp = false;
     }
     /*
     Function Name: getCommandLineArguments
@@ -33,9 +36,14 @@ public class Option {
         for (int i = 0; i < args.length; i++) {
             if ( args[i].equals("-ds")) {
                 ds = true;
-            } 
+            } else if (args[i].equals("-dp")) {
+                dp = true;
+            }
+            else {
+                fileName.add(args[i]);
+            }
         }
         //After it's looped through the args, the last argument will be set as the file name.
-        fileName = args[(args.length - 1)];
+        //fileName = args[(args.length - 1)];
     }
 }
