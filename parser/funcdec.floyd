@@ -1,0 +1,8 @@
+~ Test2.floyd
+class Main is 
+  start() is
+  begin
+   	x:= 5
+   	z:= 6
+  end start
+ end Main

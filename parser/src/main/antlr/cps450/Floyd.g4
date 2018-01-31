@@ -11,20 +11,34 @@ start
 ;
 
 class_
-: CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS
-| var_decl*
-//| method_decl*
-| END IDENTIFIER
+: CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS CR var_decl* method_decl* END IDENTIFIER
 ;
 
 var_decl
-: IDENTIFIER (COLON type)* (ASSIGNMENT_OPERATOR expression)* CR
+: IDENTIFIER (COLON type)? (ASSIGNMENT_OPERATOR expression)? CR
+;
+
+method_decl
+: IDENTIFIER R_PAR ((argument_decl_list)?) L_PAR (COLON type)? IS CR var_decl* BEGIN CR statement_list END IDENTIFIER CR
+;
+
+argument_decl_list
+: (argument_decl SEMICOLON)* argument_decl
+;
+
+argument_decl
+: IDENTIFIER COLON type
 ;
 
 type
 : (INT | STRING | BOOLEAN)
 | IDENTIFIER
 | type '[' (expression)* ']'
+;
+
+//stub
+statement_list
+: var_decl*
 ;
 
 expression
@@ -136,7 +150,7 @@ WS
 
 IDENTIFIER
 //: ('a'..'z' | 'A'..'Z' |  '_')+ ('0'..'9' | 'a'..'z' | 'A'..'Z' |  '_')*
-: ('a'..'z' | 'A'..'Z' |  '_'). ('0'..'9' | 'a'..'z' | 'A'..'Z' |  '_')*
+: ('a'..'z' | 'A'..'Z' |  '_') ('0'..'9' | 'a'..'z' | 'A'..'Z' |  '_')*
 ;
 
 INTEGER_LITERAL
@@ -144,9 +158,7 @@ INTEGER_LITERAL
 ;
 
 STRING_LITERAL
-//:'"' ( '\\' [tnfr"\\] | ~[\r\n\\"] )* '"'
 :'"' ( '\\' ([tnfr"\\] | ('0'.. '7')('0'.. '7')('0'.. '7'))  | ~[\r\n\\"] )* '"'
-//:'"' ( '\\' ([tnfr"\\] | ('0'..'7')('0'..'7')('0'..'7')) | ~[\r\n\\"] )* '"') | ~[\r\n\\"] )* '"'
 
 ;
 
