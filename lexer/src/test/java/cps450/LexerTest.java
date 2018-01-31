@@ -103,7 +103,8 @@ public class LexerTest {
 		assertNextToken(FloydLexer.CR);
 		assertNextToken(FloydLexer.STRING_LITERAL);
 		assertNextToken(FloydLexer.STRING_LITERAL);
-
+		assertNextToken(FloydLexer.CR);
+		assertNextToken(FloydLexer.STRING_LITERAL);
 
 
 	}
