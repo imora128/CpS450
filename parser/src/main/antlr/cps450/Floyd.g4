@@ -6,8 +6,28 @@ Description: Contains the rules used to generate the scanner
 */
 grammar Floyd;
 
-start : ;
+start 
+: CR? class_
+;
 
+class_
+: CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS CR
+| var_decl*
+//| method_decl*
+| END IDENTIFIER
+;
+
+var_decl
+: IDENTIFIER (COLON type)* (ASSIGNMENT_OPERATOR expression)* CR
+;
+
+type
+: (INT | STRING | BOOLEAN)
+;
+
+expression
+: INTEGER_LITERAL
+;
 BOOLEAN
 : 'boolean'
 ;

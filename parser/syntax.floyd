@@ -1,0 +1,4 @@
+~test
+class Main is
+a2: boolean
+end Main
