@@ -16,6 +16,14 @@ AND
 : 'and'
 ;
 
+NOT
+: 'not'
+;
+
+OR
+: 'or'
+;
+
 BEGIN
 : 'begin'
 ;

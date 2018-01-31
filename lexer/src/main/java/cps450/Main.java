@@ -166,6 +166,12 @@ public class Main
             else if (t.getType() == FloydLexer.AND && parsedArgs.ds == true) {
                 System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "keyword:and");
             }
+            else if (t.getType() == FloydLexer.NOT && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "keyword:not");
+            }
+            else if (t.getType() == FloydLexer.OR && parsedArgs.ds == true) {
+                System.out.println(parsedArgs.fileName + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "keyword:or");
+            }
             
 
         t = lexer.nextToken();
