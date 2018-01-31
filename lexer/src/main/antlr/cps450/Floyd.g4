@@ -15,6 +15,7 @@ BOOLEAN
 AND
 : 'and'
 ;
+
 BEGIN
 : 'begin'
 ;
@@ -112,7 +113,7 @@ INTEGER_LITERAL
 ;
 
 STRING_LITERAL
-:'"' ( ('\\' [tnfr"\\]) | ('\\' ('0'..'7')('0'..'7')('0'..'7')) |  ~[\r\n\\"] )* '"'
+:'"' ( '\\' [tnfr"\\] | ~[\r\n\\"] )* '"'
 ;
 
 UNTERMINATED_STRING_ERROR
