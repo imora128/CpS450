@@ -102,6 +102,7 @@ public class LexerTest {
 		assertNextToken(FloydLexer.AND);
 		assertNextToken(FloydLexer.CR);
 		assertNextToken(FloydLexer.STRING_LITERAL);
+		assertNextToken(FloydLexer.STRING_LITERAL);
 
 
 

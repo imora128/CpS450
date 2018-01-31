@@ -113,7 +113,10 @@ INTEGER_LITERAL
 ;
 
 STRING_LITERAL
-:'"' ( '\\' [tnfr"\\] | ~[\r\n\\"] )* '"'
+//:'"' ( '\\' [tnfr"\\] | ~[\r\n\\"] )* '"'
+:'"' ( '\\' ([tnfr"\\] | ('0'.. '7')('0'.. '7')('0'.. '7'))  | ~[\r\n\\"] )* '"'
+//:'"' ( '\\' ([tnfr"\\] | ('0'..'7')('0'..'7')('0'..'7')) | ~[\r\n\\"] )* '"') | ~[\r\n\\"] )* '"'
+
 ;
 
 UNTERMINATED_STRING_ERROR
@@ -121,7 +124,7 @@ UNTERMINATED_STRING_ERROR
 ;
 
 ILLEGAL_STRING_ERROR
-:'"' ('\\' ~[tnfr"\\] | ~[\r\n\\])* '"'
+:'"' ('\\' [tnfr"\\01234567] | ~[\r\n"])* '"'
 ;
 
 AMPERSAND
