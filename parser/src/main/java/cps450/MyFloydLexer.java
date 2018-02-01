@@ -1,7 +1,7 @@
 /*
 Name: Italo Moraes (IMORA128)
 Class: CpS 450
-Filename: MyFloydLexer
+Filename: MyFloydLexer.java
 Description: Overrides nextToken to print out debug output if -ds is true. Also keeps track of # 
 of lexer errors.
 */

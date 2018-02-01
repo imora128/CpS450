@@ -1,3 +1,9 @@
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: MyFloydLexerErrorListener.java
+Description: Prints out errors from the parser's side
+*/
 package cps450;
 
 import org.antlr.v4.runtime.ConsoleErrorListener;
