@@ -7,22 +7,22 @@ Description: Contains the rules used to generate the scanner
 grammar Floyd;
 
 start 
-: CR? class_ (CR class_)* CR?
+: cr? class_ (CR class_)* cr?
 ;
 
 cr 
 : CR+
 ;
 class_
-: CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS CR var_decl* method_decl* END IDENTIFIER
+: CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS cr var_decl* method_decl* END IDENTIFIER
 ;
 
 var_decl
-: IDENTIFIER (COLON type)? (ASSIGNMENT_OPERATOR expression)? CR
+: IDENTIFIER (COLON type)? (ASSIGNMENT_OPERATOR expression)? cr
 ;
 
 method_decl
-: IDENTIFIER R_PAR ((argument_decl_list)?) L_PAR (COLON type)? IS CR var_decl* BEGIN CR statement_list END IDENTIFIER CR
+: IDENTIFIER R_PAR ((argument_decl_list)?) L_PAR (COLON type)? IS cr var_decl* BEGIN cr statement_list END IDENTIFIER CR
 ;
 
 argument_decl_list
@@ -41,7 +41,7 @@ type
 
 //stub
 statement_list
-: (statement CR)*
+: (statement cr)*
 ;
 
 statement
@@ -55,11 +55,11 @@ assignment_stmt
 ;
 
 if_stmt
-: IF expression THEN CR statement_list (ELSE CR statement_list)? END IF
+: IF expression THEN cr statement_list (ELSE cr statement_list)? END IF
 ;
 
 loop_stmt
-: LOOP WHILE expression CR statement_list END LOOP
+: LOOP WHILE expression cr statement_list END LOOP
 ;
 
 call_stmt
@@ -67,28 +67,29 @@ call_stmt
 ;
 
 expression_list
-: (expression)* expression
-;
-
-expression
-: INTEGER_LITERAL
+: (expression COMMA)* expression
 ;
 
 // expression
-// : (IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME)
-// | NEW type
-// | expression binary_op expression
-// | unary_op expression
-// | R_PAR expression L_PAR
-// | (expression PERIOD)? IDENTIFIER R_PAR expression_list? L_PAR
-// | IDENTIFIER '[' expression ']' ('[' expression ']')*
+// : INTEGER_LITERAL
 // ;
-// unary_op
-// :
-// ;
-// binary_op
-// :
-// ;
+
+ expression
+: (IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME)
+| NEW type
+| expression (PERIOD | NEW | MINUS | PLUS | NOT | TIMES | DIV | AMPERSAND | EQ | GT | GE | AND | OR) expression
+| (MINUS | PLUS | NOT) expression
+| R_PAR expression L_PAR
+//| (expression PERIOD)? IDENTIFIER R_PAR (expression_list)? L_PAR
+// | IDENTIFIER R_PAR (expression_list)? L_PAR my_tail
+| IDENTIFIER '[' expression ']' ('[' expression ']')*
+;
+
+my_tail
+: (expression PERIOD) my_tail
+| 
+;
+
 BOOLEAN
 : 'boolean'
 ;
