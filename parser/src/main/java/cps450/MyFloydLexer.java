@@ -7,11 +7,13 @@ public class MyFloydLexer extends FloydLexer {
 	
 	boolean dumpTokens;
     Option parsedArgs;
+    int lexerErrors;
 
 	public MyFloydLexer(CharStream input, boolean dumpTokens, Option parsedArgs) {
 		super(input);
 		this.dumpTokens = dumpTokens;
         this.parsedArgs = parsedArgs;
+        this.lexerErrors = 0;
 	}
 
 	@Override
@@ -38,12 +40,21 @@ public class MyFloydLexer extends FloydLexer {
             }
             else if (t.getType() == FloydLexer.UNTERMINATED_STRING_ERROR) {
                 System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":Unterminated string:\"An unterminated string...");
+                //do not return illegal tokens. skip to the next
+                lexerErrors++;
+                return nextToken();
             }
             else if (t.getType() == FloydLexer.ILLEGAL_STRING_ERROR) {
                 System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":Illegal string:" + t.getText());
+                //do not return illegal tokens. skip to the next
+                lexerErrors++;
+                return nextToken();
             }
             else if (t.getType() == FloydLexer.UNKNOWN_CHAR) {
                 System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":Unrecognized char: " + t.getText());
+                //do not return illegal tokens. skip to the next
+                lexerErrors++;
+                return nextToken();
             }
             else if (t.getType() == FloydLexer.AMPERSAND ) {
                 System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":operator:'" + t.getText() + "'");
@@ -162,7 +173,26 @@ public class MyFloydLexer extends FloydLexer {
             else if (t.getType() == FloydLexer.COMMA ) {
                 System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "','");
             }
-		}
+		} else {
+            if (t.getType() == FloydLexer.UNTERMINATED_STRING_ERROR) {
+                System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":Unterminated string:\"An unterminated string...");
+                //do not return illegal tokens. skip to the next
+                lexerErrors++;
+                return nextToken();
+            }
+            else if (t.getType() == FloydLexer.ILLEGAL_STRING_ERROR) {
+                System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":Illegal string:" + t.getText());
+                //do not return illegal tokens. skip to the next
+                lexerErrors++;
+                return nextToken();
+            }
+            else if (t.getType() == FloydLexer.UNKNOWN_CHAR) {
+                System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":Unrecognized char: " + t.getText());
+                //do not return illegal tokens. skip to the next
+                lexerErrors++;
+                return nextToken();
+            }
+        }
 		return t;
 	}
 

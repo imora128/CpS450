@@ -33,13 +33,13 @@ public class Main
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         FloydParser parser = new FloydParser(tokens);
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        parser.addErrorListener(new MyFloydErrorListener());
+        parser.addErrorListener(new MyFloydErrorListener(parsedArgs));
         
         ParseTree tree = parser.start();
         if (parsedArgs.dp) {
             Trees.inspect(tree, parser);
         }
-        System.out.println(parser.getNumberOfSyntaxErrors() + " syntax error(s)");
+        System.out.println((parser.getNumberOfSyntaxErrors() + lexer.lexerErrors) + " lexical/syntactic error(s) found.");
 
     }
 
