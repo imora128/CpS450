@@ -22,7 +22,7 @@ var_decl
 ;
 
 method_decl
-: IDENTIFIER R_PAR ((argument_decl_list)?) L_PAR (COLON type)? IS cr var_decl* BEGIN cr statement_list END IDENTIFIER CR
+: IDENTIFIER R_PAR ((argument_decl_list)?) L_PAR (COLON type)? IS cr var_decl* BEGIN cr statement_list END IDENTIFIER cr
 ;
 
 argument_decl_list
@@ -36,10 +36,10 @@ argument_decl
 type
 : (INT | STRING | BOOLEAN)
 | IDENTIFIER
-| type '[' (expression)* ']'
+| type '[' (expression)? ']'
 ;
 
-//stub
+
 statement_list
 : (statement cr)*
 ;
@@ -50,6 +50,7 @@ statement
 | loop_stmt
 | call_stmt
 ;
+
 assignment_stmt
 : IDENTIFIER ('[' expression ']')* ASSIGNMENT_OPERATOR expression
 ;
@@ -70,18 +71,14 @@ expression_list
 : (expression COMMA)* expression
 ;
 
-// expression
-// : INTEGER_LITERAL
-// ;
-
  expression
 : (IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME)
 | NEW type
 | expression (PERIOD | NEW | MINUS | PLUS | NOT | TIMES | DIV | AMPERSAND | EQ | GT | GE | AND | OR) expression
 | (MINUS | PLUS | NOT) expression
 | R_PAR expression L_PAR
-//| (expression PERIOD)? IDENTIFIER R_PAR (expression_list)? L_PAR
-// | IDENTIFIER R_PAR (expression_list)? L_PAR my_tail
+| expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
+| IDENTIFIER R_PAR (expression_list)? L_PAR
 | IDENTIFIER '[' expression ']' ('[' expression ']')*
 ;
 

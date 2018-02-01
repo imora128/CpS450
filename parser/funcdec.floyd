@@ -10,3 +10,4 @@ class Main is
        
     end if
   end start
+end Main
