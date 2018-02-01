@@ -18,6 +18,7 @@ public class MyFloydErrorListener extends ConsoleErrorListener {
 							RecognitionException e)
 	{
 		System.err.println(parsedArgs.fileName.get(0) + ":" +  line + "," + charPositionInLine + ":" + msg);
+		//stack trace if dp is given as an arg
 		if (e != null && parsedArgs.dp == true)
 			e.printStackTrace();
 	}

@@ -36,6 +36,7 @@ public class Main
         parser.addErrorListener(new MyFloydErrorListener(parsedArgs));
         
         ParseTree tree = parser.start();
+        //builds tree if the user gave dp as an rgument
         if (parsedArgs.dp) {
             Trees.inspect(tree, parser);
         }

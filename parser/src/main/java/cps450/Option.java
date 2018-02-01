@@ -32,7 +32,8 @@ public class Option {
     */
     void getCommandLineArguments(String[] args) {
         //System.out.println(args.length);
-        //Will loop through the array looking for which options the users gave us and set the specific bool to true when found
+        //Will loop through the array looking for which options the users gave us and 
+        //set the specific bool to true when found
         for (int i = 0; i < args.length; i++) {
             if ((i == 0 || i == 1) && args[i].equals("-ds")) {
                 ds = true;
@@ -43,7 +44,5 @@ public class Option {
                 fileName.add(args[i]);
             }
         }
-        //After it's looped through the args, the last argument will be set as the file name.
-        //fileName = args[(args.length - 1)];
     }
 }

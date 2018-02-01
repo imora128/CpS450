@@ -1,3 +1,10 @@
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: MyFloydLexer
+Description: Overrides nextToken to print out debug output if -ds is true. Also keeps track of # 
+of lexer errors.
+*/
 package cps450;
 
 import org.antlr.v4.runtime.CharStream;
@@ -8,7 +15,6 @@ public class MyFloydLexer extends FloydLexer {
 	boolean dumpTokens;
     Option parsedArgs;
     int lexerErrors;
-
 	public MyFloydLexer(CharStream input, boolean dumpTokens, Option parsedArgs) {
 		super(input);
 		this.dumpTokens = dumpTokens;
@@ -19,6 +25,8 @@ public class MyFloydLexer extends FloydLexer {
 	@Override
 	public Token nextToken() {
 		Token t = super.nextToken();
+        //will return nextToken() if it ever hits any errors, b/c
+        //i'm not supposed to give the parser bad tokens.
 		if (dumpTokens) {
 			if (t.getType() == FloydLexer.CR ) {
                 System.out.println(parsedArgs.fileName.get(0) + ":" + t.getLine() + "," + (t.getCharPositionInLine() + 1)+ ":" + "cr");

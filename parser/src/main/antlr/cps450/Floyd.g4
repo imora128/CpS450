@@ -72,7 +72,7 @@ expression_list
 ;
 
  expression
-: (IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME)
+: IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME
 | NEW type
 | expression (PERIOD | NEW | MINUS | PLUS | NOT | TIMES | DIV | AMPERSAND | EQ | GT | GE | AND | OR) expression
 | (MINUS | PLUS | NOT) expression
