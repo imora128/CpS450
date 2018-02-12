@@ -1,6 +1,0 @@
-~test
-class Main is
-	xa:int
-	xa := -1
-	z : boolean
-end Main
