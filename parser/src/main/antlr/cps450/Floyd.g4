@@ -71,20 +71,8 @@ expression_list
 : (expression COMMA)* expression
 ;
 
-//  expression
-// : IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME //should be primary?
-// | NEW type
-// | R_PAR expression L_PAR
-// | expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
-// | IDENTIFIER R_PAR (expression_list)? L_PAR
-// | IDENTIFIER '[' expression ']' ('[' expression ']')*
-// ;
-
 expression
-: expression GE or_exp
-| expression GT or_exp
-| expression EQ or_exp
-| or_exp
+:or_exp
 ;
 
 or_exp
@@ -93,18 +81,25 @@ or_exp
 ;
 
 and_exp
-: and_exp AND add_exp
-| add_exp
+: and_exp AND relational_exp
+| relational_exp
 ;
 
-add_exp
-: add_exp PLUS concat_exp
-| add_exp MINUS concat_exp
+relational_exp
+: relational_exp GE concat_exp
+| relational_exp GT concat_exp
+| relational_exp EQ concat_exp
 | concat_exp
 ;
 
 concat_exp
-: concat_exp AMPERSAND multi_exp
+: concat_exp AMPERSAND add_exp
+| add_exp
+;
+
+add_exp
+: add_exp PLUS multi_exp
+| add_exp MINUS multi_exp
 | multi_exp
 ;
 
@@ -124,15 +119,21 @@ unary_exp
 : PLUS unary_exp
 | MINUS unary_exp
 | NOT unary_exp
-| rest
+| expr_cont
 ;
 
-rest
-: (IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME)
+expr_cont
+: IDENTIFIER 
+| STRING_LITERAL 
+| INTEGER_LITERAL 
+| TRUE 
+| FALSE 
+| NULL 
+| ME
 | R_PAR expression L_PAR
 | NEW type
 | IDENTIFIER '[' expression ']' ('[' expression ']')*
-rest PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
+expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
 | IDENTIFIER R_PAR (expression_list)? L_PAR
 ;
 
