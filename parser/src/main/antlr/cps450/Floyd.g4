@@ -72,15 +72,61 @@ expression_list
 ;
 
  expression
-: IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME
+: IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME //should be primary?
 | NEW type
-| expression (PERIOD | NEW | MINUS | PLUS | NOT | TIMES | DIV | AMPERSAND | EQ | GT | GE | AND | OR) expression
+| expression (PERIOD | NEW) expression
 | (MINUS | PLUS | NOT) expression
+| expression (TIMES | DIV) expression
+| expression (PLUS | MINUS) expression
+| expression AMPERSAND expression
+| expression (EQ | GT | GE) expression
+| expression AND expression
+| expression OR expression
 | R_PAR expression L_PAR
 | expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
 | IDENTIFIER R_PAR (expression_list)? L_PAR
 | IDENTIFIER '[' expression ']' ('[' expression ']')*
+//| comp_expr
 ;
+// expr
+// :  comp_expr
+// | expr0
+
+// ;
+// comp_expr
+// :expr (GT | GE | EQ) expr0
+// ;
+// primary
+// : IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME
+// | R_PAR expr L_PAR
+// ;
+// expr0
+// :  expr0 OR expr1
+// | expr1
+// ;
+// expr1
+// : expr1 AND expr2
+// | expr2
+// ;
+// expr2
+// : expr2 AMPERSAND expr3
+// | expr3
+// ;
+// expr3
+// : expr3 (PLUS | MINUS) expr4
+// | expr4
+// ;
+// expr4
+// : expr4 (TIMES | DIV) expr5
+// | expr5
+// ;
+// expr5
+// : (PLUS | MINUS | NOT) expr6
+// | expr6;
+// expr6
+// : expr6 (NEW | PERIOD) primary
+// | primary
+// ;
 
 my_tail
 : (expression PERIOD) my_tail
