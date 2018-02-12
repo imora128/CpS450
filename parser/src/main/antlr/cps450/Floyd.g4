@@ -71,66 +71,69 @@ expression_list
 : (expression COMMA)* expression
 ;
 
- expression
-: IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME //should be primary?
-| NEW type
-| expression (PERIOD | NEW) expression
-| (MINUS | PLUS | NOT) expression
-| expression (TIMES | DIV) expression
-| expression (PLUS | MINUS) expression
-| expression AMPERSAND expression
-| expression (EQ | GT | GE) expression
-| expression AND expression
-| expression OR expression
-| R_PAR expression L_PAR
-| expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
-| IDENTIFIER R_PAR (expression_list)? L_PAR
-| IDENTIFIER '[' expression ']' ('[' expression ']')*
-//| comp_expr
+//  expression
+// : IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME //should be primary?
+// | NEW type
+// | R_PAR expression L_PAR
+// | expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
+// | IDENTIFIER R_PAR (expression_list)? L_PAR
+// | IDENTIFIER '[' expression ']' ('[' expression ']')*
+// ;
+
+expression
+: expression GE or_exp
+| expression GT or_exp
+| expression EQ or_exp
+| or_exp
 ;
-// expr
-// :  comp_expr
-// | expr0
 
-// ;
-// comp_expr
-// :expr (GT | GE | EQ) expr0
-// ;
-// primary
-// : IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME
-// | R_PAR expr L_PAR
-// ;
-// expr0
-// :  expr0 OR expr1
-// | expr1
-// ;
-// expr1
-// : expr1 AND expr2
-// | expr2
-// ;
-// expr2
-// : expr2 AMPERSAND expr3
-// | expr3
-// ;
-// expr3
-// : expr3 (PLUS | MINUS) expr4
-// | expr4
-// ;
-// expr4
-// : expr4 (TIMES | DIV) expr5
-// | expr5
-// ;
-// expr5
-// : (PLUS | MINUS | NOT) expr6
-// | expr6;
-// expr6
-// : expr6 (NEW | PERIOD) primary
-// | primary
-// ;
+or_exp
+: or_exp OR and_exp
+| and_exp
+;
 
-my_tail
-: (expression PERIOD) my_tail
-| 
+and_exp
+: and_exp AND add_exp
+| add_exp
+;
+
+add_exp
+: add_exp PLUS concat_exp
+| add_exp MINUS concat_exp
+| concat_exp
+;
+
+concat_exp
+: concat_exp AMPERSAND multi_exp
+| multi_exp
+;
+
+multi_exp
+: multi_exp TIMES method_exp
+| multi_exp DIV method_exp
+| method_exp
+;
+
+method_exp
+: method_exp NEW unary_exp
+| method_exp PERIOD unary_exp
+| unary_exp
+;
+
+unary_exp
+: PLUS unary_exp
+| MINUS unary_exp
+| NOT unary_exp
+| rest
+;
+
+rest
+: (IDENTIFIER | STRING_LITERAL | INTEGER_LITERAL | TRUE | FALSE | NULL | ME)
+| R_PAR expression L_PAR
+| NEW type
+| IDENTIFIER '[' expression ']' ('[' expression ']')*
+rest PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
+| IDENTIFIER R_PAR (expression_list)? L_PAR
 ;
 
 BOOLEAN
