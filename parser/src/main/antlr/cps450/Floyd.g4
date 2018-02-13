@@ -105,14 +105,8 @@ add_exp
 ;
 
 multi_exp
-: multi_exp TIMES method_exp
-| multi_exp DIV method_exp
-| method_exp
-;
-
-method_exp
-: method_exp NEW unary_exp
-| method_exp PERIOD unary_exp
+: multi_exp TIMES unary_exp
+| multi_exp DIV unary_exp
 | unary_exp
 ;
 
@@ -120,6 +114,12 @@ unary_exp
 : PLUS unary_exp
 | MINUS unary_exp
 | NOT unary_exp
+| method_exp
+;
+
+method_exp
+: method_exp NEW expr_cont
+| method_exp PERIOD expr_cont
 | expr_cont
 ;
 
