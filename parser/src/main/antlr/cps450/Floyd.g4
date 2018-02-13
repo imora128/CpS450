@@ -72,7 +72,8 @@ expression_list
 ;
 
 expression
-:or_exp
+:relational_exp
+| or_exp
 ;
 
 or_exp
@@ -81,15 +82,15 @@ or_exp
 ;
 
 and_exp
-: and_exp AND relational_exp
-| relational_exp
+: and_exp AND concat_exp
+| concat_exp
 ;
 
 relational_exp
-: relational_exp GE concat_exp
-| relational_exp GT concat_exp
-| relational_exp EQ concat_exp
-| concat_exp
+: or_exp GE or_exp
+| or_exp GT or_exp
+| or_exp EQ or_exp
+| or_exp
 ;
 
 concat_exp
