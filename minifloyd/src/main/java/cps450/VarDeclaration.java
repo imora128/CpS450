@@ -2,8 +2,11 @@ package cps450;
 
 public class VarDeclaration extends Declaration {
 	Type varType;
-	
-	VarDeclaration(Type type) {
-		varType = type;
+
+	public VarDeclaration(Type varType) {
+		super();
+		this.varType = varType;
 	}
+	
+
 }
