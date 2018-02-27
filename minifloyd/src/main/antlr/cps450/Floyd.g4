@@ -21,6 +21,7 @@ var_decl
 : IDENTIFIER (COLON type)? (ASSIGNMENT_OPERATOR expression)? cr
 ;
 
+
 method_decl
 : IDENTIFIER R_PAR ((argument_decl_list)?) L_PAR (COLON type)? IS cr var_decl* BEGIN cr statement_list END IDENTIFIER cr
 ;
