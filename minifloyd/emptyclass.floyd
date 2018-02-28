@@ -1,0 +1,3 @@
+class Stuff is
+		a3: int
+end Stuff

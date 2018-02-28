@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class Main
 {
@@ -36,6 +37,11 @@ public class Main
         parser.addErrorListener(new MyFloydErrorListener(parsedArgs));
         
         ParseTree tree = parser.start();
+        SymbolTable symTable = SymbolTable.getInstance();
+        if (true) {
+        	ParseTreeWalker.DEFAULT.walk(new SemanticChecker(), tree);
+        	symTable.printSymTable();
+        }
         //builds tree if the user gave dp as an rgument
         if (parsedArgs.dp) {
             Trees.inspect(tree, parser);

@@ -11,6 +11,7 @@ public class Type {
     
     protected String name;
     ClassDeclaration decl;
+    //need to make a way for uder defined types to be made
 
 	protected Type(String name) {
 	    this.name = name;
