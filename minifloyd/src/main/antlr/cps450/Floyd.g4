@@ -108,9 +108,9 @@ add_exp returns [Type myType]
 ;
 
 multi_exp returns [Type myType]
-: e1=multi_exp TIMES e2=unary_exp
-| e1=multi_exp DIV e2=unary_exp
-| unary_exp
+: e1=multi_exp TIMES e2=unary_exp #MultiTimes_Exp
+| e1=multi_exp DIV e2=unary_exp	#MultiDIV_Exp
+| unary_exp	#MultiUnary_Exp
 ;
 
 unary_exp returns [Type myType]

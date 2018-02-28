@@ -9,6 +9,9 @@ public class MyError {
 		}
 	}
 	
+	void error(String msg) {
+		System.out.println("###########" + msg);
+	}
 	MyError(Boolean bool) {
 		debugMode = bool;
 	}

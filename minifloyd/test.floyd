@@ -1,12 +1,15 @@
 class test1 is
 	x: boolean                   ~ DEFINE x: int
 	y: boolean
+	z: int
+	l: int
 
 	  start() is
   begin
-  	x := not true
+  	~x := not true
   		~y := x
-
+  		z := 5
+  		z := -z
 
   end start
 end test1
