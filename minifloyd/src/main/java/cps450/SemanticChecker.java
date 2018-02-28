@@ -12,6 +12,9 @@ import cps450.FloydParser.ExprCont_FalseContext;
 import cps450.FloydParser.ExprCont_IDContext;
 import cps450.FloydParser.ExpressionContext;
 import cps450.FloydParser.Method_expContext;
+import cps450.FloydParser.MultiDIV_ExpContext;
+import cps450.FloydParser.MultiTimes_ExpContext;
+import cps450.FloydParser.MultiUnary_ExpContext;
 import cps450.FloydParser.Or_expContext;
 import cps450.FloydParser.Relational_expContext;
 import cps450.FloydParser.TypeBoolContext;
@@ -59,6 +62,45 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 	
 	
+	
+	@Override
+	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
+		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
+		}
+		else {
+			print.error("exitMultiTimes_Exp: Did not get 2 ints");
+		}
+		super.exitMultiTimes_Exp(ctx);
+	}
+
+
+	@Override
+	public void exitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
+		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			print.DEBUG("exitMultiDIV_Exp: 2 ints, we're ok");
+		}
+		else {
+			print.error("exitMultiDIV_Exp: Did not get 2 ints");
+		}
+		
+		super.exitMultiDIV_Exp(ctx);
+	}
+
+
+	@Override
+	public void exitMultiUnary_Exp(MultiUnary_ExpContext ctx) {
+		if (ctx.unary_exp().myType != null) {
+			ctx.myType = ctx.unary_exp().myType;
+		}
+		else
+		{
+			print.error("exitMultiUnary_Exp shows method_exp is null");
+		}
+		super.exitMultiUnary_Exp(ctx);
+	}
+
+
 	@Override
 	public void exitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
 		if (ctx.unary_exp().myType == Type.INT) {

@@ -7,9 +7,10 @@ class test1 is
 	  start() is
   begin
   	~x := not true
-  		~y := x
+  		y := true
   		z := 5
-  		z := -z
+  		l := 2
+  		z := y / z
 
   end start
 end test1
