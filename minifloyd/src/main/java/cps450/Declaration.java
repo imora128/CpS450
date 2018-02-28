@@ -9,7 +9,7 @@ as instance variables.
 package cps450;
 
 public class Declaration {
-	Type type;
+	protected Type type;
 	Declaration () {
 		
 	}

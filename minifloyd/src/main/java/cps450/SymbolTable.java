@@ -6,6 +6,7 @@ Description: A class to manage the symbol table
 */
 package cps450;
 import java.util.List;
+
 import java.util.ArrayList;
 public class SymbolTable {
     private static SymbolTable instance = null;
@@ -83,7 +84,8 @@ public class SymbolTable {
     	 System.out.print("size: " + symTable.symbolTable.size() + ": ");
       	 for (int i = symTable.symbolTable.size() - 1; i != -1; i-- ) {
    		 System.out.println("index: " + i + " name :" + symTable.symbolTable.get(i).getName() + 
-   				 " scope: " + symTable.symbolTable.get(i).getScope());
+   				 " scope: " + symTable.symbolTable.get(i).getScope() + "Type: " 
+   				 + symTable.symbolTable.get(i).getDecl().type);
    	 }
     }
 }

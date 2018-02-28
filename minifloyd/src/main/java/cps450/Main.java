@@ -23,6 +23,7 @@ public class Main
             System.out.println("minifloyd [-ds] [-dp] <filename>");
             System.exit(1);
         }
+        
         //Creating an Option argument. Defined in opition.java.
         Option parsedArgs = new Option();
         //Parses the cmdline arguments so I can use it down bellow

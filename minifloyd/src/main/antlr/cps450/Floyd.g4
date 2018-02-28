@@ -34,10 +34,12 @@ argument_decl
 : IDENTIFIER COLON type
 ;
 
-type
-: (INT | STRING | BOOLEAN)
-| IDENTIFIER
-| type '[' (expression)? ']'
+type returns [Type myType]
+: INT	#TypeInt
+| STRING	#TypeString
+| BOOLEAN	#TypeBool
+| IDENTIFIER #TypeID
+| type '[' (expression)? ']' #TypeExpr
 ;
 
 
