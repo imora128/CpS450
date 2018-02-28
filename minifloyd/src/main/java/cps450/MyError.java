@@ -5,7 +5,7 @@ public class MyError {
 			
 	void DEBUG(String msg) {
 		if (debugMode) {
-		System.out.print(msg);
+		System.out.println(msg);
 		}
 	}
 	

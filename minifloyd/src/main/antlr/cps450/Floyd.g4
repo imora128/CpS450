@@ -114,16 +114,16 @@ multi_exp returns [Type myType]
 ;
 
 unary_exp returns [Type myType]
-: PLUS unary_exp
-| MINUS unary_exp
-| NOT unary_exp
-| method_exp
+: PLUS unary_exp	#UnaryPlus_Exp
+| MINUS unary_exp	#UnaryMinus_Exp
+| NOT unary_exp		#UnaryNot_Exp
+| method_exp		#UnaryMethod_Exp
 ;
 
 method_exp returns [Type myType]
-: e1=method_exp NEW e2=expr_cont
-| e1=method_exp PERIOD e2=expr_cont
-| expr_cont
+: e1=method_exp NEW e2=expr_cont	#MethodNew_Exp
+| e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
+| expr_cont							#MethodExpr_Cont
 ;
 
 expr_cont returns [Type myType]

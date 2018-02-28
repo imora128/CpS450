@@ -1,0 +1,12 @@
+class test1 is
+	x: boolean                   ~ DEFINE x: int
+	y: boolean
+
+	  start() is
+  begin
+  	x := not true
+  		~y := x
+
+
+  end start
+end test1

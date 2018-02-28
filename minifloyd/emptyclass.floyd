@@ -3,13 +3,18 @@ class test1 is
   x: int                   ~ DEFINE x: int 
   y: boolean               ~ DEFINE y: boolean
   z: int
+  s: string
 
   start() is
   begin
+  	s := "Hi there"				~ Reference: s: string
     x := 3                     ~ REFERENCE x: int 
-   ~ z := x - 1                 ~ REFERENCE z: int ; REFERENCE x: int
+    z := x - 1                 ~ REFERENCE z: int ; REFERENCE x: int
 
-    ~y := true                  ~ REFERENCE y: boolean
+    y := true                  ~ REFERENCE y: boolean
+    y := false					~reference: y: boolean
+    s:= "hi" & "Hello"
+    z := 5 + 5
   end start
   
 end test1
