@@ -1,18 +1,11 @@
 class test1 is
-	x: boolean                   ~ DEFINE x: int
-	y: boolean
-	z: int
-	l: int
+	x: string
 
 	  start() is
   begin
-  	~x := not true
-  		~y := true
-  		~z := 5
-  		~l := 2
-  		z := 5 - true
-  		z := true - 5
-  		z := 5 - 9
+  	x := "Hi" & "There"
+  	x := "Hi" & 5
+  	x := 5 & "There"
 
   end start
 end test1

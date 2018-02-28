@@ -10,6 +10,8 @@ import cps450.FloydParser.AddPlus_ExpContext;
 import cps450.FloydParser.Add_expContext;
 import cps450.FloydParser.And_expContext;
 import cps450.FloydParser.Assignment_stmtContext;
+import cps450.FloydParser.ConcatAdd_ExpContext;
+import cps450.FloydParser.ConcatX_ExpContext;
 import cps450.FloydParser.Concat_expContext;
 import cps450.FloydParser.ExprCont_FalseContext;
 import cps450.FloydParser.ExprCont_IDContext;
@@ -63,7 +65,31 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		super.exitExpression(ctx);
 	}
+
+
+
+	@Override
+	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
+		if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING) {
+			print.DEBUG("exitConcat_Exp: 2 strings, we're ok");
+		}
+		else {
+			print.error("exitConcat_Exp: Did not get 2 strings");
+		}
+		super.exitConcatX_Exp(ctx);
+	}
 	
+	@Override
+	public void exitConcatAdd_Exp(ConcatAdd_ExpContext ctx) {
+		if (ctx.add_exp().myType != null) {
+			ctx.myType = ctx.add_exp().myType;
+		}
+		else
+		{
+			print.error("exitConcatAdd_Exp: shows method_exp is null");
+		}
+		super.exitConcatAdd_Exp(ctx);
+	}
 
 
 	@Override
@@ -72,7 +98,7 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("AddPlus_Exp: 2 ints, we're ok");
 		}
 		else {
-			print.error("AddPlus_Exp: Did not get 2 ints");
+			print.error("exitAddMinus_Exp: Did not get 2 ints");
 		}
 		super.exitAddPlus_Exp(ctx);
 	}

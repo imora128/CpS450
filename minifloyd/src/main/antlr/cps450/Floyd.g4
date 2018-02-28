@@ -97,8 +97,8 @@ relational_exp returns [Type myType]
 ;
 
 concat_exp returns [Type myType]
-: e1=concat_exp AMPERSAND e2=add_exp
-| add_exp
+: e1=concat_exp AMPERSAND e2=add_exp	#ConcatX_Exp
+| add_exp	#ConcatAdd_Exp
 ;
 
 add_exp returns [Type myType]
