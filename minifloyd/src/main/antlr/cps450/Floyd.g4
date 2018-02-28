@@ -80,20 +80,20 @@ expression returns [Type myType]
 ;
 
 or_exp returns [Type myType]
-: e1=or_exp OR e2=and_exp
-| and_exp
+: e1=or_exp OR e2=and_exp #OrX_Exp
+| and_exp	#OrAnd_Exp
 ;
 
 and_exp returns [Type myType]
-: e1=and_exp AND e2=concat_exp
-| concat_exp
+: e1=and_exp AND e2=concat_exp #AndX_Exp
+| concat_exp #AndConcat_Exp
 ;
 
 relational_exp returns [Type myType]
-: e1=or_exp GE e2=or_exp
-| e1=or_exp GT e2=or_exp
-| e1=or_exp EQ e2=or_exp
-| or_exp
+: e1=or_exp GE e2=or_exp	#RelationalGE_Exp
+| e1=or_exp GT e2=or_exp	#RelationalGT_Exp
+| e1=or_exp EQ e2=or_exp	#RelationalEQ_Exp
+| or_exp	#RelationalOr_Exp
 ;
 
 concat_exp returns [Type myType]

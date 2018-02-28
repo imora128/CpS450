@@ -8,6 +8,8 @@ import cps450.FloydParser.AddMinus_ExpContext;
 import cps450.FloydParser.AddMulti_ExpContext;
 import cps450.FloydParser.AddPlus_ExpContext;
 import cps450.FloydParser.Add_expContext;
+import cps450.FloydParser.AndConcat_ExpContext;
+import cps450.FloydParser.AndX_ExpContext;
 import cps450.FloydParser.And_expContext;
 import cps450.FloydParser.Assignment_stmtContext;
 import cps450.FloydParser.ConcatAdd_ExpContext;
@@ -20,7 +22,13 @@ import cps450.FloydParser.Method_expContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
 import cps450.FloydParser.MultiUnary_ExpContext;
+import cps450.FloydParser.OrAnd_ExpContext;
+import cps450.FloydParser.OrX_ExpContext;
 import cps450.FloydParser.Or_expContext;
+import cps450.FloydParser.RelationalEQ_ExpContext;
+import cps450.FloydParser.RelationalGE_ExpContext;
+import cps450.FloydParser.RelationalGT_ExpContext;
+import cps450.FloydParser.RelationalOr_ExpContext;
 import cps450.FloydParser.Relational_expContext;
 import cps450.FloydParser.TypeBoolContext;
 import cps450.FloydParser.TypeContext;
@@ -67,6 +75,116 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 
 
+	
+	
+	@Override
+	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
+		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			print.DEBUG("exitRelationalGE_Exp: 2 INTs, we're ok");
+		}
+		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
+			print.DEBUG("exitRelationalGE_Exp: 2 Strings, we're ok");
+		}
+		else {
+			print.error("exitRelationalGE_Exp: Did not get 2 ints or 2 strings");
+		}
+		super.exitRelationalGE_Exp(ctx);
+	}
+
+
+	@Override
+	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
+		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			print.DEBUG("exitRelationalGT_Exp: 2 INTs, we're ok");
+		}
+		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
+			print.DEBUG("exitRelationalGT_Exp: 2 Strings, we're ok");
+		}
+		else {
+			print.error("exitRelationalGT_Exp: Did not get 2 ints or 2 strings");
+		}
+		super.exitRelationalGT_Exp(ctx);
+	}
+
+
+	@Override
+	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
+		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			print.DEBUG("exitRelationalEQ_Exp: 2 INTs, we're ok");
+		}
+		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
+			print.DEBUG("exitRelationalEQ_Exp: 2 Strings, we're ok");
+		}
+		else if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN ) {
+			print.DEBUG("exitRelationalEQ_Exp: 2 Booleans, we're ok");
+		}
+		else {
+			print.error("exitRelationalEQ_Exp: Did not get 2 ints,2 strings, or 2 booleans");
+		}
+		super.exitRelationalEQ_Exp(ctx);
+	}
+	
+	@Override
+	public void exitRelationalOr_Exp(RelationalOr_ExpContext ctx) {
+		if (ctx.or_exp().myType != null) {
+			ctx.myType = ctx.or_exp().myType;
+		}
+		else
+		{
+			print.error("exitRelationalOr_Exp: shows previous func is null");
+		}
+		super.exitRelationalOr_Exp(ctx);
+	}
+
+
+
+	@Override
+	public void exitOrX_Exp(OrX_ExpContext ctx) {
+		if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN) {
+			print.DEBUG("exitOrX_Exp: 2 BOOLEANS, we're ok");
+		}
+		else {
+			print.error("exitOrX_Exp: Did not get 2 BOOLEANS");
+		}
+		super.exitOrX_Exp(ctx);
+	}
+	
+	@Override
+	public void exitOrAnd_Exp(OrAnd_ExpContext ctx) {
+		if (ctx.and_exp().myType != null) {
+			ctx.myType = ctx.and_exp().myType;
+		}
+		else
+		{
+			print.error("exitOrAnd_Exp: shows previous func is null");
+		}
+		super.exitOrAnd_Exp(ctx);
+	}
+
+
+	@Override
+	public void exitAndX_Exp(AndX_ExpContext ctx) {
+		if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN) {
+			print.DEBUG("exitAndX_Exp: 2 BOOLEANS, we're ok");
+		}
+		else {
+			print.error("exitAndX_Exp: Did not get 2 BOOLEANS");
+		}
+		super.exitAndX_Exp(ctx);
+	}
+	
+	@Override
+	public void exitAndConcat_Exp(AndConcat_ExpContext ctx) {
+		if (ctx.concat_exp().myType != null) {
+			ctx.myType = ctx.concat_exp().myType;
+		}
+		else
+		{
+			print.error("exitAndConcat_Exp: shows previous func is null");
+		}
+		super.exitAndConcat_Exp(ctx);
+	}
+
 
 	@Override
 	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
@@ -86,7 +204,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitConcatAdd_Exp: shows method_exp is null");
+			print.error("exitConcatAdd_Exp: shows previous func is null");
 		}
 		super.exitConcatAdd_Exp(ctx);
 	}
@@ -122,7 +240,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitAddMulti_Exp: shows method_exp is null");
+			print.error("exitAddMulti_Exp: shows previous func is null");
 		}
 		super.exitAddMulti_Exp(ctx);
 	}
@@ -159,7 +277,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitMultiUnary_Exp shows method_exp is null");
+			print.error("exitMultiUnary_Exp shows previous func is null");
 		}
 		super.exitMultiUnary_Exp(ctx);
 	}
@@ -210,7 +328,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitUnaryMethod shows method_exp is null");
+			print.error("exitUnaryMethod shows previous func is null");
 		}
 		super.exitUnaryMethod_Exp(ctx);
 	}
