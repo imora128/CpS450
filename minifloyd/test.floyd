@@ -7,10 +7,12 @@ class test1 is
 	  start() is
   begin
   	~x := not true
-  		y := true
-  		z := 5
-  		l := 2
-  		z := y / z
+  		~y := true
+  		~z := 5
+  		~l := 2
+  		z := 5 - true
+  		z := true - 5
+  		z := 5 - 9
 
   end start
 end test1

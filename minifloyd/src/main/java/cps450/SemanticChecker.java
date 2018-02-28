@@ -4,6 +4,9 @@ import java.util.Scanner;
 
 import org.antlr.v4.runtime.Token;
 
+import cps450.FloydParser.AddMinus_ExpContext;
+import cps450.FloydParser.AddMulti_ExpContext;
+import cps450.FloydParser.AddPlus_ExpContext;
 import cps450.FloydParser.Add_expContext;
 import cps450.FloydParser.And_expContext;
 import cps450.FloydParser.Assignment_stmtContext;
@@ -61,8 +64,43 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitExpression(ctx);
 	}
 	
-	
-	
+
+
+	@Override
+	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
+		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			print.DEBUG("AddPlus_Exp: 2 ints, we're ok");
+		}
+		else {
+			print.error("AddPlus_Exp: Did not get 2 ints");
+		}
+		super.exitAddPlus_Exp(ctx);
+	}
+
+
+	@Override
+	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
+		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
+		}
+		else {
+			print.error("exitAddMinus_Exp: Did not get 2 ints");
+		}
+		super.exitAddMinus_Exp(ctx);
+	}
+
+	@Override
+	public void exitAddMulti_Exp(AddMulti_ExpContext ctx) {
+		if (ctx.multi_exp().myType != null) {
+			ctx.myType = ctx.multi_exp().myType;
+		}
+		else
+		{
+			print.error("exitAddMulti_Exp: shows method_exp is null");
+		}
+		super.exitAddMulti_Exp(ctx);
+	}
+
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {

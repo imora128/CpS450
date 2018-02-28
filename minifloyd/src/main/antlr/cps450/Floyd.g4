@@ -102,9 +102,9 @@ concat_exp returns [Type myType]
 ;
 
 add_exp returns [Type myType]
-: e1=add_exp PLUS e2=multi_exp
-| e1=add_exp MINUS e2=multi_exp
-| multi_exp
+: e1=add_exp PLUS e2=multi_exp	#AddPlus_Exp
+| e1=add_exp MINUS e2=multi_exp #AddMinus_Exp
+| multi_exp	#AddMulti_Exp
 ;
 
 multi_exp returns [Type myType]
