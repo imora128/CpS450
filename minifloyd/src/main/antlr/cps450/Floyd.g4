@@ -74,71 +74,71 @@ expression_list
 : (expression COMMA)* expression
 ;
 
-expression
+expression returns [Type myType]
 :relational_exp
 | or_exp
 ;
 
-or_exp
-: or_exp OR and_exp
+or_exp returns [Type myType]
+: e1=or_exp OR e2=and_exp
 | and_exp
 ;
 
-and_exp
-: and_exp AND concat_exp
+and_exp returns [Type myType]
+: e1=and_exp AND e2=concat_exp
 | concat_exp
 ;
 
-relational_exp
-: or_exp GE or_exp
-| or_exp GT or_exp
-| or_exp EQ or_exp
+relational_exp returns [Type myType]
+: e1=or_exp GE e2=or_exp
+| e1=or_exp GT e2=or_exp
+| e1=or_exp EQ e2=or_exp
 | or_exp
 ;
 
-concat_exp
-: concat_exp AMPERSAND add_exp
+concat_exp returns [Type myType]
+: e1=concat_exp AMPERSAND e2=add_exp
 | add_exp
 ;
 
-add_exp
-: add_exp PLUS multi_exp
-| add_exp MINUS multi_exp
+add_exp returns [Type myType]
+: e1=add_exp PLUS e2=multi_exp
+| e1=add_exp MINUS e2=multi_exp
 | multi_exp
 ;
 
-multi_exp
-: multi_exp TIMES unary_exp
-| multi_exp DIV unary_exp
+multi_exp returns [Type myType]
+: e1=multi_exp TIMES e2=unary_exp
+| e1=multi_exp DIV e2=unary_exp
 | unary_exp
 ;
 
-unary_exp
+unary_exp returns [Type myType]
 : PLUS unary_exp
 | MINUS unary_exp
 | NOT unary_exp
 | method_exp
 ;
 
-method_exp
-: method_exp NEW expr_cont
-| method_exp PERIOD expr_cont
+method_exp returns [Type myType]
+: e1=method_exp NEW e2=expr_cont
+| e1=method_exp PERIOD e2=expr_cont
 | expr_cont
 ;
 
-expr_cont
-: IDENTIFIER 
-| STRING_LITERAL 
-| INTEGER_LITERAL 
-| TRUE 
-| FALSE 
-| NULL 
-| ME
-| R_PAR expression L_PAR
-| NEW type
+expr_cont returns [Type myType]
+: IDENTIFIER	#ExprCont_ID
+| STRING_LITERAL	#ExprCont_Strlit
+| INTEGER_LITERAL 	#ExprCont_Intlit
+| TRUE	#ExprCont_True
+| FALSE	#ExprCont_False	
+| NULL #ExprCont_Null
+| ME	#ExprCont_ME
+| R_PAR expression L_PAR	#ExprCont_ParExp
+| NEW type	#ExprCont_New
 | IDENTIFIER '[' expression ']' ('[' expression ']')*
-expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR
-| IDENTIFIER R_PAR (expression_list)? L_PAR
+expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR #ExprCont_Array
+| IDENTIFIER R_PAR (expression_list)? L_PAR #ExprCont_IDExpr
 ;
 
 BOOLEAN

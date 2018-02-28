@@ -11,12 +11,14 @@ import cps450.FloydParser.TypeContext;
 import cps450.FloydParser.Var_declContext;
 import cps450.FloydParser.TypeIntContext;
 import cps450.FloydParser.TypeStringContext;
+import cps450.FloydParser.ExprCont_StrlitContext;
+import cps450.FloydParser.ExprCont_IntlitContext;
 
 
 public class SemanticChecker extends FloydBaseListener {
 	//todo send up tree types n stuff
 	SymbolTable symTable = SymbolTable.getInstance();
-	MyError print = new MyError();
+	MyError print = new MyError(true);
 	
 	//TODO(:= Expr version of var_decl & Errors)
 	@Override
@@ -39,18 +41,32 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 	
 	
+	//TODO(ExprCont_ID)
+	@Override
+	public void exitExprCont_Strlit(ExprCont_StrlitContext ctx) {
+		print.DEBUG("HIsadfasdfsadf\n");
+		super.enterExprCont_Strlit(ctx);
+	}
 	
+	@Override
+	public void exitExprCont_Intlit(ExprCont_IntlitContext ctx) {
+		print.DEBUG("intlit boys");
+		super.enterExprCont_Intlit(ctx);
+	}
+	
+	
+	//TODO(typeID)
 	@Override
 	public void exitTypeInt(TypeIntContext ctx) {
 		ctx.myType = Type.INT;
 	}
 	@Override
-	public void enterTypeString(TypeStringContext ctx) {
+	public void exitTypeString(TypeStringContext ctx) {
 		ctx.myType = Type.STRING;
 		super.enterTypeString(ctx);
 	}
 	@Override
-	public void enterTypeBool(TypeBoolContext ctx) {
+	public void exitTypeBool(TypeBoolContext ctx) {
 		ctx.myType = Type.BOOLEAN;
 		super.enterTypeBool(ctx);
 	}
