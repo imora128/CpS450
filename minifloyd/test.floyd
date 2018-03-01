@@ -1,13 +1,10 @@
 class test1 is
 	x: int
 	y: boolean
-	z: int
+	z: string
 
 	  start() is
   begin
-  	x := 5
-    loop while 5 = 5
-      x := x + 1
-    end loop
+	z := "Hi" & "try"
   end start
 end test1

@@ -200,16 +200,16 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			print.DEBUG("exitRelationalEQ_Exp: 2 INTs, we're ok");
+			//print.DEBUG("exitRelationalEQ_Exp: 2 INTs, we're ok");
 			ctx.myType = Type.BOOLEAN;
 		}
 		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
-			print.DEBUG("exitRelationalEQ_Exp: 2 Strings, we're ok");
+			//print.DEBUG("exitRelationalEQ_Exp: 2 Strings, we're ok");
 			ctx.myType = Type.BOOLEAN;
 		}
 		else if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN ) {
 			ctx.myType = Type.BOOLEAN;
-			print.DEBUG("exitRelationalEQ_Exp: 2 Booleans, we're ok");
+			//print.DEBUG("exitRelationalEQ_Exp: 2 Booleans, we're ok");
 		}
 		else {
 			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
@@ -497,7 +497,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMethodNew_Exp(MethodNew_ExpContext ctx) {
 		ctx.myType = Type.ERROR;
-		String msg = "Feature unsupported";
+		String msg = "Feature unsupported: new";
 		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 				ctx.start.getCharPositionInLine() + ":" + msg);
 		super.exitMethodNew_Exp(ctx);
@@ -514,6 +514,9 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprCont_Strlit(ExprCont_StrlitContext ctx) {
 		//print.DEBUG("ExprCont_Strlit passing the type");
+		String msg = "Feature unsuported: string literal";
+		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+				ctx.start.getCharPositionInLine() + ":" + msg);
 		ctx.myType = Type.STRING;
 		super.enterExprCont_Strlit(ctx);
 	}
@@ -552,7 +555,10 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = sym.getDecl().type;
 		}
 		else {
-			throw new RuntimeException("Use of undeclared variable" + ctx.IDENTIFIER().getText());
+			String msg = "Use of undeclared variable " + ctx.IDENTIFIER().getText();
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		
 		super.exitExprCont_ID(ctx);
@@ -566,6 +572,9 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitTypeString(TypeStringContext ctx) {
 		ctx.myType = Type.STRING;
+		String msg = "Feature unsuported: string variable definition";
+		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+				ctx.start.getCharPositionInLine() + ":" + msg);
 		super.enterTypeString(ctx);
 	}
 	@Override
@@ -575,18 +584,18 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 
 //	//TODO(Fix error msg)
-//	@Override
-//	public void exitTypeID(TypeIDContext ctx) {
-//		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
-//		if (sym != null) {
-//			print.DEBUG("FOUND THE SYMBOL");
-//			ctx.myType = sym.getDecl().type;
-//		}
-//		else {
-//			throw new RuntimeException("Use of undeclared variable" + ctx.IDENTIFIER().getText());
-//		}
-//		super.exitTypeID(ctx);
-//	}
+	@Override
+	public void exitTypeID(TypeIDContext ctx) {
+		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
+		if (sym != null) {
+			print.DEBUG("FOUND THE SYMBOL");
+			ctx.myType = sym.getDecl().type;
+		}
+		else {
+			ctx.myType = Type.ERROR;
+		}
+		super.exitTypeID(ctx);
+	}
 	
 	
 	
