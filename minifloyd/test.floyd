@@ -5,7 +5,7 @@ class test1 is
 
 	  start() is
   begin
-	x := 5 * true * false
+	x := not true or not 5 or not false
 
   end start
 end test1

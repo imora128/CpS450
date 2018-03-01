@@ -184,6 +184,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
 			if (ctx.e1.myType == ctx.e2.myType) {
 				print.DEBUG("got 2" + ctx.e1.myType);
@@ -208,6 +212,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
 			if (ctx.e1.myType == ctx.e2.myType) {
 				print.DEBUG("got 2" + ctx.e1.myType);
@@ -233,6 +241,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING  || ctx.e1.myType == Type.BOOLEAN) {
 			if (ctx.e1.myType == ctx.e2.myType) {
 				print.DEBUG("got 2" + ctx.e1.myType);
@@ -270,6 +282,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitOrX_Exp(OrX_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.BOOLEAN) {
 			if (ctx.e2.myType == Type.BOOLEAN) {
 				ctx.myType = Type.BOOLEAN;
@@ -306,6 +322,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAndX_Exp(AndX_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		
 		if (ctx.e1.myType == Type.BOOLEAN) {
 			if (ctx.e2.myType == Type.BOOLEAN) {
 				ctx.myType = Type.BOOLEAN;
@@ -342,7 +363,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
-		
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.STRING) {
 			if (ctx.e2.myType == Type.STRING) {
 				ctx.myType = Type.STRING;
@@ -403,6 +427,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.INT) {
 			if (ctx.e2.myType == Type.INT) {
 				ctx.myType = Type.INT;
@@ -462,6 +490,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.INT ) {
 			if (ctx.e1.myType == ctx.e2.myType) {
 				print.DEBUG("got 2" + ctx.e1.myType);
@@ -500,6 +532,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
+		if (ctx.unary_exp().myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.unary_exp().myType == Type.INT) {
 			ctx.myType = Type.INT;
 			print.DEBUG("enterUnaryPlus_Exp: It's an int, we're ok.");
@@ -516,6 +552,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
+		if (ctx.unary_exp().myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.unary_exp().myType == Type.INT) {
 			ctx.myType = Type.INT;
 			print.DEBUG("enterUnaryMinus_Exp: It's an int, we're ok.");
@@ -532,6 +572,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryNot_Exp(UnaryNot_ExpContext ctx) {
+		if (ctx.unary_exp().myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.unary_exp().myType == Type.BOOLEAN) {
 			ctx.myType = Type.BOOLEAN;
 			print.DEBUG("exitUnaryNot: It's a boolean, we're ok.");
