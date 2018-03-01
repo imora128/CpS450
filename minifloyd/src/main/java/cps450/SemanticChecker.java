@@ -76,9 +76,22 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitAssignment_stmt(Assignment_stmtContext ctx) {
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
+		
 		if (sym != null) {
-			print.DEBUG("LHS is: " + sym.getDecl().type);
-			//print.DEBUG("RHS IS: " + ctx.);
+//			print.DEBUG("LHS is: " + sym.getDecl().type);
+//			print.DEBUG("RHS: " + ctx.expression(0).myType);
+			for (int i = 0; i < ctx.expression().size(); i++) {
+				if (sym.getDecl().type == ctx.expression(i).myType) {
+					print.DEBUG("LHS:" + sym.getName() + "(" + sym.getDecl().type + ")" +  
+							"matches the RHS: " + ctx.expression(i).getText()+ "(" + ctx.expression(i).myType + ")");
+				}
+				else {
+					String msg = "Type  mismatch in assignment statement: expected " + sym.getDecl().type + 
+							" on RHS, got "  +  ctx.expression(i).myType;
+					print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+							ctx.start.getCharPositionInLine() + ":" + msg);
+				}
+			}
 		}
 		
 		super.exitAssignment_stmt(ctx);

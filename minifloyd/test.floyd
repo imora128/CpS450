@@ -5,6 +5,6 @@ class test1 is
 
 	  start() is
   begin
-	x := "hi"
+	z := 5
   end start
 end test1
