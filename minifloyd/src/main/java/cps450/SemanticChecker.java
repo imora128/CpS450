@@ -42,6 +42,8 @@ import cps450.FloydParser.ExprCont_StrlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.ExprOr_ExprContext;
 import cps450.FloydParser.ExprRelational_ExprContext;
+import cps450.FloydParser.If_stmtContext;
+import cps450.FloydParser.Loop_stmtContext;
 import cps450.FloydParser.MethodDot_ExpContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
@@ -72,7 +74,6 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 	
 	
-	//TODO(Assignment statement, which requires expression & errors)
 	@Override
 	public void exitAssignment_stmt(Assignment_stmtContext ctx) {
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
@@ -82,8 +83,8 @@ public class SemanticChecker extends FloydBaseListener {
 //			print.DEBUG("RHS: " + ctx.expression(0).myType);
 			for (int i = 0; i < ctx.expression().size(); i++) {
 				if (sym.getDecl().type == ctx.expression(i).myType) {
-					print.DEBUG("LHS:" + sym.getName() + "(" + sym.getDecl().type + ")" +  
-							"matches the RHS: " + ctx.expression(i).getText()+ "(" + ctx.expression(i).myType + ")");
+//					print.DEBUG("LHS:" + sym.getName() + "(" + sym.getDecl().type + ")" +  
+//							"matches the RHS: " + ctx.expression(i).getText()+ "(" + ctx.expression(i).myType + ")");
 				}
 				else {
 					String msg = "Type  mismatch in assignment statement: expected " + sym.getDecl().type + 
@@ -96,11 +97,40 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		super.exitAssignment_stmt(ctx);
 	}
+	
+
+	@Override
+	public void exitIf_stmt(If_stmtContext ctx) {
+		Type exprType = ctx.expression().myType;
+		if (exprType == Type.BOOLEAN) {
+			print.DEBUG("Sucess. Expression is bool");
+		}
+		else {
+			String msg = "Type  mismatch in if statement: expected boolean but got " + exprType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+		}
 		
+		super.exitIf_stmt(ctx);
+	}
 	
 	
-	
-	
+
+	@Override
+	public void exitLoop_stmt(Loop_stmtContext ctx) {
+		Type exprType = ctx.expression().myType;
+		if (exprType == Type.BOOLEAN) {
+			print.DEBUG("Sucess. Expression is bool");
+		}
+		else {
+			String msg = "Type  mismatch in while statement: expected boolean but got " + exprType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+		}
+		
+		super.exitLoop_stmt(ctx);
+	}
+
 	@Override
 	public void exitExprRelational_Expr(ExprRelational_ExprContext ctx) {
 		if (ctx.relational_exp().myType != null) {
@@ -128,19 +158,19 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			print.DEBUG("exitRelationalGE_Exp: 2 INTs, we're ok");
-			ctx.myType = Type.INT;
+			//print.DEBUG("exitRelationalGE_Exp: 2 INTs, we're ok");
+			ctx.myType = Type.BOOLEAN;
 		}
 		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
 			print.DEBUG("exitRelationalGE_Exp: 2 Strings, we're ok");
-			ctx.myType = Type.STRING;
+			ctx.myType = Type.BOOLEAN;
 		}
 		else {
 			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
 			String msg = "Incorrect type for &:" + "requires booleans, got x";
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
-			ctx.myType = Type.ERROR;
+			ctx.myType = Type.BOOLEAN;
 		}
 		super.exitRelationalGE_Exp(ctx);
 	}
@@ -150,18 +180,18 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			print.DEBUG("exitRelationalGT_Exp: 2 INTs, we're ok");
-			ctx.myType = Type.INT;
+			ctx.myType = Type.BOOLEAN;
 		}
 		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
 			print.DEBUG("exitRelationalGT_Exp: 2 Strings, we're ok");
-			ctx.myType = Type.STRING;
+			ctx.myType = Type.BOOLEAN;
 		}
 		else {
 			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
 			String msg = "Incorrect type for &:" + "requires booleans, got x";
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
-			ctx.myType = Type.ERROR;
+			ctx.myType = Type.BOOLEAN;
 		}
 		super.exitRelationalGT_Exp(ctx);
 	}
@@ -171,11 +201,11 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			print.DEBUG("exitRelationalEQ_Exp: 2 INTs, we're ok");
-			ctx.myType = Type.INT;
+			ctx.myType = Type.BOOLEAN;
 		}
 		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
 			print.DEBUG("exitRelationalEQ_Exp: 2 Strings, we're ok");
-			ctx.myType = Type.STRING;
+			ctx.myType = Type.BOOLEAN;
 		}
 		else if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN ) {
 			ctx.myType = Type.BOOLEAN;
@@ -296,7 +326,7 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			ctx.myType = Type.INT;
-			print.DEBUG("AddPlus_Exp: 2 ints, we're ok");
+			//print.DEBUG("AddPlus_Exp: 2 ints, we're ok");
 			
 		}
 		else {
@@ -314,7 +344,7 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			ctx.myType = Type.INT;
-			print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
+			//print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
 		}
 		else {
 			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
@@ -518,7 +548,7 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitExprCont_ID(ExprCont_IDContext ctx) {
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
-			print.DEBUG("FOUND THE SYMBOL. type: " + sym.getDecl().type);
+			//print.DEBUG("FOUND THE SYMBOL. type: " + sym.getDecl().type);
 			ctx.myType = sym.getDecl().type;
 		}
 		else {
