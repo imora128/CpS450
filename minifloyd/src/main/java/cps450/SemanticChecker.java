@@ -45,7 +45,7 @@ import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
-
+//TODO: GO thru code and do loops for item : e1 
 
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable = SymbolTable.getInstance();
