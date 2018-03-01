@@ -403,6 +403,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.INT) {
 			if (ctx.e2.myType == Type.INT) {
 				ctx.myType = Type.INT;
@@ -466,6 +470,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
 		if (ctx.e1.myType == Type.INT ) {
 			if (ctx.e2.myType == Type.INT) {
 				//print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
