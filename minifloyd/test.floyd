@@ -1,17 +1,35 @@
+~
+~ decls3.floyd
+~ - Declarations with methods
+~
+
 class test1 is
-
-  boolmeth(x: int; b1: boolean): boolean is
-  begin
-    boolmeth := b1 or (x > 5)
-  end boolmeth
+                              
+  x: int                   ~ DEFINE x: int 
+  y: boolean               ~ DEFINE y: boolean
+  z: int
   
-   ~voidmeth(x: int) is
- ~ begin
-  ~  x := x + 1
- ~ end voidmeth
-
- start() is
+  jump(height: int; headFirst: boolean) is
+    curpos: int
+    y: int         ~ OK
+    headFirst: int   ~ ERROR: Redefined identifier
   begin
-  end start
+    y := y + height
+  end jump
+  
+  fall(height: int; headFirst: boolean) is
+    speed: int
+    jump: int   ~ OK to shadow local method
+  begin
+    jump := speed + curpos  ~ ERROR: curpos not defined
+  end fall
 
+  start() is
+  begin
+    x := 3                    
+    z := x - 1                 
+
+    y := true                  
+  end start
+  
 end test1

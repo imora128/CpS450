@@ -81,16 +81,30 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	@Override
 	public void exitVar_decl(Var_declContext ctx) {
-			if (ctx.children.contains(ctx.ASSIGNMENT_OPERATOR())) {
+			if (ctx.exp != null) {
 				String msg = "Unsupported feature: Attempting to initialize";
 				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 						ctx.start.getCharPositionInLine() + ":" + msg);
 				return;
 			}
-		if (ctx.children.contains(ctx.COLON()) && doesTypeExist(ctx.type().myType)) {
+			
+		
+		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
+			Symbol sym = symTable.lookup(ctx.IDENTIFIER().toString());
+			if (sym != null && sym.getScope() == symTable.getScope()) {
+				String msg = "Attempting to redefine variable " + ctx.IDENTIFIER().toString() + " in the same scope.";
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);	
+			}
+			
+//			if (symTable.lookup(ctx.IDENTIFIER().toString()).getScope() == symTable.getScope()) {
+//				String msg = "Attempting to redefine variable " + ctx.IDENTIFIER().toString() + " in the name scope.";
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+//			}
 			symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType));
-			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
-			" Type: " + ctx.type().myType);
+//			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
+//			" Type: " + ctx.type().myType);
 			
 		}
 		else {
@@ -124,6 +138,10 @@ public class SemanticChecker extends FloydBaseListener {
 							ctx.start.getCharPositionInLine() + ":" + msg);
 				}
 			}
+		} else {
+			String msg = "Attempting to assign to an undeclared variable " + ctx.IDENTIFIER().getText();
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
 		}
 		
 		super.exitAssignment_stmt(ctx);
@@ -804,8 +822,8 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitArgument_decl_list(Argument_decl_listContext ctx) {
 		
 		for (int i = 0; i < ctx.argument_decl().size(); i++) {
-			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).IDENTIFIER().getText());
-			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).type().myType);
+//			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).IDENTIFIER().getText());
+//			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).type().myType);
 			symTable.push(ctx.argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl(i).type().myType));
 			
 		}
@@ -818,12 +836,6 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMethod_decl(Method_declContext ctx) {
 		symTable.endScope();
-//		for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
-//		print.DEBUG("Exitmethod_decl. pushing:" + ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText() +
-//				" of type: " + ctx.argument_decl_list().argument_decl(i).type().myType );
-//		symTable.push(ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl_list().argument_decl(i).type().myType));
-//		
-//	}
 		super.exitMethod_decl(ctx);
 	}
 
@@ -837,7 +849,11 @@ public class SemanticChecker extends FloydBaseListener {
 				t = i;
 			}
 		}
-		print.DEBUG("Identifier:" + ctx.IDENTIFIER(0));
+		if (!(ctx.IDENTIFIER(0).getText().equals("start"))) {
+			String msg = "Feature unsuported: defining a method other than 'start'";
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+		}
 
 		symTable.push(ctx.IDENTIFIER(0).getText(), new MethodDeclaration(t));
 		symTable.beginScope();
