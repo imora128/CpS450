@@ -15,8 +15,10 @@ import cps450.FloydParser.Assignment_stmtContext;
 import cps450.FloydParser.ConcatAdd_ExpContext;
 import cps450.FloydParser.ConcatX_ExpContext;
 import cps450.FloydParser.Concat_expContext;
+import cps450.FloydParser.ExprCont_ArrayContext;
 import cps450.FloydParser.ExprCont_FalseContext;
 import cps450.FloydParser.ExprCont_IDContext;
+import cps450.FloydParser.ExprCont_IDExprContext;
 import cps450.FloydParser.Method_expContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
@@ -44,12 +46,16 @@ import cps450.FloydParser.ExprOr_ExprContext;
 import cps450.FloydParser.ExprRelational_ExprContext;
 import cps450.FloydParser.If_stmtContext;
 import cps450.FloydParser.Loop_stmtContext;
-import cps450.FloydParser.MethodDot_ExpContext;
+//import cps450.FloydParser.MethodDot_ExpContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
+import cps450.FloydParser.ExprCont_MEContext;
+import cps450.FloydParser.ExprCont_NewContext;
+import cps450.FloydParser.ExprCont_NullContext;
+import cps450.FloydParser.ExprCont_ParExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
-import cps450.FloydParser.MethodNew_ExpContext;
+//import cps450.FloydParser.MethodNew_ExpContext;
 //TODO: GO thru code and do loops for item : e1 
 //return after error
 //no array so [ is nono
@@ -98,6 +104,27 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitAssignment_stmt(ctx);
 	}
 	
+	
+	
+
+	@Override
+	public void exitExprCont_ParExp(ExprCont_ParExpContext ctx) {
+		ctx.myType = ctx.expression().myType;
+		super.exitExprCont_ParExp(ctx);
+	}
+	
+	
+	
+	
+
+	@Override
+	public void exitExprCont_Array(ExprCont_ArrayContext ctx) {
+		ctx.myType = Type.ERROR;
+		String msg = "Feature unsupported: Array";
+		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+				ctx.start.getCharPositionInLine() + ":" + msg);
+		super.exitExprCont_Array(ctx);
+	}
 
 	@Override
 	public void exitIf_stmt(If_stmtContext ctx) {
@@ -199,24 +226,17 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
-		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			//print.DEBUG("exitRelationalEQ_Exp: 2 INTs, we're ok");
-			ctx.myType = Type.BOOLEAN;
-		}
-		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
-			//print.DEBUG("exitRelationalEQ_Exp: 2 Strings, we're ok");
-			ctx.myType = Type.BOOLEAN;
-		}
-		else if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN ) {
-			ctx.myType = Type.BOOLEAN;
-			//print.DEBUG("exitRelationalEQ_Exp: 2 Booleans, we're ok");
-		}
-		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for &:" + "requires booleans, got x";
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
-			ctx.myType = Type.ERROR;
+		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING  || ctx.e1.myType == Type.BOOLEAN) {
+			if (ctx.e1.myType == ctx.e2.myType) {
+				print.DEBUG("got 2" + ctx.e1.myType);
+				ctx.myType = Type.BOOLEAN;
+				
+			} else {
+				String msg = "Incorrect type for =:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
 		}
 		super.exitRelationalEQ_Exp(ctx);
 	}
@@ -237,13 +257,20 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitOrX_Exp(OrX_ExpContext ctx) {
-		if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN) {
-			ctx.myType = Type.BOOLEAN;
-			print.DEBUG("exitOrX_Exp: 2 BOOLEANS, we're ok");
+		if (ctx.e1.myType == Type.BOOLEAN) {
+			if (ctx.e2.myType == Type.BOOLEAN) {
+				ctx.myType = Type.BOOLEAN;
+				print.DEBUG("ExitOrX: 2 Booleans, we're ok");
+			}
+			else {
+				String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
 		}
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for &:" + "requires booleans, got " + ctx.and_exp().myType;
+			String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got "  + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
 			ctx.myType = Type.ERROR;
@@ -266,13 +293,20 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAndX_Exp(AndX_ExpContext ctx) {
-		if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN) {
-			ctx.myType = Type.BOOLEAN;
-			print.DEBUG("exitAndX_Exp: 2 BOOLEANS, we're ok");
+		if (ctx.e1.myType == Type.BOOLEAN) {
+			if (ctx.e2.myType == Type.BOOLEAN) {
+				ctx.myType = Type.BOOLEAN;
+				print.DEBUG("exitAndX: 2 Booleans, we're ok");
+			}
+			else {
+				String msg = "Incorrect type for " + ctx.AND().toString() + ": requires booleans, got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
 		}
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for &:" + "requires booleans, got " + ctx.concat_exp().myType;
+			String msg = "Incorrect type for " + ctx.AND().toString() + ": requires booleans, got "  + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
 			ctx.myType = Type.ERROR;
@@ -295,13 +329,21 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
-		if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING) {
-			ctx.myType = Type.STRING;
-			print.DEBUG("exitConcat_Exp: 2 strings, we're ok");
+		
+		if (ctx.e1.myType == Type.STRING) {
+			if (ctx.e2.myType == Type.STRING) {
+				ctx.myType = Type.STRING;
+				print.DEBUG("exitConcatX: 2 strings, we're ok");
+			}
+			else {
+				String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
 		}
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for &:" + "requires strings, got " + ctx.add_exp().myType;
+			String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got "  + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
 			ctx.myType = Type.ERROR;
@@ -324,14 +366,20 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
-		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			ctx.myType = Type.INT;
-			//print.DEBUG("AddPlus_Exp: 2 ints, we're ok");
-			
+		if (ctx.e1.myType == Type.INT) {
+			if (ctx.e2.myType == Type.INT) {
+				ctx.myType = Type.INT;
+				print.DEBUG("exitAddPlus_Exp: 2 ints, we're ok");
+			}
+			else {
+				String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
 		}
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for +:" + "requires ints, got " + ctx.multi_exp().myType;
+			String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got "  + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
 			ctx.myType = Type.ERROR;
@@ -342,13 +390,20 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
-		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			ctx.myType = Type.INT;
-			//print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
+		if (ctx.e1.myType == Type.INT) {
+			if (ctx.e2.myType == Type.INT) {
+				ctx.myType = Type.INT;
+				//print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
+			}
+			else {
+				String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
 		}
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for -:" + "requires ints, got " + ctx.multi_exp().myType;
+			String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
 			ctx.myType = Type.ERROR;
@@ -370,13 +425,20 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
-		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
-			ctx.myType = Type.INT;
+		if (ctx.e1.myType == Type.INT ) {
+			if (ctx.e2.myType == Type.INT) {
+				//print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
+				ctx.myType = Type.INT;
+			}
+			else {
+				String msg = "Incorrect type for *:" + "requires ints, got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
 		}
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for *:" + "requires ints, got " + ctx.unary_exp().myType;
+			String msg = "Incorrect type for *:" + "requires ints, got " + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
 			ctx.myType = Type.ERROR;
@@ -464,7 +526,6 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 	
 	
-	//FIXME(checking the methods. skipped them)
 	@Override
 	public void exitUnaryMethod_Exp(UnaryMethod_ExpContext ctx) {
 //		print.DEBUG("exitUnaryMethod. ctx.method_exp is: " + ctx.method_exp().myType);
@@ -493,24 +554,51 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitMethodExpr_Cont(ctx);
 	}
 	
+	
+	
+@Override
+	public void exitExprCont_New(ExprCont_NewContext ctx) {
+	ctx.myType = Type.ERROR;
+	String msg = "Feature unsupported: new";
+	print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+			ctx.start.getCharPositionInLine() + ":" + msg);
+		super.exitExprCont_New(ctx);
+	}
+
+@Override
+	public void exitExprCont_Null(ExprCont_NullContext ctx) {
+	ctx.myType = Type.ERROR;
+	String msg = "Feature unsupported: NULL";
+	print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+			ctx.start.getCharPositionInLine() + ":" + msg);
+		super.exitExprCont_Null(ctx);
+	}
 
 	@Override
-	public void exitMethodNew_Exp(MethodNew_ExpContext ctx) {
+	public void exitExprCont_ME(ExprCont_MEContext ctx) {
 		ctx.myType = Type.ERROR;
-		String msg = "Feature unsupported: new";
+		String msg = "Feature unsupported: ME";
 		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 				ctx.start.getCharPositionInLine() + ":" + msg);
-		super.exitMethodNew_Exp(ctx);
-	}
-//e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
-	//FIXME(After doing function dec, make sure to do this)
-	@Override
-	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
-		
-		super.exitMethodDot_Exp(ctx);
+		super.exitExprCont_ME(ctx);
 	}
 
-	//TODO(ExprCont_ID, exprCont_Null, ExprCont_ME,ExprCont_ParExp, ExprCont_Array, ExprCont_IDExpr)
+	//e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
+//	@Override
+//	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
+//		System.err.println("Implement this exitmethod new");
+//		super.exitMethodDot_Exp(ctx);
+//	}
+//	
+//	@Override
+//	public void exitMethodNew_Exp(MethodNew_ExpContext ctx) {
+//		System.err.println("Implement this exitmethod new");
+//		super.exitMethodNew_Exp(ctx);
+//	}
+
+
+
+	
 	@Override
 	public void exitExprCont_Strlit(ExprCont_StrlitContext ctx) {
 		//print.DEBUG("ExprCont_Strlit passing the type");
@@ -521,7 +609,13 @@ public class SemanticChecker extends FloydBaseListener {
 		super.enterExprCont_Strlit(ctx);
 	}
 	
-	
+	//FIXME(expr function call )
+	@Override
+	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
+		print.DEBUG("IMPLEMENT ME. IM THE FUNCTION CALL EXPR");
+		super.exitExprCont_IDExpr(ctx);
+	}
+
 	@Override
 	public void exitExprCont_Intlit(ExprCont_IntlitContext ctx) {
 		//print.DEBUG("ExprCont_Intlit passing the type");

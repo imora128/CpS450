@@ -121,9 +121,9 @@ unary_exp returns [Type myType]
 ;
 
 method_exp returns [Type myType]
-: e1=method_exp NEW e2=expr_cont	#MethodNew_Exp
-| e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
-| expr_cont							#MethodExpr_Cont
+//: e1=method_exp NEW e2=expr_cont	#MethodNew_Exp
+//| e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
+: expr_cont							#MethodExpr_Cont
 ;
 
 expr_cont returns [Type myType]
