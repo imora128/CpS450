@@ -42,10 +42,12 @@ import cps450.FloydParser.ExprCont_StrlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.ExprOr_ExprContext;
 import cps450.FloydParser.ExprRelational_ExprContext;
+import cps450.FloydParser.MethodDot_ExpContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
+import cps450.FloydParser.MethodNew_ExpContext;
 //TODO: GO thru code and do loops for item : e1 
 //return after error
 //no array so [ is nono
@@ -73,6 +75,12 @@ public class SemanticChecker extends FloydBaseListener {
 	//TODO(Assignment statement, which requires expression & errors)
 	@Override
 	public void exitAssignment_stmt(Assignment_stmtContext ctx) {
+		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
+		if (sym != null) {
+			print.DEBUG("LHS is: " + sym.getDecl().type);
+			//print.DEBUG("RHS IS: " + ctx.);
+		}
+		
 		super.exitAssignment_stmt(ctx);
 	}
 		
@@ -431,10 +439,33 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitMethodExpr_Cont(MethodExpr_ContContext ctx) {
 		//print.DEBUG("in exitmethodexpr_cont. type: " + ctx.expr_cont().myType);
 		ctx.myType = ctx.expr_cont().myType;
+		if (ctx.expr_cont().myType != null) {
+			ctx.myType = ctx.expr_cont().myType;
+		}
+		else
+		{
+			print.DEBUG("exitMethodExpr_Cont: Type is null");
+		}
 		
 		super.exitMethodExpr_Cont(ctx);
 	}
 	
+
+	@Override
+	public void exitMethodNew_Exp(MethodNew_ExpContext ctx) {
+		ctx.myType = Type.ERROR;
+		String msg = "Feature unsupported";
+		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+				ctx.start.getCharPositionInLine() + ":" + msg);
+		super.exitMethodNew_Exp(ctx);
+	}
+//e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
+	//FIXME(After doing function dec, make sure to do this)
+	@Override
+	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
+		
+		super.exitMethodDot_Exp(ctx);
+	}
 
 	//TODO(ExprCont_ID, exprCont_Null, ExprCont_ME,ExprCont_ParExp, ExprCont_Array, ExprCont_IDExpr)
 	@Override
