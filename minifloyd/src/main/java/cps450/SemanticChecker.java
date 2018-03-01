@@ -284,13 +284,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
-		//print.DEBUG("In exitmultitimes");
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
 			ctx.myType = Type.INT;
-		}
-		else if (ctx.e1.myType == null && ctx.e2.myType == Type.INT) {
-			print.error("IOJJOIDASOIDAOSIJDJOIASODISAIOJ");
 		}
 		else {
 			print.error("exitMultiTimes_Exp: Did not get 2 ints. e1: " + ctx.e1.myType + " e2: " + ctx.e2.myType);
