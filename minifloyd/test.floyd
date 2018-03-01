@@ -1,11 +1,11 @@
 class test1 is
 	x: int
 	y: boolean
-	~z: string
+	z: stringza
 
 	  start() is
   begin
-	x := 5 * 4 * "strin" * 5
+	x := 5 * 4
 
   end start
 end test1

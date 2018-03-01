@@ -55,11 +55,7 @@ import cps450.FloydParser.ExprCont_ParExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
-//import cps450.FloydParser.MethodNew_ExpContext;
-//TODO: GO thru code and do loops for item : e1 
-//return after error
-//no array so [ is nono
-//null, me, new not supported
+
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable = SymbolTable.getInstance();
 	MyError print = new MyError(true);
@@ -69,12 +65,30 @@ public class SemanticChecker extends FloydBaseListener {
 		print.opt = opt;
 	}
 	
-	//TODO(:= Expr version of var_decl & Errors)
+	boolean doesTypeExist(Type t) {
+		if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING || t ==Type.READER || t == Type.WRITER) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	@Override
 	public void exitVar_decl(Var_declContext ctx) {
-		symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType));
-//		print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
-//				" Type: " + ctx.type().myType);
+		//FIXME(Update for when user defined types are available)
+		if (doesTypeExist(ctx.type().myType)) {
+			symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType));
+			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
+			" Type: " + ctx.type().myType);
+			
+		}
+		else {
+			String msg = "Variable type does not exist or is not provided. Type given: " + ctx.type().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+		}
+
 		
 		super.exitVar_decl(ctx);
 	}
