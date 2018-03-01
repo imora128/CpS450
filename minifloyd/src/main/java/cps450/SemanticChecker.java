@@ -88,6 +88,7 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 			}
 <<<<<<< HEAD
+<<<<<<< HEAD
 			
 		
 		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
@@ -104,6 +105,9 @@ public class SemanticChecker extends FloydBaseListener {
 //				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 //						ctx.start.getCharPositionInLine() + ":" + msg);
 //			}
+=======
+		if (ctx.children.contains(ctx.COLON()) && doesTypeExist(ctx.type().myType)) {
+>>>>>>> parent of 20f3d7f... func checking is go
 =======
 		if (ctx.children.contains(ctx.COLON()) && doesTypeExist(ctx.type().myType)) {
 >>>>>>> parent of 20f3d7f... func checking is go
