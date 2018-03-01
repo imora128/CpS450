@@ -3,13 +3,13 @@ package cps450;
 import java.util.List;
 
 public class MethodDeclaration extends Declaration {
-	List<Type> paramTypes;
+	List<VarDeclaration> parameters;
+	List<VarDeclaration> variables;
 
-	public MethodDeclaration(List<Type> paramTypes) {
+	public MethodDeclaration(Type varType) {
 		super();
-		this.paramTypes = paramTypes;
+		type = varType;
 	}
-	
 	
 	
 }

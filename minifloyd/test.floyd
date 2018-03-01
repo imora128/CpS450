@@ -1,10 +1,17 @@
 class test1 is
-	~b : boolean
-	b5 := false
 
-start() is
+  boolmeth(x: int; b1: boolean): boolean is
   begin
-	b := true
+    boolmeth := b1 or (x > 5)
+  end boolmeth
+  
+   ~voidmeth(x: int) is
+ ~ begin
+  ~  x := x + 1
+ ~ end voidmeth
 
+ start() is
+  begin
   end start
+
 end test1

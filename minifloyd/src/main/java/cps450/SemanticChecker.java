@@ -1,5 +1,7 @@
 package cps450;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 import org.antlr.v4.runtime.Token;
@@ -11,6 +13,8 @@ import cps450.FloydParser.Add_expContext;
 import cps450.FloydParser.AndConcat_ExpContext;
 import cps450.FloydParser.AndX_ExpContext;
 import cps450.FloydParser.And_expContext;
+import cps450.FloydParser.Argument_declContext;
+import cps450.FloydParser.Argument_decl_listContext;
 import cps450.FloydParser.Assignment_stmtContext;
 import cps450.FloydParser.ConcatAdd_ExpContext;
 import cps450.FloydParser.ConcatX_ExpContext;
@@ -55,6 +59,7 @@ import cps450.FloydParser.ExprCont_ParExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
+import cps450.FloydParser.Method_declContext;
 
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable = SymbolTable.getInstance();
@@ -181,7 +186,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprRelational_Expr(ExprRelational_ExprContext ctx) {
 		if (ctx.relational_exp().myType != null) {
-			System.out.println("###########Here's the type at teh top:" + ctx.relational_exp().myType);
+			//System.out.println("###########Here's the type at teh top:" + ctx.relational_exp().myType);
 			ctx.myType = ctx.relational_exp().myType;
 		}
 		else {
@@ -193,7 +198,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprOr_Expr(ExprOr_ExprContext ctx) {
 		if (ctx.or_exp().myType != null) {
-			print.DEBUG("###########Here's the type at teh top:" + ctx.or_exp().myType);
+			//print.DEBUG("###########Here's the type at teh top:" + ctx.or_exp().myType);
 			ctx.myType = ctx.or_exp().myType;
 		}
 		else {
@@ -783,6 +788,67 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		super.exitTypeID(ctx);
 	}
+
+	@Override
+	public void exitArgument_decl(Argument_declContext ctx) {
+		if (doesTypeExist(ctx.type().myType)) {
+			//print.DEBUG("exitArgument_decl: passing up: " + ctx.type().myType);
+		}
+		else {
+			System.err.println("exitArgument_decl type does not exist. implement error.");
+		}
+		super.exitArgument_decl(ctx);
+	}
+
+	@Override
+	public void exitArgument_decl_list(Argument_decl_listContext ctx) {
+		
+		for (int i = 0; i < ctx.argument_decl().size(); i++) {
+			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).IDENTIFIER().getText());
+			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).type().myType);
+			symTable.push(ctx.argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl(i).type().myType));
+			
+		}
+		
+		super.exitArgument_decl_list(ctx);
+	}
+	
+	
+
+	@Override
+	public void exitMethod_decl(Method_declContext ctx) {
+		symTable.endScope();
+//		for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
+//		print.DEBUG("Exitmethod_decl. pushing:" + ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText() +
+//				" of type: " + ctx.argument_decl_list().argument_decl(i).type().myType );
+//		symTable.push(ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl_list().argument_decl(i).type().myType));
+//		
+//	}
+		super.exitMethod_decl(ctx);
+	}
+
+	@Override
+	public void enterMethod_decl(Method_declContext ctx) {
+		List<Type> types = Arrays.asList(Type.INT, Type.BOOLEAN, Type.STRING, Type.READER, Type.VOID, Type.WRITER);
+		Type t = Type.VOID;
+		
+		for (Type i : types ) {
+			if (ctx.typ != null && i.name.equals(ctx.typ.getText())) {
+				t = i;
+			}
+		}
+		print.DEBUG("Identifier:" + ctx.IDENTIFIER(0));
+
+		symTable.push(ctx.IDENTIFIER(0).getText(), new MethodDeclaration(t));
+		symTable.beginScope();
+		super.enterMethod_decl(ctx);
+	}
+
+	
+	
+
+	
+	
 	
 	
 	
