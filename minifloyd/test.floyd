@@ -1,11 +1,10 @@
 class test1 is
-	x: int
-	y: boolean
-	z: stringza
+	~b : boolean
+	b5 := false
 
-	  start() is
+start() is
   begin
-	x := 5 * 4
+	b := true
 
   end start
 end test1

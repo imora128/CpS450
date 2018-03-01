@@ -76,18 +76,24 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	@Override
 	public void exitVar_decl(Var_declContext ctx) {
-		//FIXME(Update for when user defined types are available)
-		if (doesTypeExist(ctx.type().myType)) {
+			if (ctx.children.contains(ctx.ASSIGNMENT_OPERATOR())) {
+				String msg = "Unsupported feature: Attempting to initialize";
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				return;
+			}
+		if (ctx.children.contains(ctx.COLON()) && doesTypeExist(ctx.type().myType)) {
 			symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType));
 			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
 			" Type: " + ctx.type().myType);
 			
 		}
 		else {
-			String msg = "Variable type does not exist or is not provided. Type given: " + ctx.type().myType;
+			String msg = "Variable type does not exist or is not provided";
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
 		}
+		
 
 		
 		super.exitVar_decl(ctx);
@@ -488,6 +494,7 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = Type.ERROR;
 			return;
 		}
+		
 		if (ctx.e1.myType == Type.INT ) {
 			if (ctx.e2.myType == Type.INT) {
 				//print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
