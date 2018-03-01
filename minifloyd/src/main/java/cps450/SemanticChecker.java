@@ -56,6 +56,7 @@ public class SemanticChecker extends FloydBaseListener {
 	Option opt;
 	SemanticChecker(Option opt) {
 		this.opt = opt;
+		print.opt = opt;
 	}
 	
 	//TODO(:= Expr version of var_decl & Errors)
@@ -82,10 +83,11 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprRelational_Expr(ExprRelational_ExprContext ctx) {
 		if (ctx.relational_exp().myType != null) {
-			print.DEBUG("exitExprRelational_Expr: type is: " + ctx.relational_exp().myType);
+			System.out.println("###########Here's the type at teh top:" + ctx.relational_exp().myType);
+			ctx.myType = ctx.relational_exp().myType;
 		}
 		else {
-			print.error("exitExprRelational_Expr: Got null");
+			print.DEBUG("exitExprRelational_Expr: Got null");
 		}
 		super.exitExprRelational_Expr(ctx);
 	}
@@ -93,10 +95,11 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprOr_Expr(ExprOr_ExprContext ctx) {
 		if (ctx.or_exp().myType != null) {
-			print.DEBUG("exitExprOr_Expr: type is: " + ctx.or_exp().myType);
+			print.DEBUG("###########Here's the type at teh top:" + ctx.or_exp().myType);
+			ctx.myType = ctx.or_exp().myType;
 		}
 		else {
-			print.error("exitExprOr_Exprr: Got null");
+			print.DEBUG("exitExprOr_Exprr: Got null");
 		}
 		super.exitExprOr_Expr(ctx);
 	}
@@ -112,7 +115,11 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = Type.STRING;
 		}
 		else {
-			print.error("exitRelationalGE_Exp: Did not get 2 ints or 2 strings");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for &:" + "requires booleans, got x";
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitRelationalGE_Exp(ctx);
 	}
@@ -129,7 +136,11 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = Type.STRING;
 		}
 		else {
-			print.error("exitRelationalGT_Exp: Did not get 2 ints or 2 strings");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for &:" + "requires booleans, got x";
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitRelationalGT_Exp(ctx);
 	}
@@ -150,7 +161,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("exitRelationalEQ_Exp: 2 Booleans, we're ok");
 		}
 		else {
-			print.error("exitRelationalEQ_Exp: Did not get 2 ints,2 strings, or 2 booleans");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for &:" + "requires booleans, got x";
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitRelationalEQ_Exp(ctx);
 	}
@@ -162,7 +177,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitRelationalOr_Exp: shows previous func is null");
+			print.DEBUG("exitRelationalOr_Exp: shows previous func is null");
 		}
 		super.exitRelationalOr_Exp(ctx);
 	}
@@ -176,7 +191,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("exitOrX_Exp: 2 BOOLEANS, we're ok");
 		}
 		else {
-			print.error("exitOrX_Exp: Did not get 2 BOOLEANS");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for &:" + "requires booleans, got " + ctx.and_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitOrX_Exp(ctx);
 	}
@@ -188,7 +207,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitOrAnd_Exp: shows previous func is null");
+			print.DEBUG("exitOrAnd_Exp: shows previous func is null");
 		}
 		super.exitOrAnd_Exp(ctx);
 	}
@@ -201,7 +220,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("exitAndX_Exp: 2 BOOLEANS, we're ok");
 		}
 		else {
-			print.error("exitAndX_Exp: Did not get 2 BOOLEANS");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for &:" + "requires booleans, got " + ctx.concat_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitAndX_Exp(ctx);
 	}
@@ -213,7 +236,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitAndConcat_Exp: shows previous func is null");
+			print.DEBUG("exitAndConcat_Exp: shows previous func is null");
 		}
 		super.exitAndConcat_Exp(ctx);
 	}
@@ -226,7 +249,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("exitConcat_Exp: 2 strings, we're ok");
 		}
 		else {
-			print.error("exitConcat_Exp: Did not get 2 strings");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for &:" + "requires strings, got " + ctx.add_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitConcatX_Exp(ctx);
 	}
@@ -238,7 +265,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitConcatAdd_Exp: shows previous func is: " + ctx.add_exp().myType);
+			print.DEBUG("exitConcatAdd_Exp: shows previous func is: " + ctx.add_exp().myType);
 		}
 		super.exitConcatAdd_Exp(ctx);
 	}
@@ -252,7 +279,11 @@ public class SemanticChecker extends FloydBaseListener {
 			
 		}
 		else {
-			print.error("exitAddPlus_Exp: Did not get 2 ints");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for +:" + "requires ints, got " + ctx.multi_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitAddPlus_Exp(ctx);
 	}
@@ -265,7 +296,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
 		}
 		else {
-			print.error("exitAddMinus_Exp: Did not get 2 ints");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for -:" + "requires ints, got " + ctx.multi_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitAddMinus_Exp(ctx);
 	}
@@ -277,7 +312,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitAddMulti_Exp: shows previous func is null");
+			print.DEBUG("exitAddMulti_Exp: shows previous func is null");
 		}
 		super.exitAddMulti_Exp(ctx);
 	}
@@ -289,7 +324,11 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = Type.INT;
 		}
 		else {
-			print.error("exitMultiTimes_Exp: Did not get 2 ints. e1: " + ctx.e1.myType + " e2: " + ctx.e2.myType);
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for *:" + "requires ints, got " + ctx.unary_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitMultiTimes_Exp(ctx);
 	}
@@ -302,7 +341,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("exitMultiDIV_Exp: 2 ints, we're ok");
 		}
 		else {
-			print.error("exitMultiDIV_Exp: Did not get 2 ints");
+			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
+			String msg = "Incorrect type for /:" + "requires ints, got " + ctx.unary_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		
 		super.exitMultiDIV_Exp(ctx);
@@ -316,7 +359,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitMultiUnary_Exp shows previous func is null");
+			print.DEBUG("exitMultiUnary_Exp shows previous func is null");
 		}
 		super.exitMultiUnary_Exp(ctx);
 	}
@@ -329,7 +372,10 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("enterUnaryPlus_Exp: It's an int, we're ok.");
 		}
 		else {
-			print.error("enterUnaryMinus_Exp: Not the type we want. Type given: " + ctx.unary_exp().myType);
+			String msg = "Incorrect type for +:" + "requires int, got " + ctx.unary_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitUnaryPlus_Exp(ctx);
 	}
@@ -342,7 +388,10 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("enterUnaryMinus_Exp: It's an int, we're ok.");
 		}
 		else {
-			print.error("enterUnaryMinus_Exp: Not the type we want. Type given: " + ctx.unary_exp().myType);
+			String msg = "Incorrect type for -:" + "requires int, got " + ctx.unary_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.enterUnaryMinus_Exp(ctx);
 	}
@@ -355,13 +404,16 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("exitUnaryNot: It's a boolean, we're ok.");
 		}
 		else {
-			print.error("exitUnaryNot: Not a boolean, error.");
+			ctx.myType = Type.ERROR;
+			String msg = "Incorrect type for not:" + "requires boolean, got " + ctx.unary_exp().myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
 		}
 		super.enterUnaryNot_Exp(ctx);
 	}
 	
 	
-	//TODO(checking the methods. skipped them)
+	//FIXME(checking the methods. skipped them)
 	@Override
 	public void exitUnaryMethod_Exp(UnaryMethod_ExpContext ctx) {
 //		print.DEBUG("exitUnaryMethod. ctx.method_exp is: " + ctx.method_exp().myType);
@@ -370,7 +422,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitUnaryMethod shows previous func is null");
+			print.DEBUG("exitUnaryMethod_Exp: Type is null");
 		}
 		super.exitUnaryMethod_Exp(ctx);
 	}

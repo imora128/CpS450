@@ -18,6 +18,7 @@ Instance vars:
 public class Option {
      boolean ds;
      boolean dp;
+     int semanticErrors = 0;
      List<String> fileName = new ArrayList<String>();
 
     Option() {

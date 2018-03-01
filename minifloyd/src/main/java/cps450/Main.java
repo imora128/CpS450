@@ -48,6 +48,7 @@ public class Main
             Trees.inspect(tree, parser);
         }
         System.out.println((parser.getNumberOfSyntaxErrors() + lexer.lexerErrors) + " lexical/syntactic error(s) found.");
+        System.out.println("Semantic errors: " + parsedArgs.semanticErrors);
 
     }
 
