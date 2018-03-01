@@ -21,6 +21,16 @@ public class Type {
 	protected Type(String name) {
 	    this.name = name;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		//System.out.println("obj: " + obj + " this is: " + this);
+		if (obj == Type.ERROR) {
+			return true;
+		}
+		return super.equals(obj);
+	}
+
 	@Override
 	public String toString() {
 		return name;

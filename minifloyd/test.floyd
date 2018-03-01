@@ -1,35 +1,31 @@
-~
-~ decls3.floyd
-~ - Declarations with methods
-~
-
 class test1 is
+<<<<<<< HEAD
                               
   x: int                   ~ DEFINE x: int 
   y: boolean               ~ DEFINE y: boolean
   z: int
-  
-  jump(height: int; headFirst: boolean) is
-    curpos: int
-    y: int         ~ OK
-    headFirst: int   ~ ERROR: Redefined identifier
-  begin
-    y := y + height
-  end jump
-  
-  fall(height: int; headFirst: boolean) is
-    speed: int
-    jump: int   ~ OK to shadow local method
-  begin
-    jump := speed + curpos  ~ ERROR: curpos not defined
-  end fall
+=======
 
-  start() is
+  boolmeth(x: int; b1: boolean): boolean is
   begin
+    boolmeth := b1 or (x > 5)
+  end boolmeth
+  
+   ~voidmeth(x: int) is
+ ~ begin
+  ~  x := x + 1
+ ~ end voidmeth
+>>>>>>> parent of 20f3d7f... func checking is go
+
+ start() is
+  begin
+<<<<<<< HEAD
     x := 3                    
-    z := x - 1                 
+    z := x - true                
 
     y := true                  
+=======
+>>>>>>> parent of 20f3d7f... func checking is go
   end start
-  
+
 end test1

@@ -81,12 +81,13 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	@Override
 	public void exitVar_decl(Var_declContext ctx) {
-			if (ctx.exp != null) {
+			if (ctx.children.contains(ctx.ASSIGNMENT_OPERATOR())) {
 				String msg = "Unsupported feature: Attempting to initialize";
 				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 						ctx.start.getCharPositionInLine() + ":" + msg);
 				return;
 			}
+<<<<<<< HEAD
 			
 		
 		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
@@ -95,6 +96,7 @@ public class SemanticChecker extends FloydBaseListener {
 				String msg = "Attempting to redefine variable " + ctx.IDENTIFIER().toString() + " in the same scope.";
 				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 						ctx.start.getCharPositionInLine() + ":" + msg);	
+				return;
 			}
 			
 //			if (symTable.lookup(ctx.IDENTIFIER().toString()).getScope() == symTable.getScope()) {
@@ -102,9 +104,12 @@ public class SemanticChecker extends FloydBaseListener {
 //				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 //						ctx.start.getCharPositionInLine() + ":" + msg);
 //			}
+=======
+		if (ctx.children.contains(ctx.COLON()) && doesTypeExist(ctx.type().myType)) {
+>>>>>>> parent of 20f3d7f... func checking is go
 			symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType));
-//			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
-//			" Type: " + ctx.type().myType);
+			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
+			" Type: " + ctx.type().myType);
 			
 		}
 		else {
@@ -127,7 +132,7 @@ public class SemanticChecker extends FloydBaseListener {
 //			print.DEBUG("LHS is: " + sym.getDecl().type);
 //			print.DEBUG("RHS: " + ctx.expression(0).myType);
 			for (int i = 0; i < ctx.expression().size(); i++) {
-				if (sym.getDecl().type == ctx.expression(i).myType) {
+				if (sym.getDecl().type.equals(ctx.expression(i).myType)) {
 //					print.DEBUG("LHS:" + sym.getName() + "(" + sym.getDecl().type + ")" +  
 //							"matches the RHS: " + ctx.expression(i).getText()+ "(" + ctx.expression(i).myType + ")");
 				}
@@ -138,12 +143,7 @@ public class SemanticChecker extends FloydBaseListener {
 							ctx.start.getCharPositionInLine() + ":" + msg);
 				}
 			}
-		} else {
-			String msg = "Attempting to assign to an undeclared variable " + ctx.IDENTIFIER().getText();
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
 		}
-		
 		super.exitAssignment_stmt(ctx);
 	}
 	
@@ -227,12 +227,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
-			if (ctx.e1.myType == ctx.e2.myType) {
+	
+		if (ctx.e1.myType.equals(Type.INT) || ctx.e1.myType.equals(Type.STRING) ) {
+			if (ctx.e1.myType.equals(ctx.e2.myType)) {
 				print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
@@ -255,12 +252,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
-			if (ctx.e1.myType == ctx.e2.myType) {
+	
+		if (ctx.e1.myType.equals(Type.INT) || ctx.e1.myType.equals(Type.STRING) ) {
+			if (ctx.e1.myType.equals(ctx.e2.myType)) {
 				print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
@@ -284,12 +278,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING  || ctx.e1.myType == Type.BOOLEAN) {
-			if (ctx.e1.myType == ctx.e2.myType) {
+	
+		if (ctx.e1.myType.equals(Type.INT) || ctx.e1.myType.equals(Type.STRING)  || ctx.e1.myType.equals(Type.BOOLEAN)) {
+			if (ctx.e1.myType.equals(ctx.e2.myType)) {
 				print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
@@ -325,12 +316,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitOrX_Exp(OrX_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.BOOLEAN) {
-			if (ctx.e2.myType == Type.BOOLEAN) {
+	
+		if (ctx.e1.myType.equals(Type.BOOLEAN)) {
+			if (ctx.e2.myType.equals(Type.BOOLEAN)) {
 				ctx.myType = Type.BOOLEAN;
 				print.DEBUG("ExitOrX: 2 Booleans, we're ok");
 			}
@@ -365,13 +353,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAndX_Exp(AndX_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
+	
 		
-		if (ctx.e1.myType == Type.BOOLEAN) {
-			if (ctx.e2.myType == Type.BOOLEAN) {
+		if (ctx.e1.myType.equals(Type.BOOLEAN)) {
+			if (ctx.e2.myType.equals(Type.BOOLEAN)) {
 				ctx.myType = Type.BOOLEAN;
 				print.DEBUG("exitAndX: 2 Booleans, we're ok");
 			}
@@ -406,12 +391,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.STRING) {
-			if (ctx.e2.myType == Type.STRING) {
+	
+		if (ctx.e1.myType.equals(Type.STRING)) {
+			if (ctx.e2.myType.equals(Type.STRING)) {
 				ctx.myType = Type.STRING;
 				print.DEBUG("exitConcatX: 2 strings, we're ok");
 			}
@@ -446,12 +428,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT) {
-			if (ctx.e2.myType == Type.INT) {
+	
+		if (ctx.e1.myType.equals(Type.INT)) {
+			if (ctx.e2.myType.equals(Type.INT)) {
 				ctx.myType = Type.INT;
 				print.DEBUG("exitAddPlus_Exp: 2 ints, we're ok");
 			}
@@ -474,12 +453,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT) {
-			if (ctx.e2.myType == Type.INT) {
+	
+		if (ctx.e1.myType.equals(Type.INT)) {
+			if (ctx.e2.myType.equals(Type.INT)) {
 				ctx.myType = Type.INT;
 				//print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
 			}
@@ -513,13 +489,10 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
+	
 		
-		if (ctx.e1.myType == Type.INT ) {
-			if (ctx.e2.myType == Type.INT) {
+		if (ctx.e1.myType.equals(Type.INT) ) {
+			if (ctx.e2.myType.equals(Type.INT)) {
 				//print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
 				ctx.myType = Type.INT;
 			}
@@ -542,12 +515,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT ) {
-			if (ctx.e1.myType == ctx.e2.myType) {
+	
+		if (ctx.e1.myType.equals(Type.INT) ) {
+			if (ctx.e1.myType.equals(ctx.e2.myType)) {
 				print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.INT;
 				
@@ -584,11 +554,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
-		if (ctx.unary_exp().myType == Type.ERROR) {
+		if (ctx.unary_exp().myType.equals(Type.ERROR)) {
 			ctx.myType = Type.ERROR;
 			return;
 		}
-		if (ctx.unary_exp().myType == Type.INT) {
+		if (ctx.unary_exp().myType.equals(Type.INT)) {
 			ctx.myType = Type.INT;
 			print.DEBUG("enterUnaryPlus_Exp: It's an int, we're ok.");
 		}
@@ -604,11 +574,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
-		if (ctx.unary_exp().myType == Type.ERROR) {
+		if (ctx.unary_exp().myType.equals(Type.ERROR)) {
 			ctx.myType = Type.ERROR;
 			return;
 		}
-		if (ctx.unary_exp().myType == Type.INT) {
+		if (ctx.unary_exp().myType.equals(Type.INT)) {
 			ctx.myType = Type.INT;
 			print.DEBUG("enterUnaryMinus_Exp: It's an int, we're ok.");
 		}
@@ -624,11 +594,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryNot_Exp(UnaryNot_ExpContext ctx) {
-		if (ctx.unary_exp().myType == Type.ERROR) {
+		if (ctx.unary_exp().myType.equals(Type.ERROR)) {
 			ctx.myType = Type.ERROR;
 			return;
 		}
-		if (ctx.unary_exp().myType == Type.BOOLEAN) {
+		if (ctx.unary_exp().myType.equals(Type.BOOLEAN)) {
 			ctx.myType = Type.BOOLEAN;
 			print.DEBUG("exitUnaryNot: It's a boolean, we're ok.");
 		}
@@ -822,8 +792,8 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitArgument_decl_list(Argument_decl_listContext ctx) {
 		
 		for (int i = 0; i < ctx.argument_decl().size(); i++) {
-//			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).IDENTIFIER().getText());
-//			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).type().myType);
+			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).IDENTIFIER().getText());
+			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).type().myType);
 			symTable.push(ctx.argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl(i).type().myType));
 			
 		}
@@ -836,6 +806,12 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMethod_decl(Method_declContext ctx) {
 		symTable.endScope();
+//		for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
+//		print.DEBUG("Exitmethod_decl. pushing:" + ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText() +
+//				" of type: " + ctx.argument_decl_list().argument_decl(i).type().myType );
+//		symTable.push(ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl_list().argument_decl(i).type().myType));
+//		
+//	}
 		super.exitMethod_decl(ctx);
 	}
 
@@ -849,11 +825,7 @@ public class SemanticChecker extends FloydBaseListener {
 				t = i;
 			}
 		}
-		if (!(ctx.IDENTIFIER(0).getText().equals("start"))) {
-			String msg = "Feature unsuported: defining a method other than 'start'";
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
-		}
+		print.DEBUG("Identifier:" + ctx.IDENTIFIER(0));
 
 		symTable.push(ctx.IDENTIFIER(0).getText(), new MethodDeclaration(t));
 		symTable.beginScope();

@@ -20,6 +20,7 @@ public class SymbolTable {
         }
         return instance;
     }
+    //FIXME(if method is already defined, don't push it into the table.)
     /*
     Desc: Pushes a new symbol entry onto the stack with the given name and decl information, 
     and the current scope level. It should return the new symbol entry
