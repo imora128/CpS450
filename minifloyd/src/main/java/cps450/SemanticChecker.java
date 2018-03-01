@@ -128,7 +128,7 @@ public class SemanticChecker extends FloydBaseListener {
 //			print.DEBUG("LHS is: " + sym.getDecl().type);
 //			print.DEBUG("RHS: " + ctx.expression(0).myType);
 			for (int i = 0; i < ctx.expression().size(); i++) {
-				if (sym.getDecl().type.equals(ctx.expression(i).myType)) {
+				if (sym.getDecl().type == ctx.expression(i).myType) {
 //					print.DEBUG("LHS:" + sym.getName() + "(" + sym.getDecl().type + ")" +  
 //							"matches the RHS: " + ctx.expression(i).getText()+ "(" + ctx.expression(i).myType + ")");
 				}
@@ -139,6 +139,11 @@ public class SemanticChecker extends FloydBaseListener {
 							ctx.start.getCharPositionInLine() + ":" + msg);
 				}
 			}
+		}
+		else {
+			String msg = "Trying to use undeclared variable " + ctx.IDENTIFIER().getText();
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
 		}
 		super.exitAssignment_stmt(ctx);
 	}
@@ -223,9 +228,12 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
-	
-		if (ctx.e1.myType.equals(Type.INT) || ctx.e1.myType.equals(Type.STRING) ) {
-			if (ctx.e1.myType.equals(ctx.e2.myType)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
+			if (ctx.e1.myType == ctx.e2.myType) {
 				print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
@@ -248,9 +256,12 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
-	
-		if (ctx.e1.myType.equals(Type.INT) || ctx.e1.myType.equals(Type.STRING) ) {
-			if (ctx.e1.myType.equals(ctx.e2.myType)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
+			if (ctx.e1.myType == ctx.e2.myType) {
 				print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
@@ -274,9 +285,12 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
-	
-		if (ctx.e1.myType.equals(Type.INT) || ctx.e1.myType.equals(Type.STRING)  || ctx.e1.myType.equals(Type.BOOLEAN)) {
-			if (ctx.e1.myType.equals(ctx.e2.myType)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING  || ctx.e1.myType == Type.BOOLEAN) {
+			if (ctx.e1.myType == ctx.e2.myType) {
 				print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
@@ -312,9 +326,12 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitOrX_Exp(OrX_ExpContext ctx) {
-	
-		if (ctx.e1.myType.equals(Type.BOOLEAN)) {
-			if (ctx.e2.myType.equals(Type.BOOLEAN)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.BOOLEAN) {
+			if (ctx.e2.myType == Type.BOOLEAN) {
 				ctx.myType = Type.BOOLEAN;
 				print.DEBUG("ExitOrX: 2 Booleans, we're ok");
 			}
@@ -350,9 +367,12 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitAndX_Exp(AndX_ExpContext ctx) {
 	
-		
-		if (ctx.e1.myType.equals(Type.BOOLEAN)) {
-			if (ctx.e2.myType.equals(Type.BOOLEAN)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.BOOLEAN) {
+			if (ctx.e2.myType == Type.BOOLEAN) {
 				ctx.myType = Type.BOOLEAN;
 				print.DEBUG("exitAndX: 2 Booleans, we're ok");
 			}
@@ -387,9 +407,12 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
-	
-		if (ctx.e1.myType.equals(Type.STRING)) {
-			if (ctx.e2.myType.equals(Type.STRING)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.STRING) {
+			if (ctx.e2.myType == Type.STRING) {
 				ctx.myType = Type.STRING;
 				print.DEBUG("exitConcatX: 2 strings, we're ok");
 			}
@@ -424,9 +447,12 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
-	
-		if (ctx.e1.myType.equals(Type.INT)) {
-			if (ctx.e2.myType.equals(Type.INT)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.INT) {
+			if (ctx.e2.myType == Type.INT) {
 				ctx.myType = Type.INT;
 				print.DEBUG("exitAddPlus_Exp: 2 ints, we're ok");
 			}
@@ -449,11 +475,14 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
-	
-		if (ctx.e1.myType.equals(Type.INT)) {
-			if (ctx.e2.myType.equals(Type.INT)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.INT) {
+			if (ctx.e2.myType == Type.INT) {
 				ctx.myType = Type.INT;
-				//print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
+				print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
 			}
 			else {
 				String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e2.myType;
@@ -486,9 +515,12 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
 	
-		
-		if (ctx.e1.myType.equals(Type.INT) ) {
-			if (ctx.e2.myType.equals(Type.INT)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.INT ) {
+			if (ctx.e2.myType == Type.INT) {
 				//print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
 				ctx.myType = Type.INT;
 			}
@@ -511,9 +543,12 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
-	
-		if (ctx.e1.myType.equals(Type.INT) ) {
-			if (ctx.e1.myType.equals(ctx.e2.myType)) {
+		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		if (ctx.e1.myType == Type.INT ) {
+			if (ctx.e1.myType == ctx.e2.myType) {
 				print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.INT;
 				
@@ -550,11 +585,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
-		if (ctx.unary_exp().myType.equals(Type.ERROR)) {
+		if (ctx.unary_exp().myType == Type.ERROR) {
 			ctx.myType = Type.ERROR;
 			return;
 		}
-		if (ctx.unary_exp().myType.equals(Type.INT)) {
+		if (ctx.unary_exp().myType == Type.INT) {
 			ctx.myType = Type.INT;
 			print.DEBUG("enterUnaryPlus_Exp: It's an int, we're ok.");
 		}
@@ -570,11 +605,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
-		if (ctx.unary_exp().myType.equals(Type.ERROR)) {
+		if (ctx.unary_exp().myType == Type.ERROR) {
 			ctx.myType = Type.ERROR;
 			return;
 		}
-		if (ctx.unary_exp().myType.equals(Type.INT)) {
+		if (ctx.unary_exp().myType == Type.INT) {
 			ctx.myType = Type.INT;
 			print.DEBUG("enterUnaryMinus_Exp: It's an int, we're ok.");
 		}
@@ -590,11 +625,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryNot_Exp(UnaryNot_ExpContext ctx) {
-		if (ctx.unary_exp().myType.equals(Type.ERROR)) {
+		if (ctx.unary_exp().myType == Type.ERROR) {
 			ctx.myType = Type.ERROR;
 			return;
 		}
-		if (ctx.unary_exp().myType.equals(Type.BOOLEAN)) {
+		if (ctx.unary_exp().myType == Type.BOOLEAN) {
 			ctx.myType = Type.BOOLEAN;
 			print.DEBUG("exitUnaryNot: It's a boolean, we're ok.");
 		}
@@ -727,7 +762,7 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitExprCont_ID(ExprCont_IDContext ctx) {
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
-			//print.DEBUG("FOUND THE SYMBOL. type: " + sym.getDecl().type);
+			print.DEBUG("FOUND THE SYMBOL." + ctx.IDENTIFIER().getText() + " type: " + sym.getDecl().type);
 			ctx.myType = sym.getDecl().type;
 		}
 		else {

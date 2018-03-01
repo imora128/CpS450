@@ -19,8 +19,8 @@ class decls2 is
     s := 5 > 3              ~ REFERENCE s: boolean
 
     
-    readint()              ~ ERROR: Undefined function 'readint'
-    s := tryme(5)          ~ ERROR: Undefined function 'tryme'
+    ~readint()              ~ ERROR: Undefined function 'readint'
+    ~s := tryme(5)          ~ ERROR: Undefined function 'tryme'
   end start
   
 end decls2
