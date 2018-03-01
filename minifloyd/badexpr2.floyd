@@ -1,18 +1,20 @@
-~Badexpr2.floyd 
-class Errorprogram is 
+~
+~ decls1.floyd
+~ - No errors, no arrays
+~
 
-  a: integer 
-  b: integer 
-  c: int 
-  d: int 
-  e: int 
+class test1 is
+                              
+  x: int                   ~ DEFINE x: int 
+  y: boolean               ~ DEFINE y: boolean
+  z: int
 
-  start() is 
-  begin 
-    a:= *c ~is not a unary operator 
-    b:=/c*2+3 ~//cannot start with '/', again, not unary 
-    c:=((1+a)*b)+c) ~//extra ')' on end 
-    d:=c+*d/3/5*8*a*b+3~ //the * before the d cannot be there with a '+' 
-    e:=)3+4)*(1+b*c) ~//the first ')' is the wrong way 
-  end start 
-end Errorprogram
+  start() is
+  begin
+    x := 3                     ~ REFERENCE x: int 
+    z := x - 1                 ~ REFERENCE z: int ; REFERENCE x: int
+
+    ~y := true                  ~ REFERENCE y: boolean
+  end start
+  
+end test1

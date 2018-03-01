@@ -40,7 +40,7 @@ public class Main
         ParseTree tree = parser.start();
         SymbolTable symTable = SymbolTable.getInstance();
         if (true) {
-        	ParseTreeWalker.DEFAULT.walk(new SemanticChecker(), tree);
+        	ParseTreeWalker.DEFAULT.walk(new SemanticChecker(parsedArgs), tree);
         	symTable.printSymTable();
         }
         //builds tree if the user gave dp as an rgument

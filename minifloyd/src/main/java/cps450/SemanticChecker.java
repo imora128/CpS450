@@ -17,7 +17,6 @@ import cps450.FloydParser.ConcatX_ExpContext;
 import cps450.FloydParser.Concat_expContext;
 import cps450.FloydParser.ExprCont_FalseContext;
 import cps450.FloydParser.ExprCont_IDContext;
-import cps450.FloydParser.ExpressionContext;
 import cps450.FloydParser.Method_expContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
@@ -41,15 +40,23 @@ import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.Unary_expContext;
 import cps450.FloydParser.ExprCont_StrlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
+import cps450.FloydParser.ExprOr_ExprContext;
+import cps450.FloydParser.ExprRelational_ExprContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
 //TODO: GO thru code and do loops for item : e1 
-
+//return after error
+//no array so [ is nono
+//null, me, new not supported
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable = SymbolTable.getInstance();
 	MyError print = new MyError(true);
+	Option opt;
+	SemanticChecker(Option opt) {
+		this.opt = opt;
+	}
 	
 	//TODO(:= Expr version of var_decl & Errors)
 	@Override
@@ -67,23 +74,42 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitAssignment_stmt(Assignment_stmtContext ctx) {
 		super.exitAssignment_stmt(ctx);
 	}
-	//TODO(Return type from expression. & Errors)
-	@Override
-	public void exitExpression(ExpressionContext ctx) {
 		
-		super.exitExpression(ctx);
+	
+	
+	
+	
+	@Override
+	public void exitExprRelational_Expr(ExprRelational_ExprContext ctx) {
+		if (ctx.relational_exp().myType != null) {
+			print.DEBUG("exitExprRelational_Expr: type is: " + ctx.relational_exp().myType);
+		}
+		else {
+			print.error("exitExprRelational_Expr: Got null");
+		}
+		super.exitExprRelational_Expr(ctx);
 	}
 
+	@Override
+	public void exitExprOr_Expr(ExprOr_ExprContext ctx) {
+		if (ctx.or_exp().myType != null) {
+			print.DEBUG("exitExprOr_Expr: type is: " + ctx.or_exp().myType);
+		}
+		else {
+			print.error("exitExprOr_Exprr: Got null");
+		}
+		super.exitExprOr_Expr(ctx);
+	}
 
-	
-	
 	@Override
 	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			print.DEBUG("exitRelationalGE_Exp: 2 INTs, we're ok");
+			ctx.myType = Type.INT;
 		}
 		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
 			print.DEBUG("exitRelationalGE_Exp: 2 Strings, we're ok");
+			ctx.myType = Type.STRING;
 		}
 		else {
 			print.error("exitRelationalGE_Exp: Did not get 2 ints or 2 strings");
@@ -96,9 +122,11 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			print.DEBUG("exitRelationalGT_Exp: 2 INTs, we're ok");
+			ctx.myType = Type.INT;
 		}
 		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
 			print.DEBUG("exitRelationalGT_Exp: 2 Strings, we're ok");
+			ctx.myType = Type.STRING;
 		}
 		else {
 			print.error("exitRelationalGT_Exp: Did not get 2 ints or 2 strings");
@@ -111,11 +139,14 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			print.DEBUG("exitRelationalEQ_Exp: 2 INTs, we're ok");
+			ctx.myType = Type.INT;
 		}
 		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
 			print.DEBUG("exitRelationalEQ_Exp: 2 Strings, we're ok");
+			ctx.myType = Type.STRING;
 		}
 		else if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN ) {
+			ctx.myType = Type.BOOLEAN;
 			print.DEBUG("exitRelationalEQ_Exp: 2 Booleans, we're ok");
 		}
 		else {
@@ -141,6 +172,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitOrX_Exp(OrX_ExpContext ctx) {
 		if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN) {
+			ctx.myType = Type.BOOLEAN;
 			print.DEBUG("exitOrX_Exp: 2 BOOLEANS, we're ok");
 		}
 		else {
@@ -165,6 +197,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitAndX_Exp(AndX_ExpContext ctx) {
 		if (ctx.e1.myType == Type.BOOLEAN && ctx.e2.myType == Type.BOOLEAN) {
+			ctx.myType = Type.BOOLEAN;
 			print.DEBUG("exitAndX_Exp: 2 BOOLEANS, we're ok");
 		}
 		else {
@@ -189,6 +222,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
 		if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING) {
+			ctx.myType = Type.STRING;
 			print.DEBUG("exitConcat_Exp: 2 strings, we're ok");
 		}
 		else {
@@ -204,7 +238,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.error("exitConcatAdd_Exp: shows previous func is null");
+			print.error("exitConcatAdd_Exp: shows previous func is: " + ctx.add_exp().myType);
 		}
 		super.exitConcatAdd_Exp(ctx);
 	}
@@ -213,10 +247,12 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			ctx.myType = Type.INT;
 			print.DEBUG("AddPlus_Exp: 2 ints, we're ok");
+			
 		}
 		else {
-			print.error("exitAddMinus_Exp: Did not get 2 ints");
+			print.error("exitAddPlus_Exp: Did not get 2 ints");
 		}
 		super.exitAddPlus_Exp(ctx);
 	}
@@ -225,6 +261,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			ctx.myType = Type.INT;
 			print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
 		}
 		else {
@@ -247,11 +284,16 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
+		//print.DEBUG("In exitmultitimes");
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
 			print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
+			ctx.myType = Type.INT;
+		}
+		else if (ctx.e1.myType == null && ctx.e2.myType == Type.INT) {
+			print.error("IOJJOIDASOIDAOSIJDJOIASODISAIOJ");
 		}
 		else {
-			print.error("exitMultiTimes_Exp: Did not get 2 ints");
+			print.error("exitMultiTimes_Exp: Did not get 2 ints. e1: " + ctx.e1.myType + " e2: " + ctx.e2.myType);
 		}
 		super.exitMultiTimes_Exp(ctx);
 	}
@@ -260,6 +302,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
 		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
+			ctx.myType = Type.INT;
 			print.DEBUG("exitMultiDIV_Exp: 2 ints, we're ok");
 		}
 		else {
@@ -286,6 +329,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
 		if (ctx.unary_exp().myType == Type.INT) {
+			ctx.myType = Type.INT;
 			print.DEBUG("enterUnaryPlus_Exp: It's an int, we're ok.");
 		}
 		else {
@@ -298,6 +342,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
 		if (ctx.unary_exp().myType == Type.INT) {
+			ctx.myType = Type.INT;
 			print.DEBUG("enterUnaryMinus_Exp: It's an int, we're ok.");
 		}
 		else {
@@ -310,6 +355,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitUnaryNot_Exp(UnaryNot_ExpContext ctx) {
 		if (ctx.unary_exp().myType == Type.BOOLEAN) {
+			ctx.myType = Type.BOOLEAN;
 			print.DEBUG("exitUnaryNot: It's a boolean, we're ok.");
 		}
 		else {
@@ -419,7 +465,7 @@ public class SemanticChecker extends FloydBaseListener {
 //		}
 //		super.exitTypeID(ctx);
 //	}
-//	
+	
 	
 	
 	

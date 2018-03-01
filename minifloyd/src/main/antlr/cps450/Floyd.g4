@@ -75,8 +75,8 @@ expression_list
 ;
 
 expression returns [Type myType]
-:relational_exp
-| or_exp
+:relational_exp	#ExprRelational_Expr
+| or_exp	#ExprOr_Expr
 ;
 
 or_exp returns [Type myType]
