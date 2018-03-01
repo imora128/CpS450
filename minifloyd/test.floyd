@@ -5,7 +5,7 @@ class test1 is
 
 	  start() is
   begin
-	y :=  5 = "hi"
-	y := "hi" = 5
+	x := 5 * true * false
+
   end start
 end test1

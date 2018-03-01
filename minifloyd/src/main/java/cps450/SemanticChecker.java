@@ -184,20 +184,23 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
-		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			//print.DEBUG("exitRelationalGE_Exp: 2 INTs, we're ok");
-			ctx.myType = Type.BOOLEAN;
-		}
-		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
-			print.DEBUG("exitRelationalGE_Exp: 2 Strings, we're ok");
-			ctx.myType = Type.BOOLEAN;
-		}
+		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
+			if (ctx.e1.myType == ctx.e2.myType) {
+				print.DEBUG("got 2" + ctx.e1.myType);
+				ctx.myType = Type.BOOLEAN;
+				
+			} else {
+				String msg = "Incorrect type for >=:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
+		}	
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for &:" + "requires booleans, got x";
+			String msg = "Incorrect type for >=:" + "requires int or string got " + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
-			ctx.myType = Type.BOOLEAN;
+			ctx.myType = Type.ERROR;
 		}
 		super.exitRelationalGE_Exp(ctx);
 	}
@@ -205,21 +208,25 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
-		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			print.DEBUG("exitRelationalGT_Exp: 2 INTs, we're ok");
-			ctx.myType = Type.BOOLEAN;
-		}
-		else if (ctx.e1.myType == Type.STRING && ctx.e2.myType == Type.STRING ) {
-			print.DEBUG("exitRelationalGT_Exp: 2 Strings, we're ok");
-			ctx.myType = Type.BOOLEAN;
-		}
+		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
+			if (ctx.e1.myType == ctx.e2.myType) {
+				print.DEBUG("got 2" + ctx.e1.myType);
+				ctx.myType = Type.BOOLEAN;
+				
+			} else {
+				String msg = "Incorrect type for >:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
+		}	
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for &:" + "requires booleans, got x";
+			String msg = "Incorrect type for >:" + "requires int or string got " + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
-			ctx.myType = Type.BOOLEAN;
+			ctx.myType = Type.ERROR;
 		}
+		
 		super.exitRelationalGT_Exp(ctx);
 	}
 
@@ -237,6 +244,12 @@ public class SemanticChecker extends FloydBaseListener {
 						ctx.start.getCharPositionInLine() + ":" + msg);
 				ctx.myType = Type.ERROR;
 			}
+		}
+		else {
+			String msg = "Incorrect type for =:" + "requires int, string, or bool got " + ctx.e1.myType;
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitRelationalEQ_Exp(ctx);
 	}
@@ -449,13 +462,20 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
-		if (ctx.e1.myType == Type.INT && ctx.e2.myType == Type.INT) {
-			ctx.myType = Type.INT;
-			print.DEBUG("exitMultiDIV_Exp: 2 ints, we're ok");
-		}
+		if (ctx.e1.myType == Type.INT ) {
+			if (ctx.e1.myType == ctx.e2.myType) {
+				print.DEBUG("got 2" + ctx.e1.myType);
+				ctx.myType = Type.INT;
+				
+			} else {
+				String msg = "Incorrect type for /:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+			}
+		}	
 		else {
-			//FIXME(It's catching the correct error, but sometimes prints the wrong data type.)
-			String msg = "Incorrect type for /:" + "requires ints, got " + ctx.unary_exp().myType;
+			String msg = "Incorrect type for /:" + "requires int got " + ctx.e1.myType;
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 					ctx.start.getCharPositionInLine() + ":" + msg);
 			ctx.myType = Type.ERROR;
