@@ -1,10 +1,13 @@
 class test1 is
 <<<<<<< HEAD
+<<<<<<< HEAD
                               
   x: int                   ~ DEFINE x: int 
   y: boolean               ~ DEFINE y: boolean
   z: int
 =======
+=======
+>>>>>>> parent of 20f3d7f... func checking is go
 
   boolmeth(x: int; b1: boolean): boolean is
   begin
@@ -15,6 +18,7 @@ class test1 is
  ~ begin
   ~  x := x + 1
  ~ end voidmeth
+<<<<<<< HEAD
 >>>>>>> parent of 20f3d7f... func checking is go
 
  start() is
@@ -25,6 +29,11 @@ class test1 is
 
     y := true                  
 =======
+>>>>>>> parent of 20f3d7f... func checking is go
+=======
+
+ start() is
+  begin
 >>>>>>> parent of 20f3d7f... func checking is go
   end start
 

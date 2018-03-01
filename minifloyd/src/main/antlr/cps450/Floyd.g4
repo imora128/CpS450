@@ -18,7 +18,7 @@ class_
 ;
 
 var_decl
-: IDENTIFIER (COLON type)? (ASSIGNMENT_OPERATOR expression)? cr
+: IDENTIFIER (COLON ty=type)? (ASSIGNMENT_OPERATOR expression)? cr
 ;
 
 
