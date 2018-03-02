@@ -4,6 +4,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+
+import javax.lang.model.element.TypeElement;
+
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import cps450.FloydParser.AddMinus_ExpContext;
 import cps450.FloydParser.AddMulti_ExpContext;
@@ -85,9 +89,6 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitVar_decl(Var_declContext ctx) {
 			if (ctx.children.contains(ctx.ASSIGNMENT_OPERATOR())) {
-				//String msg = "Unsupported feature: Attempting to initialize";
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
 				print.err(String.format(print.errMsgs.get("Unsupported"), 
 						"Attempting to initialize a variable in the declaration section."),ctx);
 				return;
@@ -97,28 +98,14 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
 			Symbol sym = symTable.lookup(ctx.IDENTIFIER().toString());
 			if (sym != null && sym.getScope() == symTable.getScope()) {
-//				String msg = "Attempting to redefine variable " + ctx.IDENTIFIER().toString() + " in the same scope.";
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);	
 				print.err(String.format(print.errMsgs.get("RedefineVar"), 
 						ctx.IDENTIFIER().toString()),ctx);
 				return;
 			}
-			
-//			if (symTable.lookup(ctx.IDENTIFIER().toString()).getScope() == symTable.getScope()) {
-//				String msg = "Attempting to redefine variable " + ctx.IDENTIFIER().toString() + " in the name scope.";
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-//			}
 			symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString()));
-//			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
-//			" Type: " + ctx.type().myType);
 			
 		}
 		else {
-//			String msg = "Variable type does not exist or is not provided";
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
 			print.err(print.errMsgs.get("BadVarType"),ctx);
 		}
 		
@@ -130,29 +117,18 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	@Override
 	public void exitAssignment_stmt(Assignment_stmtContext ctx) {
+		
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
-//			print.DEBUG("LHS is: " + sym.getDecl().type);
-//			print.DEBUG("RHS: " + ctx.expression(0).myType);
 			for (int i = 0; i < ctx.expression().size(); i++) {
-				if (sym.getDecl().type == ctx.expression(i).myType) {
-//					print.DEBUG("LHS:" + sym.getName() + "(" + sym.getDecl().type + ")" +  
-//							"matches the RHS: " + ctx.expression(i).getText()+ "(" + ctx.expression(i).myType + ")");
-				}
-				else {
-//					String msg = "Type  mismatch in assignment statement: expected " + sym.getDecl().type + 
-//							" on RHS, got "  +  ctx.expression(i).myType;
-//					print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//							ctx.start.getCharPositionInLine() + ":" + msg);
+				if (ctx.expression(i).myType != Type.ERROR && sym.getDecl().type != ctx.expression(i).myType) {
 					print.err(String.format(print.errMsgs.get("AssMismatch"), 
 							sym.getDecl().type, ctx.expression(i).myType),ctx);
 				}
 			}
 		}
 		else {
-//			String msg = "Trying to use undeclared variable " + ctx.IDENTIFIER().getText();
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
+
 			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
 					ctx.IDENTIFIER().getText()),ctx);
 		}
@@ -167,17 +143,11 @@ public class SemanticChecker extends FloydBaseListener {
 		ctx.myType = ctx.expression().myType;
 		super.exitExprCont_ParExp(ctx);
 	}
-	
-	
-	
-	
+		
 
 	@Override
 	public void exitExprCont_Array(ExprCont_ArrayContext ctx) {
 		ctx.myType = Type.ERROR;
-//		String msg = "Feature unsupported: Array";
-//		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//				ctx.start.getCharPositionInLine() + ":" + msg);
 		print.err(String.format(print.errMsgs.get("Unsupported"), 
 				"arrays"),ctx);
 		super.exitExprCont_Array(ctx);
@@ -185,16 +155,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitIf_stmt(If_stmtContext ctx) {
-		Type exprType = ctx.expression().myType;
-		if (exprType == Type.BOOLEAN) {
-			//print.DEBUG("Sucess. Expression is bool");
+		if (ctx.expression().myType == Type.BOOLEAN) {
 		}
 		else {
-//			String msg = "Type  mismatch in if statement: expected boolean but got " + exprType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
 			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.IF().toString(), "boolean", exprType),ctx);
+					ctx.IF(0).toString(), "boolean", ctx.expression().myType),ctx);
 		}
 		
 		super.exitIf_stmt(ctx);
@@ -204,16 +169,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitLoop_stmt(Loop_stmtContext ctx) {
-		Type exprType = ctx.expression().myType;
-		if (exprType == Type.BOOLEAN) {
-			//print.DEBUG("Sucess. Expression is bool");
+		if (ctx.expression().myType == Type.BOOLEAN) {
 		}
 		else {
-//			String msg = "Type  mismatch in while statement: expected boolean but got " + exprType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
 			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.WHILE().toString(), "boolean", "exprType"),ctx);
+					ctx.WHILE().toString(), "boolean", ctx.expression().myType),ctx);
 		}
 		
 		super.exitLoop_stmt(ctx);
@@ -245,31 +205,20 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
+		if (ctx.e1.myType == Type.STRING) {
+			List<String> foo = Arrays.asList("TypeMismatch", ctx.GE().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+			ctx.myType = exprCompareTypes(Type.STRING, ctx.e1.myType, ctx.e2.myType, ctx, foo);
+			if (ctx.myType == Type.STRING) {ctx.myType = Type.BOOLEAN;}
 		}
-		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
-			if (ctx.e1.myType == ctx.e2.myType) {
-				//print.DEBUG("got 2" + ctx.e1.myType);
-				ctx.myType = Type.BOOLEAN;
-				
-			} else {
-//				String msg = "Incorrect type for >=:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				ctx.myType = Type.ERROR;
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.GE().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-			}
-		}	
+		else if (ctx.e1.myType == Type.INT) {
+			List<String> foo = Arrays.asList("TypeMismatch", ctx.GE().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+			ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
+			if (ctx.myType == Type.INT) {ctx.myType = Type.BOOLEAN;}
+		}
 		else {
-//			String msg = "Incorrect type for >=:" + "requires int or string got " + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			ctx.myType = Type.ERROR;
 			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.GE().toString(), "int or string ", ctx.e1.myType),ctx);
+			ctx.GE().toString(), "int or string ", ctx.e1.myType),ctx);
+			ctx.myType = Type.ERROR;
 		}
 		super.exitRelationalGE_Exp(ctx);
 	}
@@ -277,63 +226,43 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
+		if (ctx.e1.myType == Type.STRING) {
+			List<String> foo = Arrays.asList("TypeMismatch", ctx.GT().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+			ctx.myType = exprCompareTypes(Type.STRING, ctx.e1.myType, ctx.e2.myType, ctx, foo);
+			if (ctx.myType == Type.STRING) {ctx.myType = Type.BOOLEAN;}
 		}
-		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
-			if (ctx.e1.myType == ctx.e2.myType) {
-				//print.DEBUG("got 2" + ctx.e1.myType);
-				ctx.myType = Type.BOOLEAN;
-				
-			} else {
-//				String msg = "Incorrect type for >:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.GT().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
-		}	
+		else if (ctx.e1.myType == Type.INT) {
+			List<String> foo = Arrays.asList("TypeMismatch", ctx.GT().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+			ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
+			if (ctx.myType == Type.INT) {ctx.myType = Type.BOOLEAN;}
+		}
 		else {
-//			String msg = "Incorrect type for >:" + "requires int or string got " + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
 			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.GT().toString(), "int or string ", ctx.e1.myType),ctx);
+			ctx.GT().toString(), "int or string ", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		
 		super.exitRelationalGT_Exp(ctx);
 	}
 
-
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
+		if (ctx.e1.myType == Type.INT) {
+			List<String> foo = Arrays.asList("TypeMismatch", ctx.EQ().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+			ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
+			if (ctx.myType == Type.INT) {ctx.myType = Type.BOOLEAN;}
 		}
-		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING  || ctx.e1.myType == Type.BOOLEAN) {
-			if (ctx.e1.myType == ctx.e2.myType) {
-				//print.DEBUG("got 2" + ctx.e1.myType);
-				ctx.myType = Type.BOOLEAN;
-				
-			} else {
-//				String msg = "Incorrect type for =:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.EQ().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
+		else if (ctx.e1.myType == Type.STRING) {
+			List<String> foo = Arrays.asList("TypeMismatch", ctx.EQ().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+			ctx.myType = exprCompareTypes(Type.STRING, ctx.e1.myType, ctx.e2.myType, ctx, foo);
+			if (ctx.myType == Type.STRING) {ctx.myType = Type.BOOLEAN;}
 		}
-		else {
-//			String msg = "Incorrect type for =:" + "requires int, string, or bool got " + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
+		else if (ctx.e1.myType == Type.BOOLEAN) {
+			List<String> foo = Arrays.asList("TypeMismatch", ctx.EQ().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+			ctx.myType = exprCompareTypes(Type.BOOLEAN, ctx.e1.myType, ctx.e2.myType, ctx, foo);
+		} else {
 			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.EQ().toString(), "int, string, or bool ", ctx.e1.myType),ctx);
+			ctx.EQ().toString(), "int, string, or bool ", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitRelationalEQ_Exp(ctx);
@@ -355,33 +284,8 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitOrX_Exp(OrX_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.BOOLEAN) {
-			if (ctx.e2.myType == Type.BOOLEAN) {
-				ctx.myType = Type.BOOLEAN;
-				//print.DEBUG("ExitOrX: 2 Booleans, we're ok");
-			}
-			else {
-//				String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.OR().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
-		}
-		else {
-//			String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got "  + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.OR().toString(), "booleans", ctx.e1.myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
-		super.exitOrX_Exp(ctx);
+		List<String> foo = Arrays.asList("TypeMismatch", ctx.OR().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+		ctx.myType = exprCompareTypes(Type.BOOLEAN, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 	}
 	
 	@Override
@@ -389,8 +293,7 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.and_exp().myType != null) {
 			ctx.myType = ctx.and_exp().myType;
 		}
-		else
-		{
+		else{
 			print.DEBUG("exitOrAnd_Exp: shows previous func is null");
 		}
 		super.exitOrAnd_Exp(ctx);
@@ -399,33 +302,8 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAndX_Exp(AndX_ExpContext ctx) {
-	
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.BOOLEAN) {
-			if (ctx.e2.myType == Type.BOOLEAN) {
-				ctx.myType = Type.BOOLEAN;
-				//print.DEBUG("exitAndX: 2 Booleans, we're ok");
-			}
-			else {
-//				String msg = "Incorrect type for " + ctx.AND().toString() + ": requires booleans, got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.AND().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
-		}
-		else {
-//			String msg = "Incorrect type for " + ctx.AND().toString() + ": requires booleans, got "  + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.AND().toString(), "booleans", ctx.e1.myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
+		List<String> foo = Arrays.asList("TypeMismatch", ctx.AND().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+		ctx.myType = exprCompareTypes(Type.BOOLEAN, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 		super.exitAndX_Exp(ctx);
 	}
 	
@@ -444,32 +322,8 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.STRING) {
-			if (ctx.e2.myType == Type.STRING) {
-				ctx.myType = Type.STRING;
-				//print.DEBUG("exitConcatX: 2 strings, we're ok");
-			}
-			else {
-//				String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.AMPERSAND().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
-		}
-		else {
-//			String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got "  + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.AMPERSAND().toString(), "strings" , ctx.e1.myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
+		List<String> foo = Arrays.asList("TypeMismatch", ctx.AMPERSAND().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+		ctx.myType = exprCompareTypes(Type.STRING, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 		super.exitConcatX_Exp(ctx);
 	}
 	
@@ -488,64 +342,15 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT) {
-			if (ctx.e2.myType == Type.INT) {
-				ctx.myType = Type.INT;
-				//print.DEBUG("exitAddPlus_Exp: 2 ints, we're ok");
-			}
-			else {
-//				String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.PLUS().toString(), ctx.e1.myType , ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
-		}
-		else {
-//			String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got "  + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.PLUS().toString(), "ints", ctx.e1.myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
+		List<String> foo = Arrays.asList("TypeMismatch", ctx.PLUS().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+		ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 		super.exitAddPlus_Exp(ctx);
 	}
-
-
+	
 	@Override
 	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT) {
-			if (ctx.e2.myType == Type.INT) {
-				ctx.myType = Type.INT;
-				//print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
-			}
-			else {
-//				String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.MINUS().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
-		}
-		else {
-//			String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.MINUS().toString(), "ints", ctx.e1.myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
+		List<String> foo = Arrays.asList("TypeMismatch", ctx.MINUS().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+		ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 		super.exitAddMinus_Exp(ctx);
 	}
 
@@ -560,69 +365,18 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		super.exitAddMulti_Exp(ctx);
 	}
-
+	
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
-	
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT ) {
-			if (ctx.e2.myType == Type.INT) {
-				//print.DEBUG("exitMultiTimes_Exp: 2 ints, we're ok");
-				ctx.myType = Type.INT;
-			}
-			else {
-//				String msg = "Incorrect type for *:" + "requires ints, got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.TIMES().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
-		}
-		else {
-//			String msg = "Incorrect type for *:" + "requires ints, got " + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.TIMES().toString(), "ints", ctx.e1.myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
+		List<String> foo = Arrays.asList("TypeMismatch", ctx.TIMES().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+		ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 		super.exitMultiTimes_Exp(ctx);
 	}
 
-
 	@Override
 	public void exitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
-		if (ctx.e1.myType == Type.ERROR || ctx.e2.myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.e1.myType == Type.INT ) {
-			if (ctx.e1.myType == ctx.e2.myType) {
-				print.DEBUG("got 2" + ctx.e1.myType);
-				ctx.myType = Type.INT;
-				
-			} else {
-//				String msg = "Incorrect type for /:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
-//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//						ctx.start.getCharPositionInLine() + ":" + msg);
-				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-						ctx.DIV().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
-				ctx.myType = Type.ERROR;
-			}
-		}	
-		else {
-//			String msg = "Incorrect type for /:" + "requires int got " + ctx.e1.myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.DIV().toString(), "ints", ctx.e1.myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
-		
+		List<String> foo = Arrays.asList("TypeMismatch", ctx.DIV().toString(),ctx.e1.myType.toString(), ctx.e2.myType.toString());
+		ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 		super.exitMultiDIV_Exp(ctx);
 	}
 
@@ -642,67 +396,53 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
-		if (ctx.unary_exp().myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.unary_exp().myType == Type.INT) {
-			ctx.myType = Type.INT;
-			print.DEBUG("enterUnaryPlus_Exp: It's an int, we're ok.");
-		}
-		else {
-//			String msg = "Incorrect type for +:" + "requires int, got " + ctx.unary_exp().myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.PLUS().toString(),"int", ctx.unary_exp().myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
+		String errorMsg = String.format(print.errMsgs.get("TypeMismatch"), 
+				ctx.PLUS().toString(),"int", ctx.unary_exp().myType);
+		ctx.myType = exprCompareTypes(Type.INT, ctx.unary_exp().myType, errorMsg, ctx);
 		super.exitUnaryPlus_Exp(ctx);
 	}
 
 
 	@Override
 	public void exitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
-		if (ctx.unary_exp().myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.unary_exp().myType == Type.INT) {
-			ctx.myType = Type.INT;
-			print.DEBUG("enterUnaryMinus_Exp: It's an int, we're ok.");
-		}
-		else {
-//			String msg = "Incorrect type for -:" + "requires int, got " + ctx.unary_exp().myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.MINUS().toString(), "int", ctx.unary_exp().myType),ctx);
-			ctx.myType = Type.ERROR;
-		}
-		super.enterUnaryMinus_Exp(ctx);
+		String errorMsg = String.format(print.errMsgs.get("TypeMismatch"), 
+				ctx.MINUS().toString(), "int", ctx.unary_exp().myType);
+		ctx.myType = exprCompareTypes(Type.INT, ctx.unary_exp().myType, errorMsg, ctx);
 	}
 
 
 	@Override
 	public void exitUnaryNot_Exp(UnaryNot_ExpContext ctx) {
-		if (ctx.unary_exp().myType == Type.ERROR) {
-			ctx.myType = Type.ERROR;
-			return;
-		}
-		if (ctx.unary_exp().myType == Type.BOOLEAN) {
-			ctx.myType = Type.BOOLEAN;
-			//print.DEBUG("exitUnaryNot: It's a boolean, we're ok.");
-		}
-		else {
-			ctx.myType = Type.ERROR;
-//			String msg = "Incorrect type for not:" + "requires boolean, got " + ctx.unary_exp().myType;
-//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-//					ctx.start.getCharPositionInLine() + ":" + msg);
-			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
-					ctx.NOT().toString(), "boolean", ctx.unary_exp().myType),ctx);
-		}
+		String errorMsg = String.format(print.errMsgs.get("TypeMismatch"), 
+				ctx.NOT().toString(), "boolean", ctx.unary_exp().myType);
+		ctx.myType = exprCompareTypes(Type.BOOLEAN, ctx.unary_exp().myType,errorMsg, ctx);
 		super.enterUnaryNot_Exp(ctx);
+	}
+
+	Type exprCompareTypes(Type expectedType, Type givenType1, Type givenType2,ParserRuleContext ctx, List<String> fields) {
+		if (givenType1 == Type.ERROR || givenType2 == Type.ERROR) {
+			return Type.ERROR;
+		}
+		if (expectedType == givenType1) {
+			if (expectedType == givenType2) {
+				return expectedType;
+			} else {
+				print.err(String.format(print.errMsgs.get(fields.get(0)), fields.get(1), expectedType, givenType2),ctx);
+				return Type.ERROR;
+			}
+		} else {
+			print.err(String.format(print.errMsgs.get(fields.get(0)), fields.get(1), expectedType, givenType1),ctx);
+			return Type.ERROR;
+		}
+	}
+	//FIXME("This is the compare types")
+	Type exprCompareTypes(Type expectedType, Type givenType, String errMsg, ParserRuleContext ctx) {
+		if (expectedType == givenType && givenType != Type.ERROR) {
+			return expectedType;
+		} else {
+			print.err(errMsg, ctx);
+			return Type.ERROR;
+		}
 	}
 	
 	

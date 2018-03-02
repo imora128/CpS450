@@ -41,7 +41,7 @@ public class Main
         SymbolTable symTable = SymbolTable.getInstance();
         if (true) {
         	ParseTreeWalker.DEFAULT.walk(new SemanticChecker(parsedArgs), tree);
-        	//symTable.printSymTable();
+        	symTable.printSymTable();
         }
         //builds tree if the user gave dp as an rgument
         if (parsedArgs.dp) {

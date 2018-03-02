@@ -90,3 +90,5 @@ public class SymbolTable {
    	 }
     }
 }
+
+//FIXME(Write a function that does the type checking instead of having 50x ifs)

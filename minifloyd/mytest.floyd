@@ -1,0 +1,81 @@
+class test0 is
+
+  b1: boolean
+  i1: int
+  ~s1: string
+
+  start() is
+  begin
+    ~b1 := not true or not false
+    ~b1 := not 5	~err1
+    ~b1 := not "true"	~err2
+    ~b1 := 5	~err3
+    ~i1 := -5
+    ~i1 := 5
+    ~i1 := -true	~err4
+    ~i1 := -"hello"	~err5
+    ~i1 := +5 + -5 + +5
+    ~i1 := +5 - 5 +"test" ~err6
+    ~i1 := +true	~err7
+    ~i1 := +"hello"	~err8
+    ~i1 := 5 / 5
+    ~i1 := 2 / 5 / 4 / 2 / 1
+    ~i1 := 2 / true	~err9
+    ~i1 := "test" / 2	~err10
+    ~i1 := true / 2	~err11
+    ~i1 := 2 / false	~err12
+    ~i1:= 2 / false / true / 5	~err13
+    ~i1 := 2 / 5 / true	~err19
+    ~i1 := 2 * 5
+    ~i1 := true * 5
+    ~i1 := 5 * 2 * true
+    ~i1 := "test" * 2 * 5 ~23 errors
+    ~i1 := 1 - 1
+    ~i1 := 1 - 1 - 2
+    ~i1 := 1 - true
+    ~i1 := false - 1
+    ~i1 := 1 - 2 - false - 2
+    ~i1 := false - 1 - 2~ 27 errors
+    ~i1 := 1 + 1
+    ~i1 := 1 + 1 + 2
+    ~i1 := 1 + true
+    ~i1 := false + 1
+    ~i1 := 1 + 2 + false + 2
+    ~i1 := false + 1 + 2 ~31 errors
+    ~s1 := "hi" & "hehe"
+    ~s1 := 5 & "no"
+    ~s1 := "nope " & 5
+    ~s1 := "nope" & "no" & 5
+    ~b1 := true and false
+    ~b1 := 5 and true
+    ~b1 := true and 5
+   ~ b1 := true and false and 5
+    ~b1 := true and 5 and false
+   ~ b1 := true and false
+    ~b1 := 5 or true
+    ~b1 := true or 5
+   ~ b1 := true or false and 5
+    ~b1 := true or 5 or false
+    ~b1 := (5 = 5)
+    ~b1 := true = true
+    ~b1 := "hi" = "hi"
+    ~b1 := 5 = true
+    ~b1 := true = 5
+    ~b1 := 5 = "test"
+    ~b1 := 1 > 2
+    ~b1 := "hi" > "hello"
+    ~b1 := 1 > "hi"
+    ~b1 := "hi" > true
+    b1 := 1 >= 2
+    b1 := "hi" >= "hello"
+    b1 := 1 >= "hi"
+    b1 := "hi" >= true
+    b1 := "hi" > 5
+    
+    
+   
+   
+    
+  end start
+  
+end test0
