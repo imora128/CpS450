@@ -17,6 +17,7 @@ import cps450.FloydParser.And_expContext;
 import cps450.FloydParser.Argument_declContext;
 import cps450.FloydParser.Argument_decl_listContext;
 import cps450.FloydParser.Assignment_stmtContext;
+import cps450.FloydParser.Call_stmtContext;
 import cps450.FloydParser.ConcatAdd_ExpContext;
 import cps450.FloydParser.ConcatX_ExpContext;
 import cps450.FloydParser.Concat_expContext;
@@ -455,7 +456,7 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.e1.myType == Type.INT) {
 			if (ctx.e2.myType == Type.INT) {
 				ctx.myType = Type.INT;
-				print.DEBUG("exitAddPlus_Exp: 2 ints, we're ok");
+				//print.DEBUG("exitAddPlus_Exp: 2 ints, we're ok");
 			}
 			else {
 				String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got " + ctx.e2.myType;
@@ -712,7 +713,49 @@ public class SemanticChecker extends FloydBaseListener {
 		super.enterExprCont_Strlit(ctx);
 	}
 	
-	//FIXME(expr function call )
+	
+	@Override
+	public void exitCall_stmt(Call_stmtContext ctx) {
+		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
+		if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
+			String msg = "Undefined function '" + ctx.IDENTIFIER().getText() + "'";
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			return;
+		}
+		
+		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
+		info = mDecl.getParameters();
+		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
+			if (info.size() == ctx.expression_list().expression().size()) {
+				for (int i = 0; i < info.size(); i++) {
+					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
+						print.DEBUG("MATCHED Type: " + info.get(i).type);
+					}
+					else {
+						String msg = "Expected variable type " + info.get(i).type.toString() + " got " + 
+								ctx.expression_list().expression().get(i).myType.toString();
+						print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+								ctx.start.getCharPositionInLine() + ":" + msg);
+						return;
+					}
+				}
+			} else {
+				String msg = "Expected " + info.size() + " parameters. Got " +ctx.expression_list().expression().size();
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				return;
+			}
+			
+		} else {
+			String msg = "Attempting to call a function that has not been declared.";
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			return;
+		}
+		super.exitCall_stmt(ctx);
+	}
+
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 
