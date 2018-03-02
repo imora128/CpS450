@@ -4,9 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-
 import org.antlr.v4.runtime.Token;
-
 import cps450.FloydParser.AddMinus_ExpContext;
 import cps450.FloydParser.AddMulti_ExpContext;
 import cps450.FloydParser.AddPlus_ExpContext;
@@ -87,9 +85,11 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitVar_decl(Var_declContext ctx) {
 			if (ctx.children.contains(ctx.ASSIGNMENT_OPERATOR())) {
-				String msg = "Unsupported feature: Attempting to initialize";
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+				//String msg = "Unsupported feature: Attempting to initialize";
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("Unsupported"), 
+						"Attempting to initialize a variable in the declaration section."),ctx);
 				return;
 			}
 			
@@ -97,9 +97,11 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
 			Symbol sym = symTable.lookup(ctx.IDENTIFIER().toString());
 			if (sym != null && sym.getScope() == symTable.getScope()) {
-				String msg = "Attempting to redefine variable " + ctx.IDENTIFIER().toString() + " in the same scope.";
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);	
+//				String msg = "Attempting to redefine variable " + ctx.IDENTIFIER().toString() + " in the same scope.";
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);	
+				print.err(String.format(print.errMsgs.get("RedefineVar"), 
+						ctx.IDENTIFIER().toString()),ctx);
 				return;
 			}
 			
@@ -114,9 +116,10 @@ public class SemanticChecker extends FloydBaseListener {
 			
 		}
 		else {
-			String msg = "Variable type does not exist or is not provided";
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Variable type does not exist or is not provided";
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(print.errMsgs.get("BadVarType"),ctx);
 		}
 		
 
@@ -128,7 +131,6 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitAssignment_stmt(Assignment_stmtContext ctx) {
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
-		
 		if (sym != null) {
 //			print.DEBUG("LHS is: " + sym.getDecl().type);
 //			print.DEBUG("RHS: " + ctx.expression(0).myType);
@@ -138,17 +140,21 @@ public class SemanticChecker extends FloydBaseListener {
 //							"matches the RHS: " + ctx.expression(i).getText()+ "(" + ctx.expression(i).myType + ")");
 				}
 				else {
-					String msg = "Type  mismatch in assignment statement: expected " + sym.getDecl().type + 
-							" on RHS, got "  +  ctx.expression(i).myType;
-					print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-							ctx.start.getCharPositionInLine() + ":" + msg);
+//					String msg = "Type  mismatch in assignment statement: expected " + sym.getDecl().type + 
+//							" on RHS, got "  +  ctx.expression(i).myType;
+//					print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//							ctx.start.getCharPositionInLine() + ":" + msg);
+					print.err(String.format(print.errMsgs.get("AssMismatch"), 
+							sym.getDecl().type, ctx.expression(i).myType),ctx);
 				}
 			}
 		}
 		else {
-			String msg = "Trying to use undeclared variable " + ctx.IDENTIFIER().getText();
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Trying to use undeclared variable " + ctx.IDENTIFIER().getText();
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
+					ctx.IDENTIFIER().getText()),ctx);
 		}
 		super.exitAssignment_stmt(ctx);
 	}
@@ -169,9 +175,11 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprCont_Array(ExprCont_ArrayContext ctx) {
 		ctx.myType = Type.ERROR;
-		String msg = "Feature unsupported: Array";
-		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-				ctx.start.getCharPositionInLine() + ":" + msg);
+//		String msg = "Feature unsupported: Array";
+//		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//				ctx.start.getCharPositionInLine() + ":" + msg);
+		print.err(String.format(print.errMsgs.get("Unsupported"), 
+				"arrays"),ctx);
 		super.exitExprCont_Array(ctx);
 	}
 
@@ -182,9 +190,11 @@ public class SemanticChecker extends FloydBaseListener {
 			//print.DEBUG("Sucess. Expression is bool");
 		}
 		else {
-			String msg = "Type  mismatch in if statement: expected boolean but got " + exprType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Type  mismatch in if statement: expected boolean but got " + exprType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.IF().toString(), "boolean", exprType),ctx);
 		}
 		
 		super.exitIf_stmt(ctx);
@@ -199,9 +209,11 @@ public class SemanticChecker extends FloydBaseListener {
 			//print.DEBUG("Sucess. Expression is bool");
 		}
 		else {
-			String msg = "Type  mismatch in while statement: expected boolean but got " + exprType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Type  mismatch in while statement: expected boolean but got " + exprType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.WHILE().toString(), "boolean", "exprType"),ctx);
 		}
 		
 		super.exitLoop_stmt(ctx);
@@ -243,17 +255,21 @@ public class SemanticChecker extends FloydBaseListener {
 				ctx.myType = Type.BOOLEAN;
 				
 			} else {
-				String msg = "Incorrect type for >=:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for >=:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
 				ctx.myType = Type.ERROR;
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.GE().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 			}
 		}	
 		else {
-			String msg = "Incorrect type for >=:" + "requires int or string got " + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for >=:" + "requires int or string got " + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
 			ctx.myType = Type.ERROR;
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.GE().toString(), "int or string ", ctx.e1.myType),ctx);
 		}
 		super.exitRelationalGE_Exp(ctx);
 	}
@@ -271,16 +287,20 @@ public class SemanticChecker extends FloydBaseListener {
 				ctx.myType = Type.BOOLEAN;
 				
 			} else {
-				String msg = "Incorrect type for >:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for >:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.GT().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}	
 		else {
-			String msg = "Incorrect type for >:" + "requires int or string got " + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for >:" + "requires int or string got " + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.GT().toString(), "int or string ", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		
@@ -300,16 +320,20 @@ public class SemanticChecker extends FloydBaseListener {
 				ctx.myType = Type.BOOLEAN;
 				
 			} else {
-				String msg = "Incorrect type for =:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for =:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.EQ().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}
 		else {
-			String msg = "Incorrect type for =:" + "requires int, string, or bool got " + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for =:" + "requires int, string, or bool got " + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.EQ().toString(), "int, string, or bool ", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitRelationalEQ_Exp(ctx);
@@ -341,16 +365,20 @@ public class SemanticChecker extends FloydBaseListener {
 				//print.DEBUG("ExitOrX: 2 Booleans, we're ok");
 			}
 			else {
-				String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.OR().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}
 		else {
-			String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got "  + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got "  + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.OR().toString(), "booleans", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitOrX_Exp(ctx);
@@ -379,19 +407,23 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.e1.myType == Type.BOOLEAN) {
 			if (ctx.e2.myType == Type.BOOLEAN) {
 				ctx.myType = Type.BOOLEAN;
-				print.DEBUG("exitAndX: 2 Booleans, we're ok");
+				//print.DEBUG("exitAndX: 2 Booleans, we're ok");
 			}
 			else {
-				String msg = "Incorrect type for " + ctx.AND().toString() + ": requires booleans, got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for " + ctx.AND().toString() + ": requires booleans, got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.AND().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}
 		else {
-			String msg = "Incorrect type for " + ctx.AND().toString() + ": requires booleans, got "  + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for " + ctx.AND().toString() + ": requires booleans, got "  + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.AND().toString(), "booleans", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitAndX_Exp(ctx);
@@ -422,16 +454,20 @@ public class SemanticChecker extends FloydBaseListener {
 				//print.DEBUG("exitConcatX: 2 strings, we're ok");
 			}
 			else {
-				String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.AMPERSAND().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}
 		else {
-			String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got "  + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got "  + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.AMPERSAND().toString(), "strings" , ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitConcatX_Exp(ctx);
@@ -462,16 +498,20 @@ public class SemanticChecker extends FloydBaseListener {
 				//print.DEBUG("exitAddPlus_Exp: 2 ints, we're ok");
 			}
 			else {
-				String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.PLUS().toString(), ctx.e1.myType , ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}
 		else {
-			String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got "  + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for " + ctx.PLUS().toString() + ": requires ints, got "  + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.PLUS().toString(), "ints", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitAddPlus_Exp(ctx);
@@ -490,16 +530,20 @@ public class SemanticChecker extends FloydBaseListener {
 				//print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
 			}
 			else {
-				String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.MINUS().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}
 		else {
-			String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.MINUS().toString(), "ints", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitAddMinus_Exp(ctx);
@@ -530,16 +574,20 @@ public class SemanticChecker extends FloydBaseListener {
 				ctx.myType = Type.INT;
 			}
 			else {
-				String msg = "Incorrect type for *:" + "requires ints, got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for *:" + "requires ints, got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.TIMES().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}
 		else {
-			String msg = "Incorrect type for *:" + "requires ints, got " + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for *:" + "requires ints, got " + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.TIMES().toString(), "ints", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitMultiTimes_Exp(ctx);
@@ -558,16 +606,20 @@ public class SemanticChecker extends FloydBaseListener {
 				ctx.myType = Type.INT;
 				
 			} else {
-				String msg = "Incorrect type for /:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Incorrect type for /:" + "requires " + ctx.e1.myType +  ", got " + ctx.e2.myType;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+						ctx.DIV().toString(), ctx.e1.myType, ctx.e2.myType),ctx);
 				ctx.myType = Type.ERROR;
 			}
 		}	
 		else {
-			String msg = "Incorrect type for /:" + "requires int got " + ctx.e1.myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for /:" + "requires int got " + ctx.e1.myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.DIV().toString(), "ints", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		
@@ -599,9 +651,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("enterUnaryPlus_Exp: It's an int, we're ok.");
 		}
 		else {
-			String msg = "Incorrect type for +:" + "requires int, got " + ctx.unary_exp().myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for +:" + "requires int, got " + ctx.unary_exp().myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.PLUS().toString(),"int", ctx.unary_exp().myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitUnaryPlus_Exp(ctx);
@@ -619,9 +673,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.DEBUG("enterUnaryMinus_Exp: It's an int, we're ok.");
 		}
 		else {
-			String msg = "Incorrect type for -:" + "requires int, got " + ctx.unary_exp().myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for -:" + "requires int, got " + ctx.unary_exp().myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.MINUS().toString(), "int", ctx.unary_exp().myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.enterUnaryMinus_Exp(ctx);
@@ -640,9 +696,11 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else {
 			ctx.myType = Type.ERROR;
-			String msg = "Incorrect type for not:" + "requires boolean, got " + ctx.unary_exp().myType;
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Incorrect type for not:" + "requires boolean, got " + ctx.unary_exp().myType;
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("TypeMismatch"), 
+					ctx.NOT().toString(), "boolean", ctx.unary_exp().myType),ctx);
 		}
 		super.enterUnaryNot_Exp(ctx);
 	}
@@ -681,37 +739,45 @@ public class SemanticChecker extends FloydBaseListener {
 @Override
 	public void exitExprCont_New(ExprCont_NewContext ctx) {
 	ctx.myType = Type.ERROR;
-	String msg = "Feature unsupported: new";
-	print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-			ctx.start.getCharPositionInLine() + ":" + msg);
+//	String msg = "Feature unsupported: new";
+//	print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//			ctx.start.getCharPositionInLine() + ":" + msg);
+	print.err(String.format(print.errMsgs.get("Unsupported"), 
+			ctx.NEW().toString()),ctx);
 		super.exitExprCont_New(ctx);
 	}
 
 @Override
 	public void exitExprCont_Null(ExprCont_NullContext ctx) {
 	ctx.myType = Type.ERROR;
-	String msg = "Feature unsupported: NULL";
-	print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-			ctx.start.getCharPositionInLine() + ":" + msg);
+//	String msg = "Feature unsupported: NULL";
+//	print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//			ctx.start.getCharPositionInLine() + ":" + msg);
+	print.err(String.format(print.errMsgs.get("Unsupported"), 
+			ctx.NULL().toString()),ctx);
 		super.exitExprCont_Null(ctx);
 	}
 
 	@Override
 	public void exitExprCont_ME(ExprCont_MEContext ctx) {
 		ctx.myType = Type.ERROR;
-		String msg = "Feature unsupported: ME";
-		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-				ctx.start.getCharPositionInLine() + ":" + msg);
+//		String msg = "Feature unsupported: ME";
+//		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//				ctx.start.getCharPositionInLine() + ":" + msg);
+		print.err(String.format(print.errMsgs.get("Unsupported"), 
+				ctx.ME().toString()),ctx);
 		super.exitExprCont_ME(ctx);
 	}
 
 	
 	@Override
 	public void exitExprCont_Strlit(ExprCont_StrlitContext ctx) {
-		//print.DEBUG("ExprCont_Strlit passing the type");
-		String msg = "Feature unsuported: string literal";
-		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-				ctx.start.getCharPositionInLine() + ":" + msg);
+//		//print.DEBUG("ExprCont_Strlit passing the type");
+//		String msg = "Feature unsuported: string literal";
+//		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//				ctx.start.getCharPositionInLine() + ":" + msg);
+		print.err(String.format(print.errMsgs.get("Unsupported"), 
+				"string literal"),ctx);
 		ctx.myType = Type.STRING;
 		super.enterExprCont_Strlit(ctx);
 	}
@@ -721,9 +787,11 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitCall_stmt(Call_stmtContext ctx) {
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
-			String msg = "Undefined function '" + ctx.IDENTIFIER().getText() + "'";
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Undefined function '" + ctx.IDENTIFIER().getText() + "'";
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
+					ctx.IDENTIFIER().getText()),ctx);
 			return;
 		}
 		
@@ -740,24 +808,31 @@ public class SemanticChecker extends FloydBaseListener {
 						print.DEBUG("MATCHED Type: " + info.get(i).type);
 					}
 					else {
-						String msg = "Expected variable type " + info.get(i).type.toString() + " got " + 
-								ctx.expression_list().expression().get(i).myType.toString();
-						print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-								ctx.start.getCharPositionInLine() + ":" + msg);
+//						String msg = "Expected variable type " + info.get(i).type.toString() + " got " + 
+//								ctx.expression_list().expression().get(i).myType.toString();
+//						print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//								ctx.start.getCharPositionInLine() + ":" + msg);
+						print.err(String.format(print.errMsgs.get("ParameterMismatch"), 
+								info.get(i).type.toString(), 
+								ctx.expression_list().expression().get(i).myType.toString()),ctx);
 						return;
 					}
 				}
 			} else {
-				String msg = "Expected " + info.size() + " parameters.asd Got " +ctx.expression_list().expression().size();
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Expected " + info.size() + " parameters.asd Got " +ctx.expression_list().expression().size();
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
+						info.size(), ctx.expression_list().expression().size()),ctx);
 				return;
 			}
 			
 		} else {
-			String msg = "Attempting to call a function that has not been declared.";
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Attempting to call a function that has not been declared.";
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
+					ctx.IDENTIFIER().getText()),ctx);
 			return;
 		}
 		super.exitCall_stmt(ctx);
@@ -768,9 +843,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
 			if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
-				String msg = "Undefined function '" + ctx.IDENTIFIER().getText() + "'";
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Undefined function '" + ctx.IDENTIFIER().getText() + "'";
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
+					ctx.IDENTIFIER().getText()),ctx);
 				ctx.myType = Type.ERROR;
 				return;
 			}
@@ -791,27 +868,34 @@ public class SemanticChecker extends FloydBaseListener {
 						print.DEBUG("MATCHED Type: " + info.get(i).type);
 					}
 					else {
-						String msg = "Expected variable type " + info.get(i).type.toString() + " got " + 
-								ctx.expression_list().expression().get(i).myType.toString();
-						print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-								ctx.start.getCharPositionInLine() + ":" + msg);
+//						String msg = "Expected variable type " + info.get(i).type.toString() + " got " + 
+//								ctx.expression_list().expression().get(i).myType.toString();
+//						print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//								ctx.start.getCharPositionInLine() + ":" + msg);
+						print.err(String.format(print.errMsgs.get("ParameterMismatch"), 
+								info.get(i).type.toString(), 
+								ctx.expression_list().expression().get(i).myType.toString()),ctx);
 						ctx.myType = Type.ERROR;
 						return;
 					}
 				}
 			} else {
 
-				String msg = "Expected " + info.size() + " parameters. Got " + paramNum;
-				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-						ctx.start.getCharPositionInLine() + ":" + msg);
+//				String msg = "Expected " + info.size() + " parameters. Got " + paramNum;
+//				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//						ctx.start.getCharPositionInLine() + ":" + msg);
+				print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
+						info.size(), paramNum),ctx);
 				ctx.myType = Type.ERROR;
 				return;
 			}
 			
 		} else {
-			String msg = "Attempting to call a function that has not been declared.";
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Attempting to call a function that has not been declared.";
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
+					ctx.IDENTIFIER().getText()),ctx);
 			ctx.myType = Type.ERROR;
 			return;
 		}
@@ -854,9 +938,11 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = sym.getDecl().type;
 		}
 		else {
-			String msg = "Use of undeclared variable " + ctx.IDENTIFIER().getText();
-			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-					ctx.start.getCharPositionInLine() + ":" + msg);
+//			String msg = "Use of undeclared variable " + ctx.IDENTIFIER().getText();
+//			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//					ctx.start.getCharPositionInLine() + ":" + msg);
+			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
+					ctx.IDENTIFIER().getText()),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		
@@ -871,9 +957,11 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitTypeString(TypeStringContext ctx) {
 		ctx.myType = Type.STRING;
-		String msg = "Feature unsuported: string variable definition";
-		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
-				ctx.start.getCharPositionInLine() + ":" + msg);
+//		String msg = "Feature unsuported: string variable definition";
+//		print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+//				ctx.start.getCharPositionInLine() + ":" + msg);
+		print.err(String.format(print.errMsgs.get("Unsupported"), 
+				"string variable definition"),ctx);
 		super.enterTypeString(ctx);
 	}
 	@Override
