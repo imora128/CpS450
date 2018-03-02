@@ -6,6 +6,7 @@ Description: Contains the rules used to generate the scanner
 */
 grammar Floyd;
 
+
 start 
 : cr? class_ (CR class_)* cr?
 ;

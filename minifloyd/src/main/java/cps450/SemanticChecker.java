@@ -1,4 +1,5 @@
 package cps450;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -103,9 +104,9 @@ public class SemanticChecker extends FloydBaseListener {
 //				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 //						ctx.start.getCharPositionInLine() + ":" + msg);
 //			}
-			symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType));
-			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
-			" Type: " + ctx.type().myType);
+			symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString()));
+//			print.DEBUG("Variable declared: " + ctx.IDENTIFIER().toString() +
+//			" Type: " + ctx.type().myType);
 			
 		}
 		else {
@@ -174,7 +175,7 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitIf_stmt(If_stmtContext ctx) {
 		Type exprType = ctx.expression().myType;
 		if (exprType == Type.BOOLEAN) {
-			print.DEBUG("Sucess. Expression is bool");
+			//print.DEBUG("Sucess. Expression is bool");
 		}
 		else {
 			String msg = "Type  mismatch in if statement: expected boolean but got " + exprType;
@@ -191,7 +192,7 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitLoop_stmt(Loop_stmtContext ctx) {
 		Type exprType = ctx.expression().myType;
 		if (exprType == Type.BOOLEAN) {
-			print.DEBUG("Sucess. Expression is bool");
+			//print.DEBUG("Sucess. Expression is bool");
 		}
 		else {
 			String msg = "Type  mismatch in while statement: expected boolean but got " + exprType;
@@ -209,7 +210,7 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = ctx.relational_exp().myType;
 		}
 		else {
-			print.DEBUG("exitExprRelational_Expr: Got null");
+			//print.DEBUG("exitExprRelational_Expr: Got null");
 		}
 		super.exitExprRelational_Expr(ctx);
 	}
@@ -234,7 +235,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
 			if (ctx.e1.myType == ctx.e2.myType) {
-				print.DEBUG("got 2" + ctx.e1.myType);
+				//print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
 			} else {
@@ -262,7 +263,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING ) {
 			if (ctx.e1.myType == ctx.e2.myType) {
-				print.DEBUG("got 2" + ctx.e1.myType);
+				//print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
 			} else {
@@ -291,7 +292,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		if (ctx.e1.myType == Type.INT || ctx.e1.myType == Type.STRING  || ctx.e1.myType == Type.BOOLEAN) {
 			if (ctx.e1.myType == ctx.e2.myType) {
-				print.DEBUG("got 2" + ctx.e1.myType);
+				//print.DEBUG("got 2" + ctx.e1.myType);
 				ctx.myType = Type.BOOLEAN;
 				
 			} else {
@@ -317,7 +318,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.DEBUG("exitRelationalOr_Exp: shows previous func is null");
+			//print.DEBUG("exitRelationalOr_Exp: shows previous func is null");
 		}
 		super.exitRelationalOr_Exp(ctx);
 	}
@@ -333,7 +334,7 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.e1.myType == Type.BOOLEAN) {
 			if (ctx.e2.myType == Type.BOOLEAN) {
 				ctx.myType = Type.BOOLEAN;
-				print.DEBUG("ExitOrX: 2 Booleans, we're ok");
+				//print.DEBUG("ExitOrX: 2 Booleans, we're ok");
 			}
 			else {
 				String msg = "Incorrect type for " + ctx.OR().toString() + ": requires booleans, got " + ctx.e2.myType;
@@ -482,7 +483,7 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.e1.myType == Type.INT) {
 			if (ctx.e2.myType == Type.INT) {
 				ctx.myType = Type.INT;
-				print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
+				//print.DEBUG("exitAddMinus_Exp: 2 ints, we're ok");
 			}
 			else {
 				String msg = "Incorrect type for -:" + "requires ints, got " + ctx.e2.myType;
@@ -700,21 +701,6 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitExprCont_ME(ctx);
 	}
 
-	//e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
-//	@Override
-//	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
-//		System.err.println("Implement this exitmethod new");
-//		super.exitMethodDot_Exp(ctx);
-//	}
-//	
-//	@Override
-//	public void exitMethodNew_Exp(MethodNew_ExpContext ctx) {
-//		System.err.println("Implement this exitmethod new");
-//		super.exitMethodNew_Exp(ctx);
-//	}
-
-
-
 	
 	@Override
 	public void exitExprCont_Strlit(ExprCont_StrlitContext ctx) {
@@ -729,7 +715,54 @@ public class SemanticChecker extends FloydBaseListener {
 	//FIXME(expr function call )
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
-		print.DEBUG("IMPLEMENT ME. IM THE FUNCTION CALL EXPR");
+
+		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
+			if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
+				String msg = "Undefined function '" + ctx.IDENTIFIER().getText() + "'";
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+				return;
+			}
+			MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
+	
+			info = mDecl.getParameters();
+		
+		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
+//			print.DEBUG("Size of given parameters: " + ctx.expression_list().expression().size());
+//			print.DEBUG("Size of expected parameters: " + info.size());
+			if (info.size() == ctx.expression_list().expression().size()) {
+				for (int i = 0; i < info.size(); i++) {
+					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
+						print.DEBUG("MATCHED Type: " + info.get(i).type);
+					}
+					else {
+						String msg = "Expected variable type " + info.get(i).type.toString() + " got " + 
+								ctx.expression_list().expression().get(i).myType.toString();
+						print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+								ctx.start.getCharPositionInLine() + ":" + msg);
+						ctx.myType = Type.ERROR;
+						return;
+					}
+				}
+			} else {
+				String msg = "Expected " + info.size() + " parameters. Got " +ctx.expression_list().expression().size();
+				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+						ctx.start.getCharPositionInLine() + ":" + msg);
+				ctx.myType = Type.ERROR;
+				return;
+			}
+			
+		} else {
+			String msg = "Attempting to call a function that has not been declared.";
+			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
+					ctx.start.getCharPositionInLine() + ":" + msg);
+			ctx.myType = Type.ERROR;
+			return;
+		}
+		Symbol foo = symTable.lookup(ctx.IDENTIFIER().getText());
+//		print.DEBUG("return asdfsdfasdfasdfsdfsdfasdfasdfasdfastype is " + foo.getDecl().type);
+		ctx.myType = foo.getDecl().type;
 		super.exitExprCont_IDExpr(ctx);
 	}
 
@@ -762,7 +795,7 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitExprCont_ID(ExprCont_IDContext ctx) {
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
-			print.DEBUG("FOUND THE SYMBOL." + ctx.IDENTIFIER().getText() + " type: " + sym.getDecl().type);
+			//print.DEBUG("FOUND THE SYMBOL." + ctx.IDENTIFIER().getText() + " type: " + sym.getDecl().type);
 			ctx.myType = sym.getDecl().type;
 		}
 		else {
@@ -799,7 +832,7 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitTypeID(TypeIDContext ctx) {
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
-			print.DEBUG("FOUND THE SYMBOL");
+			//print.DEBUG("FOUND THE SYMBOL");
 			ctx.myType = sym.getDecl().type;
 		}
 		else {
@@ -823,9 +856,9 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitArgument_decl_list(Argument_decl_listContext ctx) {
 		
 		for (int i = 0; i < ctx.argument_decl().size(); i++) {
-			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).IDENTIFIER().getText());
-			print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).type().myType);
-			symTable.push(ctx.argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl(i).type().myType));
+			//print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).IDENTIFIER().getText());
+			//print.DEBUG("exitArgument_decl_list inside list: " + ctx.argument_decl(i).type().myType);
+			symTable.push(ctx.argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl(i).type().myType,ctx.argument_decl(i).IDENTIFIER().getText() ));
 			
 		}
 		
@@ -836,13 +869,15 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMethod_decl(Method_declContext ctx) {
+		List<VarDeclaration> li = new ArrayList<VarDeclaration>();
+		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+		//print.DEBUG("my anme is " + ctx.IDENTIFIER());
+		if (ctx.argument_decl_list() != null) {
+			for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
+				mDecl.appendList(ctx.argument_decl_list().argument_decl(i).type().myType,ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText());
+			}
+		}
 		symTable.endScope();
-//		for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
-//		print.DEBUG("Exitmethod_decl. pushing:" + ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText() +
-//				" of type: " + ctx.argument_decl_list().argument_decl(i).type().myType );
-//		symTable.push(ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl_list().argument_decl(i).type().myType));
-//		
-//	}
 		super.exitMethod_decl(ctx);
 	}
 
@@ -856,13 +891,15 @@ public class SemanticChecker extends FloydBaseListener {
 				t = i;
 			}
 		}
-		print.DEBUG("Identifier:" + ctx.IDENTIFIER(0));
+		//print.DEBUG("Identifier:" + ctx.IDENTIFIER(0));
 
 		symTable.push(ctx.IDENTIFIER(0).getText(), new MethodDeclaration(t));
 		symTable.beginScope();
 		super.enterMethod_decl(ctx);
 	}
 
+
+	
 	
 	
 

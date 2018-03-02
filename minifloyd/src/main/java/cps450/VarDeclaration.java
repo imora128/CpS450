@@ -1,10 +1,11 @@
 package cps450;
 
 public class VarDeclaration extends Declaration {
-	
-	public VarDeclaration(Type varType) {
+	String name = "";
+	public VarDeclaration(Type varType, String _name) {
 		super();
 		type = varType;
+		name = _name;
 	}
 	
 
