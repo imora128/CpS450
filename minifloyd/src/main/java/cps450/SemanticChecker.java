@@ -65,11 +65,14 @@ import cps450.FloydParser.Method_declContext;
 
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable = SymbolTable.getInstance();
-	MyError print = new MyError(true);
+	MyError print = new MyError(false);
 	Option opt;
 	SemanticChecker(Option opt) {
 		this.opt = opt;
 		print.opt = opt;
+		//class def of writer, method write int with void return type and 1 param that's an int;
+		//check in the class declaration if the class dec is reader and it has readint and if the params 
+		//are good.
 	}
 	
 	boolean doesTypeExist(Type t) {
@@ -717,7 +720,6 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitCall_stmt(Call_stmtContext ctx) {
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
-		System.out.println("asfadsfuiadsfasdfiuadsuifsddsif" + ctx.IDENTIFIER().getText());
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
 			String msg = "Undefined function '" + ctx.IDENTIFIER().getText() + "'";
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
