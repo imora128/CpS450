@@ -416,7 +416,7 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.e1.myType == Type.STRING) {
 			if (ctx.e2.myType == Type.STRING) {
 				ctx.myType = Type.STRING;
-				print.DEBUG("exitConcatX: 2 strings, we're ok");
+				//print.DEBUG("exitConcatX: 2 strings, we're ok");
 			}
 			else {
 				String msg = "Incorrect type for " + ctx.AMPERSAND().toString() + ": requires strings, got " + ctx.e2.myType;
@@ -633,7 +633,7 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		if (ctx.unary_exp().myType == Type.BOOLEAN) {
 			ctx.myType = Type.BOOLEAN;
-			print.DEBUG("exitUnaryNot: It's a boolean, we're ok.");
+			//print.DEBUG("exitUnaryNot: It's a boolean, we're ok.");
 		}
 		else {
 			ctx.myType = Type.ERROR;
@@ -717,6 +717,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitCall_stmt(Call_stmtContext ctx) {
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
+		System.out.println("asfadsfuiadsfasdfiuadsuifsddsif" + ctx.IDENTIFIER().getText());
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
 			String msg = "Undefined function '" + ctx.IDENTIFIER().getText() + "'";
 			print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
@@ -726,8 +727,12 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
 		info = mDecl.getParameters();
+		int paramNum = 0;
+		if (ctx.expression_list() != null) {
+			paramNum = ctx.expression_list().expression().size();
+		}
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
-			if (info.size() == ctx.expression_list().expression().size()) {
+			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
 					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
 						print.DEBUG("MATCHED Type: " + info.get(i).type);
@@ -741,7 +746,7 @@ public class SemanticChecker extends FloydBaseListener {
 					}
 				}
 			} else {
-				String msg = "Expected " + info.size() + " parameters. Got " +ctx.expression_list().expression().size();
+				String msg = "Expected " + info.size() + " parameters.asd Got " +ctx.expression_list().expression().size();
 				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 						ctx.start.getCharPositionInLine() + ":" + msg);
 				return;
@@ -770,11 +775,15 @@ public class SemanticChecker extends FloydBaseListener {
 			MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
 	
 			info = mDecl.getParameters();
+			int paramNum = 0;
+			if (ctx.expression_list() != null) {
+				paramNum = ctx.expression_list().expression().size();
+			}
 		
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 //			print.DEBUG("Size of given parameters: " + ctx.expression_list().expression().size());
 //			print.DEBUG("Size of expected parameters: " + info.size());
-			if (info.size() == ctx.expression_list().expression().size()) {
+			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
 					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
 						print.DEBUG("MATCHED Type: " + info.get(i).type);
@@ -789,7 +798,8 @@ public class SemanticChecker extends FloydBaseListener {
 					}
 				}
 			} else {
-				String msg = "Expected " + info.size() + " parameters. Got " +ctx.expression_list().expression().size();
+
+				String msg = "Expected " + info.size() + " parameters. Got " + paramNum;
 				print.error(opt.fileName.get(0) + ":" + ctx.start.getLine() + "," + 
 						ctx.start.getCharPositionInLine() + ":" + msg);
 				ctx.myType = Type.ERROR;
