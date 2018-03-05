@@ -33,9 +33,9 @@ class meth1 is
     
   
     s1 := s1 & strmeth()
-    ~out.writeint("test")    ~ ERROR: wrong parameter type
-    ~in.writeint()              ~ ERROR: no such method for in
-    ~i1 := in.readint(15)    ~ ERROR: too many parameters
+    out.writeint("test")    ~ ERROR: wrong parameter type
+    in.writeint()              ~ ERROR: no such method for in
+    i1 := in.readint(15)    ~ ERROR: too many parameters
     
     b1 := voidmeth(5)     ~ ERROR: void method
     

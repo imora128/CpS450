@@ -36,9 +36,9 @@ class meth1ok is
     boolmeth(intmeth(3, s1), boolmeth(2, false))
     b1 := boolmeth(intmeth(3, s1), boolmeth(2, false))
     
-    ~out.writeint(i1)
-    ~i1 := in.readint()
-    ~in.readint()
+    out.writeint(i1)
+    i1 := in.readint()
+    in.readint()
     
     voidmeth(2)
     

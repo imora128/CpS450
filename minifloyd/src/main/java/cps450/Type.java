@@ -2,6 +2,7 @@ package cps450;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class Type {
@@ -13,14 +14,16 @@ public class Type {
     READER = new Type("reader"),
     VOID = new Type("void"),
     WRITER = new Type("writer");
-
     
     protected String name;
     ClassDeclaration decl;
 
+
 	protected Type(String name) {
 	    this.name = name;
 	}
+	
+	
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -35,6 +38,9 @@ public class Type {
 	public String toString() {
 		return name;
 	}
+
+	
+	
 
 	
 	

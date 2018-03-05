@@ -28,12 +28,12 @@ class test0 is
   
     s1 := "hello" & s2          ~ unsupported feature
     
-    ~in.readint(3)               ~ error: wrong number of parameters for readint
-    ~i1.readint(3)               ~ error: readint not invoked on Reader object
+    in.readint(3)               ~ error: wrong number of parameters for readint
+    i1.readint(3)               ~ error: readint not invoked on Reader object
     
-    ~out.writeint("Hi!")         ~ type error: wrong parameter for writeint
-    ~out.writeint()              ~ error: wrong number of parameters for write
-    ~out.writeint(3, 5)          ~ error: wrong number of parameters for write
+    out.writeint("Hi!")         ~ type error: wrong parameter for writeint
+    out.writeint()              ~ error: wrong number of parameters for write
+    out.writeint(3, 5)          ~ error: wrong number of parameters for write
   end start
   
 end test0

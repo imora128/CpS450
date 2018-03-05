@@ -5,13 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ClassDeclaration extends Declaration {
-	HashMap<String, MethodDeclaration> methods;
+	HashMap<String, MethodDeclaration> methods = new HashMap<String, MethodDeclaration>();
 	List<VarDeclaration> vars = new ArrayList<VarDeclaration>();
 	
-//	public ClassDeclaration(List<MethodDeclaration> methods, List<VarDeclaration> vars) {
-//		super();
-//		this.methods = methods;
-//		this.vars = vars;
-//	}
+	public ClassDeclaration(Type varType) {
+		super();
+		type = varType;
+	}
+	void appendMethod(String name, MethodDeclaration meth) {
+		methods.put(name, meth);
+	}
+	void appendVar(VarDeclaration var) {
+		vars.add(var);
+	}
 	
 }

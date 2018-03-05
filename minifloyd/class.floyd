@@ -1,0 +1,12 @@
+class test1 is
+                              
+  x: int                   ~ DEFINE x: int 
+  start() is
+  begin
+    out.writeint(5)
+    in.readint()
+    x := in.readint()
+    
+  end start
+  
+end test1

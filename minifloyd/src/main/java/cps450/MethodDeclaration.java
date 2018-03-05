@@ -16,11 +16,8 @@ public class MethodDeclaration extends Declaration {
 		return parameters;
 	}
 
-	public void setParameters(List<VarDeclaration> parameters) {
-		this.parameters = parameters;
-	}
 
-	public void appendList(Type t, String n) {
+	public void appendParameter(Type t, String n) {
 		
 		parameters.add(new VarDeclaration(t, n));
 		//System.out.println("Iasdfasdfasdfasdfsadfasdfasdfasfasdfsdanside of this function" + "Size: " + parameters.size() + " myty" + this.type );
