@@ -39,12 +39,16 @@ public class Main
         
         ParseTree tree = parser.start();
         SymbolTable symTable = SymbolTable.getInstance();
-        if (true) {
-        	ParseTreeWalker.DEFAULT.walk(new SemanticChecker(parsedArgs), tree);
-        	new CodeGen().visit(tree);
-        	//symTable.printSymTable();
+        ParseTreeWalker.DEFAULT.walk(new SemanticChecker(parsedArgs), tree);
+        if (parsedArgs.s && parsedArgs.semanticErrors == 0) {
+        	CodeGen foo = new CodeGen(parsedArgs);
+        	foo.visit(tree);
+        	foo.emitExit();
+        	foo.printInstructions();
+        	foo.writeToFile();
+        	
+        	
         }
-        //builds tree if the user gave dp as an rgument
         if (parsedArgs.dp) {
             Trees.inspect(tree, parser);
         }

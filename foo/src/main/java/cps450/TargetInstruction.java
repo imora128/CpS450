@@ -1,4 +1,8 @@
 package cps450;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /*
  * http://javarevisited.blogspot.com/2012/06/builder-design-pattern-in-java-example.html
  */
@@ -40,8 +44,23 @@ class TargetInstruction {
 
 	@Override
 	public String toString() {
-		return String.format("TargetInstruction: Label: %s, Instruction: %s,  Operand1: %s, Operand2: %s, Comment: %s,"
-				+ "Directive: %s", this.label, this.instruction, this.operand1, this.operand2, this.comment, this.directive);
+		String here = "";
+		List<String> test = new ArrayList<String>();
+		test.add(this.label);
+		test.add(this.instruction);
+		test.add(this.operand1);
+		test.add(this.operand2);
+		test.add(this.comment);
+		test.add(this.directive);
+		for (int i = 0; i < test.size(); i++) {
+			if (test.get(i) != "") {
+				here += test.get(i) + " ";
+			}
+		}
+		return here;
+//		return String.format("TargetInstruction: Label: %s, Instruction: %s,  Operand1: %s, Operand2: %s, Comment: %s,"
+//				+ "Directive: %s", this.label, this.instruction, this.operand1, this.operand2, this.comment, this.directive);
+		//return String.format("%s %s %s %s %s %s", this.label, this.instruction, this.operand1, this.operand2, this.comment, this.directive);
 	}
 
 	public String getLabel() {

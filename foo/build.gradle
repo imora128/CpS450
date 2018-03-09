@@ -11,6 +11,8 @@ repositories {
 
 generateGrammarSource {arguments += ["-package", "cps450"]}
 generateGrammarSource {arguments += ["-visitor"]}
+generateGrammarSource {arguments += ["-listener"]}
+
 dependencies {
   testCompile 'junit:junit:4.12'
   antlr       'org.antlr:antlr4:4.7.1'

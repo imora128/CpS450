@@ -18,12 +18,14 @@ Instance vars:
 public class Option {
      boolean ds;
      boolean dp;
+     boolean s;
      int semanticErrors = 0;
      List<String> fileName = new ArrayList<String>();
 
     Option() {
         ds = false;
         dp = false;
+        s = false;
     }
     /*
     Function Name: getCommandLineArguments
@@ -36,10 +38,12 @@ public class Option {
         //Will loop through the array looking for which options the users gave us and 
         //set the specific bool to true when found
         for (int i = 0; i < args.length; i++) {
-            if ((i == 0 || i == 1) && args[i].equals("-ds")) {
+            if ((i == 0 || i == 1 || i == 2) && args[i].equals("-ds")) {
                 ds = true;
-            } else if ((i == 0 || i == 1) && args[i].equals("-dp")) {
+            } else if ((i == 0 || i == 1 || i == 2) && args[i].equals("-dp")) {
                 dp = true;
+            } else if ((i == 0 || i == 1 || i == 2) && args[i].equals("-s")) {
+            	s = true;
             }
             else {
                 fileName.add(args[i]);

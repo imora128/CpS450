@@ -1,5 +1,7 @@
 #include <syscall.h>
-
+int minus(int x, int y) {
+  return x - y;
+}
 
 void writeint(int num) {
   char buf[20];

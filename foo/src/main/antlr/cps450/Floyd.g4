@@ -56,7 +56,7 @@ statement
 ;
 
 assignment_stmt
-: IDENTIFIER ('[' expression ']')* ASSIGNMENT_OPERATOR expression
+: IDENTIFIER ('[' expression ']')* ASSIGNMENT_OPERATOR e1=expression
 ;
 
 if_stmt

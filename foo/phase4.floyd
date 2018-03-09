@@ -1,0 +1,15 @@
+~  Assign1.ood
+~  This program tests assignment
+
+class Assign1 is
+
+  x: int
+
+  start() is
+  begin
+  	x := 5 - 4
+    ~y := x * (8 - x)
+    ~b1 := true
+  end start
+  
+end Assign1
