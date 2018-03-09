@@ -39,7 +39,7 @@ public class Main
         
         ParseTree tree = parser.start();
         ParseTreeWalker.DEFAULT.walk(new SemanticChecker(parsedArgs), tree);
-        if (parsedArgs.s && parsedArgs.semanticErrors == 0) {
+        if (parsedArgs.semanticErrors == 0) {
         	CodeGen foo = new CodeGen(parsedArgs);
         	foo.visit(tree);
         	//appending the exit instructions to the end of the file
@@ -47,9 +47,13 @@ public class Main
         	//debugging
         	//foo.printInstructions();
         	//writing instructions to file
-        	foo.writeToFile();
+        	foo.writeToFile(parsedArgs.s);
         	
         	
+        } else {
+        	System.out.println(String.format("ERROR: %s semantic error(s). Code generation will not execute" +
+        			" until those are fixed.", parsedArgs.semanticErrors));
+        	return;
         }
         if (parsedArgs.dp) {
             Trees.inspect(tree, parser);

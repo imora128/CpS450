@@ -55,7 +55,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 	}
 	
-	void writeToFile() {
+	void writeToFile(boolean s) {
 		//FIXME(Make suere to do error handling)
 		String fileName = opt.fileName.get(0);
 		fileName = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -68,16 +68,18 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		compile(fileName);
+		compile(fileName, s);
 		//PrintWriter writer = new PrintWriter(opt.fileName.get(0), )
 	}
 	
-	void compile(String fileName) {
+	void compile(String fileName, boolean s) {
 		//building the object file
 		ProcessBuilder buildObject = new ProcessBuilder("gcc", "-c", fileName + ".s");
 		invokeGCC(buildObject, fileName + " object file");
+		if (!s) {
 		ProcessBuilder buildExecutable = new ProcessBuilder("gcc", fileName + ".o", "stdlib.o", "-o", fileName);
 		invokeGCC(buildExecutable, fileName + " executable");
+		}
 	}
 	
 	void invokeGCC(ProcessBuilder procBuilder, String jobName) {
@@ -219,7 +221,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//FIXME(How do i figure out exactly how many arguments are pushed? For this phase, it'll be 1 or 0.)
 		int paramNum = ctx.expression_list().expression().size();
 		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
+		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
+		}
 		println();
 		
 		return null;

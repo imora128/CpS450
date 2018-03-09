@@ -2,9 +2,9 @@
 .comm _x,4,4 
 .global main 
 main: 
-# Line 10: x:=5-4 
-pushl $4 
-pushl $5 
+# Line 10: x:=10-9 
+pushl $9 
+pushl $10 
 call minus 
 addl $8, %esp 
 pushl %eax 
