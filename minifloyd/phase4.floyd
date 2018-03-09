@@ -4,11 +4,16 @@
 class Assign1 is
 
   x: int
-
+  y: int
+  z: int
   start() is
   begin
-  	x := 10 - 9
-  	out.writeint(x)
+  	x := 5
+    y := 2
+    z := x * y
+    out.writeint(z)
+    z := x * 10
+  	out.writeint(z)
     ~y := x * (8 - x)
     ~b1 := true
   end start

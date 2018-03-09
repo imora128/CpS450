@@ -21,6 +21,7 @@ import cps450.FloydParser.ExprCont_IDExprContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.Method_declContext;
+import cps450.FloydParser.MultiTimes_ExpContext;
 import cps450.FloydParser.Var_declContext;
 
 public class CodeGen extends FloydBaseVisitor<Void> {
@@ -74,9 +75,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	void compile(String fileName, boolean s) {
 		//building the object file
+		if (!s) {
 		ProcessBuilder buildObject = new ProcessBuilder("gcc", "-c", fileName + ".s");
 		invokeGCC(buildObject, fileName + " object file");
-		if (!s) {
 		ProcessBuilder buildExecutable = new ProcessBuilder("gcc", fileName + ".o", "stdlib.o", "-o", fileName);
 		invokeGCC(buildExecutable, fileName + " executable");
 		}
@@ -194,6 +195,18 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		TargetInstruction cleanUp = new TargetInstruction.Builder().
 				instruction("addl").operand1("$8,").operand2("%esp").build();
 		emit(cleanUp);
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		return null;
+	}
+	
+	
+
+	@Override
+	public Void visitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
+		visit(ctx.e1);
+		visit(ctx.e2);
+		emit(new TargetInstruction.Builder().instruction("call").operand1("times").build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		return null;
 	}
