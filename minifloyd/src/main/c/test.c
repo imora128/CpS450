@@ -36,10 +36,35 @@ void divisionTests() {
 	// 	printf("-5/0 failed");
 	// }
 }
+
+void greaterThanTests() {
+	if (greaterThan(5, 4) != 1) {
+		printf("failed 5 > 4\n");
+	}
+	if (greaterThan(4, 5) != 0) {
+		printf("failed 4 > 5\n");
+	}
+	if (greaterThan(-5, 4) != 0) {
+		printf("failed -5 > 4\n");
+	}
+	if (greaterThan(-5, -4) != 0) {
+		printf("failed -5 > -4\n");
+	}
+		if (greaterThan(5, -4) != 1) {
+		printf("failed -5 > -4\n");
+	}
+	if (greaterThan(5, 5) != 0) {
+		printf("failed -5 > 5\n");
+	}
+		if (greaterThan(12, 0) != 1) {
+		printf("failed 12 > 0\n");
+	}
+}
 int main() {
 	minusTests();
 	timesTests();
 	divisionTests();
+	greaterThanTests();
 	printf("If there are no messages, the tests passed.\n");
 
 

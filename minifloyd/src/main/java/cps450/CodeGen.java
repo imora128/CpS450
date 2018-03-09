@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+
+import org.antlr.v4.runtime.ParserRuleContext;
+
 import java.lang.ProcessBuilder;
 
 import cps450.FloydParser.AddMinus_ExpContext;
@@ -23,6 +26,7 @@ import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.Method_declContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
+import cps450.FloydParser.RelationalGT_ExpContext;
 import cps450.FloydParser.Var_declContext;
 
 public class CodeGen extends FloydBaseVisitor<Void> {
@@ -190,13 +194,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitAddMinus_Exp(AddMinus_ExpContext ctx) {
 		visit(ctx.e2);
 		visit(ctx.e1);
-		TargetInstruction callMinus = new TargetInstruction.Builder().
-				instruction(String.format("call %s", "minus")).build();
-		emit(callMinus);
-		TargetInstruction cleanUp = new TargetInstruction.Builder().
-				instruction("addl").operand1("$8,").operand2("%esp").build();
-		emit(cleanUp);
-		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		callFunction("minus");
 		return null;
 	}
 	
@@ -206,9 +204,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
 		visit(ctx.e1);
 		visit(ctx.e2);
-		emit(new TargetInstruction.Builder().instruction("call").operand1("times").build());
-		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
-		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		callFunction("times");
 		return null;
 	}
 	
@@ -218,12 +214,26 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
 		visit(ctx.e2);
 		visit(ctx.e1);
-		emit(new TargetInstruction.Builder().instruction("call").operand1("division").build());
-		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
-		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		callFunction("division");
 		return null;
 	}
 
+	
+	
+	@Override
+	public Void visitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
+		visit(ctx.e2);
+		visit(ctx.e1);
+		callFunction("greaterThan");
+		return null;
+	}
+
+	
+	void callFunction(String functionName) {
+		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+	}
 	@Override
 	public Void visitClass_(Class_Context ctx) {
 		TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();

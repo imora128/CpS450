@@ -4,32 +4,53 @@
 .comm _z,4,4 
 .global main 
 main: 
-# Line 11: z:=-5/1 
+# Line 11: out.writeint(5-1) 
 pushl $1 
-pushl $-5 
-call division 
+pushl $5 
+call minus 
 addl $8, %esp 
 pushl %eax 
-popl _z 
-
- 
-# Line 12: out.writeint(z) 
-pushl _z 
 call writeint 
 addl $4, %esp 
 
  
-# Line 13: z:=-20/3 
+# Line 12: out.writeint(5-5) 
+pushl $5 
+pushl $5 
+call minus 
+addl $8, %esp 
+pushl %eax 
+call writeint 
+addl $4, %esp 
+
+ 
+# Line 13: out.writeint(5+1) 
+pushl $5 
+pushl $1 
+popl %eax 
+popl %ebx 
+addl  %eax, %ebx 
+pushl %ebx 
+call writeint 
+addl $4, %esp 
+
+ 
+# Line 14: out.writeint(5*3) 
+pushl $5 
 pushl $3 
-pushl $-20 
+call times 
+addl $8, %esp 
+pushl %eax 
+call writeint 
+addl $4, %esp 
+
+ 
+# Line 15: out.writeint(5/5) 
+pushl $5 
+pushl $5 
 call division 
 addl $8, %esp 
 pushl %eax 
-popl _z 
-
- 
-# Line 14: out.writeint(z) 
-pushl _z 
 call writeint 
 addl $4, %esp 
 
