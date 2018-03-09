@@ -8,6 +8,7 @@ as instance variables.
 package cps450;
 import java.util.ArrayList;
 import java.util.List;
+//FIXME(Parsing logic. check the extension of all things that aren't -s, -ds, -dp, and if it isn't .floyd, give usage msg)
 
 /*
 Class Name: Option
