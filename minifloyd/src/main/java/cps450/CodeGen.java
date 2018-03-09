@@ -29,7 +29,17 @@ import cps450.FloydParser.MultiTimes_ExpContext;
 import cps450.FloydParser.RelationalGT_ExpContext;
 import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.Var_declContext;
-
+//TODO(List of things to overload: )
+/*
+ * expression call stmt
+ * or
+ * and
+ * ge
+ * eq
+ * unary plus
+ * unary not
+ * 
+ */
 public class CodeGen extends FloydBaseVisitor<Void> {
 	List<TargetInstruction> instructions = new ArrayList<TargetInstruction>();
 	Stack<String> registers = new Stack<String>();
