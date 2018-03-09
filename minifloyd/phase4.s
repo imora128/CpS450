@@ -4,41 +4,31 @@
 .comm _z,4,4 
 .global main 
 main: 
-# Line 11: x:=5 
-pushl $5 
-popl _x 
+# Line 11: z:=-5/1 
+pushl $1 
+pushl $-5 
+call division 
+addl $8, %esp 
+pushl %eax 
+popl _z 
 
  
-# Line 12: y:=2 
-pushl $2 
-popl _y 
+# Line 12: out.writeint(z) 
+pushl _z 
+call writeint 
+addl $4, %esp 
 
  
-# Line 13: z:=x*y 
-pushl _x 
-pushl _y 
-call times 
+# Line 13: z:=-20/3 
+pushl $3 
+pushl $-20 
+call division 
 addl $8, %esp 
 pushl %eax 
 popl _z 
 
  
 # Line 14: out.writeint(z) 
-pushl _z 
-call writeint 
-addl $4, %esp 
-
- 
-# Line 15: z:=x*10 
-pushl _x 
-pushl $10 
-call times 
-addl $8, %esp 
-pushl %eax 
-popl _z 
-
- 
-# Line 16: out.writeint(z) 
 pushl _z 
 call writeint 
 addl $4, %esp 

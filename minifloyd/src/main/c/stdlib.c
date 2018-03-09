@@ -7,6 +7,10 @@ int times(int x, int y) {
   return x * y;
 }
 
+int division(int x, int y) {
+  return x / y;
+}
+
 void writeint(int num) {
   char buf[20];
   char result[20] = "0\n";

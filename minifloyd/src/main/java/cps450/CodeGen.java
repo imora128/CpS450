@@ -21,6 +21,7 @@ import cps450.FloydParser.ExprCont_IDExprContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.Method_declContext;
+import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
 import cps450.FloydParser.Var_declContext;
 
@@ -206,6 +207,18 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		visit(ctx.e1);
 		visit(ctx.e2);
 		emit(new TargetInstruction.Builder().instruction("call").operand1("times").build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		return null;
+	}
+	
+	
+
+	@Override
+	public Void visitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
+		visit(ctx.e2);
+		visit(ctx.e1);
+		emit(new TargetInstruction.Builder().instruction("call").operand1("division").build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		return null;
