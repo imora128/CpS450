@@ -116,7 +116,7 @@ multi_exp returns [Type myType]
 
 unary_exp returns [Type myType]
 : PLUS unary_exp	#UnaryPlus_Exp
-| MINUS unary_exp	#UnaryMinus_Exp
+| MINUS e1=unary_exp	#UnaryMinus_Exp
 | NOT unary_exp		#UnaryNot_Exp
 | method_exp		#UnaryMethod_Exp
 ;

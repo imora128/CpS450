@@ -60,11 +60,24 @@ void greaterThanTests() {
 		printf("failed 12 > 0\n");
 	}
 }
+
+void unaryMinusTest() {
+	if (unaryMinus(1) != -1) {
+		printf("failed 1\n");
+	}
+	if (unaryMinus(-1)  != 1) {
+		printf("failed -1\n");
+	}
+	if (unaryMinus(5) != -5) {
+		printf("failed 5\n");
+	}
+}
 int main() {
 	minusTests();
 	timesTests();
 	divisionTests();
 	greaterThanTests();
+	unaryMinusTest();
 	printf("If there are no messages, the tests passed.\n");
 
 

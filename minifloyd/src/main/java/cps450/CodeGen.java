@@ -27,6 +27,7 @@ import cps450.FloydParser.Method_declContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
 import cps450.FloydParser.RelationalGT_ExpContext;
+import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.Var_declContext;
 
 public class CodeGen extends FloydBaseVisitor<Void> {
@@ -229,6 +230,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 
 	
+	
+	@Override
+	public Void visitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
+		//FIXME(Not being negated b itself. what do i do?)
+//		System.out.println("I AM IN VISIT UNARY "+ ctx.getText() + " " + ctx.unary_exp().getText());
+		visit(ctx.e1);
+		callFunction("unaryMinus");
+		return null;
+	}
+
 	void callFunction(String functionName) {
 		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());

@@ -8,11 +8,7 @@ class Assign1 is
   z: int
   start() is
   begin
-  out.writeint(5 - 1)
-  out.writeint(5 - 5)
-  out.writeint(5 + 1)
-  out.writeint(5 * 3)
-  out.writeint(5 / 5)
+    out.writeint(-(9 - 5))       ~ -4
   end start
   
 end Assign1

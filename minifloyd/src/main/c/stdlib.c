@@ -14,6 +14,9 @@ int times(int x, int y) {
 int division(int x, int y) {
   return x / y;
 }
+int unaryMinus(int x) {
+  return -x;
+}
 
 void writeint(int num) {
   char buf[20];
