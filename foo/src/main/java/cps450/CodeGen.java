@@ -1,14 +1,19 @@
 package cps450;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+import java.lang.ProcessBuilder;
 
 import cps450.FloydParser.AddMinus_ExpContext;
 import cps450.FloydParser.AddPlus_ExpContext;
 import cps450.FloydParser.Assignment_stmtContext;
+import cps450.FloydParser.Call_stmtContext;
 import cps450.FloydParser.Class_Context;
 import cps450.FloydParser.ExprCont_FalseContext;
 import cps450.FloydParser.ExprCont_IDContext;
@@ -39,9 +44,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 	
 	void emitExit() {
-		emit(new TargetInstruction.Builder().comment("#Calling exit because the program is finished").build());
-		emit(new TargetInstruction.Builder().instruction("pushl ").operand1("$0").build());
-		emit(new TargetInstruction.Builder().instruction("call ").operand1("exit").build());
+		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
+		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
 	}
 	
 	void printInstructions() {
@@ -52,11 +57,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	void writeToFile() {
 		//FIXME(Make suere to do error handling)
-		String filename = opt.fileName.get(0);
-		filename = filename.substring(0, filename.lastIndexOf('.'));
-		filename += ".s";
+		String fileName = opt.fileName.get(0);
+		fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 		try {
-		PrintWriter w = new PrintWriter(filename);
+		PrintWriter w = new PrintWriter(fileName + ".s");
 		for (TargetInstruction i: instructions) {
 			w.println(i);
 		}
@@ -64,9 +68,40 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		compile(fileName);
 		//PrintWriter writer = new PrintWriter(opt.fileName.get(0), )
 	}
-
+	
+	void compile(String fileName) {
+		//building the object file
+		ProcessBuilder buildObject = new ProcessBuilder("gcc", "-c", fileName + ".s");
+		invokeGCC(buildObject, fileName + " object file");
+		ProcessBuilder buildExecutable = new ProcessBuilder("gcc", fileName + ".o", "stdlib.o", "-o", fileName);
+		invokeGCC(buildExecutable, fileName + " executable");
+	}
+	
+	void invokeGCC(ProcessBuilder procBuilder, String jobName) {
+		int exitCode;
+		try {
+			//System.out.println("Inside of invokeGCC. Filename: " + fileName);
+			Process proc = procBuilder.start();
+			proc.waitFor();
+			exitCode = proc.exitValue();
+			if (exitCode == 0) {
+				System.out.println(String.format("Sucessful compilation of %s", jobName));
+			} else {
+				 BufferedReader buf = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+				 String out;
+				 while ((out = buf.readLine()) != null) {
+					 System.out.println(out);
+				 }
+			}
+		} catch (Exception e) {
+			//TODO("exception hadnelr body")
+			System.out.println(String.format("Error while invoking process: %s", e));
+		}
+		
+	}
 	@Override
 	public Void visitExprCont_Intlit(ExprCont_IntlitContext ctx) {
 		TargetInstruction foo = new TargetInstruction.Builder().instruction("pushl").operand1(String.format("$%s", ctx.INTEGER_LITERAL().getText())).build();		
@@ -113,7 +148,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitAssignment_stmt(Assignment_stmtContext ctx) {
-		emit(new TargetInstruction.Builder().comment(String.format("# Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
 		visit(ctx.e1);
 		TargetInstruction instruction = new TargetInstruction.Builder().
 				instruction(String.format("popl _%s", ctx.IDENTIFIER().getText())).build();		
@@ -155,9 +190,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				instruction(String.format("call %s", "minus")).build();
 		emit(callMinus);
 		TargetInstruction cleanUp = new TargetInstruction.Builder().
-				instruction("addl ").operand1("$8,").operand2("%esp").build();
+				instruction("addl").operand1("$8,").operand2("%esp").build();
 		emit(cleanUp);
-		emit(new TargetInstruction.Builder().instruction("pushl ").operand1("%eax").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		return null;
 	}
 
@@ -174,6 +209,23 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().directive("main:").build());
 		return super.visitMethod_decl(ctx);
 	}
+
+	@Override
+	public Void visitCall_stmt(Call_stmtContext ctx) {
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
+		//only functions allowed are writeint and readint for this phase, so dont need to visit
+		//visit(ctx.t1);
+		visit(ctx.t2);
+		//FIXME(How do i figure out exactly how many arguments are pushed? For this phase, it'll be 1 or 0.)
+		int paramNum = ctx.expression_list().expression().size();
+		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
+		println();
+		
+		return null;
+	}
+	
+	
 	
 	
 

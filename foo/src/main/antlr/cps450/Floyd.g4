@@ -68,7 +68,7 @@ loop_stmt
 ;
 
 call_stmt
-: (t1=expression PERIOD)? func=IDENTIFIER R_PAR (expression_list)? L_PAR
+: (t1=expression PERIOD)? func=IDENTIFIER R_PAR (t2=expression_list)? L_PAR
 ;
 
 expression_list

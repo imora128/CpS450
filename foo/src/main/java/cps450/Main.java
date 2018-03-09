@@ -38,13 +38,15 @@ public class Main
         parser.addErrorListener(new MyFloydErrorListener(parsedArgs));
         
         ParseTree tree = parser.start();
-        SymbolTable symTable = SymbolTable.getInstance();
         ParseTreeWalker.DEFAULT.walk(new SemanticChecker(parsedArgs), tree);
         if (parsedArgs.s && parsedArgs.semanticErrors == 0) {
         	CodeGen foo = new CodeGen(parsedArgs);
         	foo.visit(tree);
+        	//appending the exit instructions to the end of the file
         	foo.emitExit();
-        	foo.printInstructions();
+        	//debugging
+        	//foo.printInstructions();
+        	//writing instructions to file
         	foo.writeToFile();
         	
         	

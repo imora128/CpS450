@@ -8,6 +8,7 @@ class Assign1 is
   start() is
   begin
   	x := 5 - 4
+  	out.writeint(x)
     ~y := x * (8 - x)
     ~b1 := true
   end start

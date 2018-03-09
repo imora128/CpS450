@@ -25,7 +25,7 @@ class TargetInstruction {
 		   public Builder instruction (String x) {this.instruction = x; return this;}
 		   public Builder operand1(String x) {this.operand1 = x; return this;}
 		   public Builder operand2(String x) {this.operand2 = x; return this;}
-		   public Builder comment(String x) {this.comment = x; return this;}
+		   public Builder comment(String x) {this.comment = String.format("# %s", x); return this;}
 		   public Builder directive(String x) {this.directive = x; return this;}
 		   
 		   public TargetInstruction build() {
