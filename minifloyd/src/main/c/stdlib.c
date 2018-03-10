@@ -1,5 +1,13 @@
 #include <syscall.h>
-
+int andOp(int x, int y) {
+  return x && y;
+}
+int eqTo(int x, int y) {
+  return x == y;
+}
+int greaterEqual(int x, int y) {
+  return x >= y;
+}
 int greaterThan(int x, int y) {
   return x > y;
 }

@@ -2,13 +2,12 @@
 ~  This program tests assignment
 
 class Assign1 is
-
-  x: int
-  y: int
-  z: int
+  i1: int
+  i2: int
+  q: boolean
   start() is
   begin
-    out.writeint(-(9 - 5))       ~ -4
+    q := true and false
   end start
   
 end Assign1

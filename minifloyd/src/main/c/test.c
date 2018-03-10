@@ -72,12 +72,93 @@ void unaryMinusTest() {
 		printf("failed 5\n");
 	}
 }
+
+void greaterEqualTests() {
+
+	if (greaterEqual(5, 4) != 1) {
+		printf("failed 5 >= 4\n");
+	}
+	if (greaterEqual(4, 5) != 0) {
+		printf("failed 4 >= 5\n");
+	}
+	if (greaterEqual(-5, 4) != 0) {
+		printf("failed -5 >= 4\n");
+	}
+	if (greaterEqual(-5, -4) != 0) {
+		printf("failed -5 >= -4\n");
+	}
+		if (greaterEqual(5, -4) != 1) {
+		printf("failed -5 >= -4\n");
+	}
+	if (greaterEqual(5, 5) != 1) {
+		printf("failed -5 >= 5\n");
+	}
+		if (greaterEqual(12, 0) != 1) {
+		printf("failed 12 > 0\n");
+	}
+}
+
+
+void equalto() {
+	if (eqTo(5, 4) != 0) {
+		printf("failed 5 = 4\n");
+	}
+	if (eqTo(4, 5) != 0) {
+		printf("failed 4 = 5\n");
+	}
+	if (eqTo(-5, 4) != 0) {
+		printf("failed -5 = 4\n");
+	}
+	if (eqTo(-5, -4) != 0) {
+		printf("failed -5 = -4\n");
+	}
+		if (eqTo(5, -4) != 0) {
+		printf("failed -5 = -4\n");
+	}
+	if (eqTo(5, 5) != 1) {
+		printf("failed -5 = 5\n");
+	}
+		if (eqTo(-5, 5) != 0) {
+		printf("failed 5 = 5\n");
+	}
+		if (eqTo(-5, -5) != 1) {
+		printf("failed -5 = -5\n");
+	}
+		if (eqTo(0, 0) != 1) {
+		printf("failed 5 = 5\n");
+	}
+	if (eqTo(5, 0) != 0) {
+		printf("failed 5 = 0\n");
+	}
+}
+
+
+void andOpTest() {
+	if (andOp(1, 1) != 1) {
+		printf("failed 1 and 1\n");
+	}
+	if (andOp(1, 0) != 0) {
+		printf("failed 1 and 0\n");
+	}
+	if (andOp(0, 0) != 0) {
+		printf("failed 0 and 0\n");
+	}
+	if (andOp(0, 1) != 0) {
+		printf("failed 0 and 1\n");
+	}
+	// if (andOp(-1, 1) != 0) {
+	// 	printf("failed -1 and 1\n");
+	// }
+}
 int main() {
 	minusTests();
 	timesTests();
 	divisionTests();
 	greaterThanTests();
 	unaryMinusTest();
+	greaterEqualTests();
+	equalto();
+	andOpTest();
 	printf("If there are no messages, the tests passed.\n");
 
 

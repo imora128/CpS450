@@ -15,6 +15,7 @@ import java.lang.ProcessBuilder;
 
 import cps450.FloydParser.AddMinus_ExpContext;
 import cps450.FloydParser.AddPlus_ExpContext;
+import cps450.FloydParser.AndX_ExpContext;
 import cps450.FloydParser.Assignment_stmtContext;
 import cps450.FloydParser.Call_stmtContext;
 import cps450.FloydParser.Class_Context;
@@ -26,6 +27,8 @@ import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.Method_declContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
+import cps450.FloydParser.RelationalEQ_ExpContext;
+import cps450.FloydParser.RelationalGE_ExpContext;
 import cps450.FloydParser.RelationalGT_ExpContext;
 import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.Var_declContext;
@@ -34,8 +37,6 @@ import cps450.FloydParser.Var_declContext;
  * expression call stmt
  * or
  * and
- * ge
- * eq
  * unary plus
  * unary not
  * 
@@ -243,10 +244,39 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	@Override
 	public Void visitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
-		//FIXME(Not being negated b itself. what do i do?)
 //		System.out.println("I AM IN VISIT UNARY "+ ctx.getText() + " " + ctx.unary_exp().getText());
 		visit(ctx.e1);
-		callFunction("unaryMinus");
+		//needs only $4 because unary only uses 1 argument
+		emit(new TargetInstruction.Builder().instruction("call").operand1("unaryMinus").build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1("$4,").operand2("%esp").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		return null;
+	}
+	
+
+	@Override
+	public Void visitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
+		visit(ctx.e2);
+		visit(ctx.e1);
+		callFunction("greaterEqual");
+		return null;
+	}
+
+	@Override
+	public Void visitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
+		visit(ctx.e2);
+		visit(ctx.e1);
+		callFunction("eqTo");
+		return null;
+	}
+	
+	
+
+	@Override
+	public Void visitAndX_Exp(AndX_ExpContext ctx) {
+		visit(ctx.e2);
+		visit(ctx.e1);
+		callFunction("andOp");
 		return null;
 	}
 
