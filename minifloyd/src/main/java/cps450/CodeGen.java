@@ -27,18 +27,19 @@ import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.Method_declContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
+import cps450.FloydParser.OrX_ExpContext;
 import cps450.FloydParser.RelationalEQ_ExpContext;
 import cps450.FloydParser.RelationalGE_ExpContext;
 import cps450.FloydParser.RelationalGT_ExpContext;
 import cps450.FloydParser.UnaryMinus_ExpContext;
+import cps450.FloydParser.UnaryNot_ExpContext;
+import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
-//TODO(List of things to overload: )
+//FIXME(List of things to overload: )
 /*
- * expression call stmt
- * or
- * and
- * unary plus
- * unary not
+ * expression call stmt so in.readint works
+ * while
+ * if
  * 
  */
 public class CodeGen extends FloydBaseVisitor<Void> {
@@ -143,15 +144,14 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitExprCont_True(ExprCont_TrueContext ctx) {
 		
-		TargetInstruction instruction = new TargetInstruction.Builder().instruction("pushl").operand1("1").build();		
+		TargetInstruction instruction = new TargetInstruction.Builder().instruction("pushl").operand1("$1").build();		
 		emit(instruction);
-		//System.out.println("visitExprCont_True: " + foo);
 		return null;
 	}
 
 	@Override
 	public Void visitExprCont_False(ExprCont_FalseContext ctx) {
-		TargetInstruction instruction = new TargetInstruction.Builder().instruction("pushl").operand1("0").build();		
+		TargetInstruction instruction = new TargetInstruction.Builder().instruction("pushl").operand1("$0").build();		
 		emit(instruction);
 		//System.out.println("visitExprCont_False: " + foo);
 		return null;
@@ -279,6 +279,37 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		callFunction("andOp");
 		return null;
 	}
+	
+	
+	
+
+	@Override
+	public Void visitOrX_Exp(OrX_ExpContext ctx) {
+		visit(ctx.e2);
+		visit(ctx.e1);
+		callFunction("orOp");
+		return null;
+	}
+
+	@Override
+	public Void visitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
+		//needs only $4 because unary only uses 1 argument
+		visit(ctx.e1);
+		emit(new TargetInstruction.Builder().instruction("call").operand1("unaryPlus").build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1("$4,").operand2("%esp").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		return null;
+	}
+
+	@Override
+	public Void visitUnaryNot_Exp(UnaryNot_ExpContext ctx) {
+		visit(ctx.e1);
+		//needs only $4 because unary only uses 1 argument
+		emit(new TargetInstruction.Builder().instruction("call").operand1("unaryNot").build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1("$4,").operand2("%esp").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		return null;
+	}
 
 	void callFunction(String functionName) {
 		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
@@ -305,7 +336,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//only functions allowed are writeint and readint for this phase, so dont need to visit
 		//visit(ctx.t1);
 		visit(ctx.t2);
-		//FIXME(How do i figure out exactly how many arguments are pushed? For this phase, it'll be 1 or 0.)
 		int paramNum = ctx.expression_list().expression().size();
 		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
 		if (paramNum > 0) {

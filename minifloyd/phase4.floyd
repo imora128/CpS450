@@ -7,7 +7,10 @@ class Assign1 is
   q: boolean
   start() is
   begin
-    q := true and false
+    q := not true 
+    out.writeint(+5)
+    i1 := -5
+    out.writeint(+i1)
   end start
   
 end Assign1

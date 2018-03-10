@@ -2,6 +2,11 @@
 int andOp(int x, int y) {
   return x && y;
 }
+
+int orOp(int x, int y) {
+  return x || y;
+}
+
 int eqTo(int x, int y) {
   return x == y;
 }
@@ -24,6 +29,12 @@ int division(int x, int y) {
 }
 int unaryMinus(int x) {
   return -x;
+}
+int unaryPlus(int x) {
+  return +x;
+}
+int unaryNot(int x) {
+  return !x;
 }
 
 void writeint(int num) {

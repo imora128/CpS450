@@ -150,6 +150,33 @@ void andOpTest() {
 	// 	printf("failed -1 and 1\n");
 	// }
 }
+
+void orOpTest() {
+	if (orOp(1, 1) != 1) {
+		printf("failed 1 or 1\n");
+	}
+	if (orOp(1, 0) != 1) {
+		printf("failed 1 or 0\n");
+	}
+	if (orOp(0, 0) != 0) {
+		printf("failed 0 or 0\n");
+	}
+	if (orOp(0, 1) != 1) {
+		printf("failed 0 or 1\n");
+	}
+	// if (andOp(-1, 1) != 0) {
+	// 	printf("failed -1 and 1\n");
+	// }
+}
+
+void notTest() {
+	if (unaryNot(1) != 0) {
+		printf("failed not 1\n");
+	}
+	if (unaryNot(0) != 1) {
+		printf("failed not 0\n");
+	}
+}
 int main() {
 	minusTests();
 	timesTests();
@@ -159,7 +186,10 @@ int main() {
 	greaterEqualTests();
 	equalto();
 	andOpTest();
+	orOpTest();
+	notTest();
 	printf("If there are no messages, the tests passed.\n");
+
 
 
 	return 0;
