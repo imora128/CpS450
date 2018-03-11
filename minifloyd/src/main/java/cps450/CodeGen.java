@@ -24,6 +24,7 @@ import cps450.FloydParser.ExprCont_IDContext;
 import cps450.FloydParser.ExprCont_IDExprContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
+import cps450.FloydParser.If_stmtContext;
 import cps450.FloydParser.Method_declContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
@@ -46,12 +47,14 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	List<TargetInstruction> instructions = new ArrayList<TargetInstruction>();
 	Stack<String> registers = new Stack<String>();
 	Option opt;
+	int labelCounter;
 	
 	CodeGen(Option opt) {
 		registers.push("%edx");
 		registers.push("%ecx");
 		registers.push("%ebx");
 		registers.push("%eax");
+		labelCounter = 0;
 		this.opt = opt;
 	}
 	
@@ -343,6 +346,39 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 		println();
 		
+		return null;
+	}
+
+	@Override
+	public Void visitIf_stmt(If_stmtContext ctx) {
+		//lol it's priting out on multiple lines
+		//emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), "if stmt")).build());
+		visit(ctx.cond_expr);
+		//the result of the expression should be on top of the stack
+		//popping it into eax
+		labelCounter = labelCounter + 2;
+		emit(new TargetInstruction.Builder().instruction("popl").operand1("%eax").build());
+		//pushing 1 to EDX so I can compare it to the result of the expression and do the logical jumps
+		emit(new TargetInstruction.Builder().instruction("movl").operand1("$1,").operand2("%edx").build());
+		//comparison
+		emit(new TargetInstruction.Builder().instruction("cmpl").operand1("%eax,").operand2("%edx").build());
+		//+1 is false, + 2 is true
+		//-2 is false, -1 is true
+		//jump to +1 if false
+		emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (labelCounter - 2)).build());
+		//emit tru stmt list
+		visit(ctx.truestm);
+		//emit jmp to +2
+		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (labelCounter - 1)).build());
+		//emit +1 label and then false stmtlist
+		emit(new TargetInstruction.Builder().directive(".L" + (labelCounter - 2 + ":")).build());
+		if (ctx.falsestm != null) {
+		visit(ctx.falsestm);
+		}
+		//emit +2 label
+		emit(new TargetInstruction.Builder().directive(".L" + (labelCounter - 1 + ":")).build());
+
 		return null;
 	}
 	

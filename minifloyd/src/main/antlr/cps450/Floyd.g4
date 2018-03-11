@@ -60,7 +60,7 @@ assignment_stmt
 ;
 
 if_stmt
-: IF expression THEN cr statement_list (ELSE cr statement_list)? END IF
+: IF cond_expr=expression THEN cr truestm=statement_list (ELSE cr falsestm=statement_list)? END IF
 ;
 
 loop_stmt

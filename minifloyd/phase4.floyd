@@ -2,15 +2,15 @@
 ~  This program tests assignment
 
 class Assign1 is
-  i1: int
-  i2: int
-  q: boolean
+  x: int
   start() is
   begin
-    q := not true 
-    out.writeint(+5)
-    i1 := -5
-    out.writeint(+i1)
+  x := -5
+    if (5 = 1) then
+        out.writeint(0)
+      else
+        out.writeint(-1)
+      end if
   end start
   
 end Assign1

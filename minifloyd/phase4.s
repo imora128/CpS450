@@ -1,40 +1,37 @@
 .file "phase4.floyd" 
-.comm _i1,4,4 
-.comm _i2,4,4 
-.comm _q,4,4 
+.comm _x,4,4 
 .global main 
 main: 
-# Line 10: q:=nottrue 
-pushl $1 
-call unaryNot 
-addl $4, %esp 
-pushl %eax 
-popl _q 
-
- 
-# Line 11: out.writeint(+5) 
-pushl $5 
-call unaryPlus 
-addl $4, %esp 
-pushl %eax 
-call writeint 
-addl $4, %esp 
-
- 
-# Line 12: i1:=-5 
+# Line 8: x:=-5 
 pushl $-5 
-popl _i1 
+popl _x 
 
  
-# Line 13: out.writeint(+i1) 
-pushl _i1 
-call unaryPlus 
-addl $4, %esp 
+# Line 9: if stmt 
+pushl $1 
+pushl $5 
+call eqTo 
+addl $8, %esp 
 pushl %eax 
+popl %eax 
+movl $1, %edx 
+cmpl %eax, %edx 
+jne .L0 
+# Line 10: out.writeint(0) 
+pushl $0 
 call writeint 
 addl $4, %esp 
 
  
+jmp .L1 
+.L0: 
+# Line 12: out.writeint(-1) 
+pushl $-1 
+call writeint 
+addl $4, %esp 
+
+ 
+.L1: 
 # Calling exit because the program is finished 
 pushl $0 
 call exit 
