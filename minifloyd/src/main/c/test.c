@@ -177,6 +177,21 @@ void notTest() {
 		printf("failed not 0\n");
 	}
 }
+//give it 5, -1, 1234567890. -5591
+void readIntTest() {
+	if (readint() != 5) {
+		printf("failed not 5\n");
+	}
+	if (readint() != -1) {
+		printf("failed not -1\n");
+	}
+	if (readint() != 1234567890) {
+		printf("failed not 1234567890\n");
+	}
+		if (readint() != -5591) {
+		printf("failed not -5591\n");
+	}
+}
 int main() {
 	minusTests();
 	timesTests();
@@ -188,6 +203,7 @@ int main() {
 	andOpTest();
 	orOpTest();
 	notTest();
+	readIntTest();
 	printf("If there are no messages, the tests passed.\n");
 
 

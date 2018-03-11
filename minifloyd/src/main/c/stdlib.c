@@ -3,6 +3,8 @@ int andOp(int x, int y) {
   return x && y;
 }
 
+
+
 int orOp(int x, int y) {
   return x || y;
 }
@@ -37,6 +39,33 @@ int unaryNot(int x) {
   return !x;
 }
 
+int readint() {
+  char buffer[11];
+  read(0, buffer, 11);
+  int convertedNum = 0;
+  int isNegative = 0;
+  int i = 0;
+  //if the number is negative, skip it and multiply the integer by -1 later
+  if (buffer[0] == '-') {
+    i = 1;
+    isNegative = 1;
+  }
+  for (;i < 11; i++) {
+    //if the ascii is not between 0 and 9 (inclusive) then stop
+    if (buffer[i] >= '0' && buffer[i] <= '9') {
+      //ascii of buffer[i] - ascii '0' should give the decimal form of the number
+      convertedNum = convertedNum * 10 + buffer[i] - '0';
+    } else {
+      break;
+    }
+  }
+  if (isNegative == 1) {
+    convertedNum *= -1;
+  }
+  //printf("Converted num test: %i\n", convertedNum);
+
+  return convertedNum;
+}
 void writeint(int num) {
   char buf[20];
   char result[20] = "0\n";

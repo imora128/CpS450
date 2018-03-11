@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="phase4"
+fileName="assign1"
 rm *.o
 rm *.s
 rm $fileName
