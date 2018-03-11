@@ -25,6 +25,7 @@ import cps450.FloydParser.ExprCont_IDExprContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.If_stmtContext;
+import cps450.FloydParser.Loop_stmtContext;
 import cps450.FloydParser.Method_declContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
@@ -355,10 +356,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), "if stmt")).build());
 		visit(ctx.cond_expr);
-		//the result of the expression should be on top of the stack
-		//popping it into eax
 		labelCounter = labelCounter + 2;
 		int currentIf = labelCounter;
+		//the result of the expression should be on top of the stack
+		//popping it into eax
 		emit(new TargetInstruction.Builder().instruction("popl").operand1("%eax").build());
 		//pushing 1 to EDX so I can compare it to the result of the expression and do the logical jumps
 		emit(new TargetInstruction.Builder().instruction("movl").operand1("$1,").operand2("%edx").build());
@@ -382,6 +383,28 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 		return null;
 	}
+
+	@Override
+	public Void visitLoop_stmt(Loop_stmtContext ctx) {
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), "while stmt")).build());
+		System.out.println("cond exp is: " + ctx.exp.getText() + " Body is: " + ctx.loop_body.getText());
+		//visiting conditional expr
+		//visit(ctx.exp);
+		//updating labelcounter
+		labelCounter = labelCounter + 2;
+		int currentWhile = labelCounter;
+		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentWhile - 1)).build());
+		emit(new TargetInstruction.Builder().directive(".L" + (currentWhile) + ":").build());
+		visit(ctx.loop_body);
+		emit(new TargetInstruction.Builder().directive(".L" + (currentWhile - 1) + ":").build());
+		visit(ctx.exp);
+		emit(new TargetInstruction.Builder().instruction("pop").operand1("%eax").build());
+		emit(new TargetInstruction.Builder().instruction("cmpl").operand1("$0,").operand2("%eax").build());
+		emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentWhile)).build());
+		
+		return null;
+	}
+	
 	
 	
 	

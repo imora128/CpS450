@@ -64,7 +64,7 @@ if_stmt
 ;
 
 loop_stmt
-: LOOP WHILE expression cr statement_list END LOOP
+: LOOP WHILE exp=expression cr loop_body=statement_list END LOOP
 ;
 
 call_stmt
