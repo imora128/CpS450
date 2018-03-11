@@ -37,11 +37,10 @@ import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
-//FIXME(List of things to overload: )
+//FIXME(Things to think about when method call procedure is released by dr. schaub )
 /*
- * expression call stmt so in.readint works
- * while
- * if
+ * Things to figure out relating methods: 
+ * how to knwo whether or not need to push a return value
  * 
  */
 public class CodeGen extends FloydBaseVisitor<Void> {
@@ -92,7 +91,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			e.printStackTrace();
 		}
 		compile(fileName, s);
-		//PrintWriter writer = new PrintWriter(opt.fileName.get(0), )
 	}
 	
 	void compile(String fileName, boolean s) {
@@ -108,12 +106,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	void invokeGCC(ProcessBuilder procBuilder, String jobName) {
 		int exitCode;
 		try {
-			//System.out.println("Inside of invokeGCC. Filename: " + fileName);
 			Process proc = procBuilder.start();
 			proc.waitFor();
 			exitCode = proc.exitValue();
 			if (exitCode == 0) {
-				System.out.println(String.format("Sucessful compilation of %s", jobName));
+				//System.out.println(String.format("Successfully built %s", jobName));
 			} else {
 				 BufferedReader buf = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 				 String out;
@@ -122,7 +119,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				 }
 			}
 		} catch (Exception e) {
-			//TODO("exception hadnelr body")
 			System.out.println(String.format("Error while invoking process: %s", e));
 		}
 		
@@ -131,13 +127,17 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitExprCont_Intlit(ExprCont_IntlitContext ctx) {
 		TargetInstruction foo = new TargetInstruction.Builder().instruction("pushl").operand1(String.format("$%s", ctx.INTEGER_LITERAL().getText())).build();		
 		emit(foo);
-		//System.out.println("visitExprCont_Intlit: " + foo);
 		return null;
 	}
 
 	@Override
 	public Void visitExprCont_ID(ExprCont_IDContext ctx) {
 		String name = ctx.IDENTIFIER().getText();
+		//temporary bandaid until invoking class methods is set in stone
+		//otherwise the linker will say: "HEY, WHERE'S IN AND OUT DEFINED, BRO? I CANT PUSH THAT
+		if(ctx.IDENTIFIER().getText().equals("out") || ctx.IDENTIFIER().getText().equals("in")) {
+			return null;
+		}
 		TargetInstruction foo = new TargetInstruction.Builder()
 				.instruction("pushl")
 				.operand1(String.format("_%s", name)).build();		
@@ -157,7 +157,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitExprCont_False(ExprCont_FalseContext ctx) {
 		TargetInstruction instruction = new TargetInstruction.Builder().instruction("pushl").operand1("$0").build();		
 		emit(instruction);
-		//System.out.println("visitExprCont_False: " + foo);
 		return null;
 	}
 
@@ -166,7 +165,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		TargetInstruction instruction = new TargetInstruction.Builder().
 				directive(String.format(".comm _%s,4,4", ctx.IDENTIFIER().getText())).build();
 		emit(instruction);
-		//System.out.println("visitVar_decl: " + foo);
 		return null;
 	}
 
@@ -188,7 +186,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		visit(ctx.e2);
 		String sourceReg = registers.pop();
 		String destReg = registers.pop();
-		System.out.println("here: " + sourceReg + destReg);
 		TargetInstruction pop1 = new TargetInstruction.Builder().
 				instruction(String.format("popl %s", sourceReg)).build();		
 		TargetInstruction pop2 = new TargetInstruction.Builder().
@@ -248,7 +245,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	@Override
 	public Void visitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
-//		System.out.println("I AM IN VISIT UNARY "+ ctx.getText() + " " + ctx.unary_exp().getText());
 		visit(ctx.e1);
 		//needs only $4 because unary only uses 1 argument
 		emit(new TargetInstruction.Builder().instruction("call").operand1("unaryMinus").build());
@@ -340,13 +336,38 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//only functions allowed are writeint and readint for this phase, so dont need to visit
 		//visit(ctx.t1);
 		visit(ctx.t2);
-		int paramNum = ctx.expression_list().expression().size();
+		int paramNum = 0;
+		if (ctx.expression_list() != null) {
+		paramNum = ctx.expression_list().expression().size();
+		}
+		
 		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
 		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
 		println();
 		
+		return null;
+	}
+	
+	
+
+	@Override
+	public Void visitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
+		
+		int paramNum = 0;
+		if (ctx.expression_list() != null) {
+			paramNum = ctx.expression_list().expression().size();
+		}
+		
+		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
+		if (paramNum > 0) {
+		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
+		}
+		//If I'm thinking about this correctly, then expr function calls should always return something..
+		//you can't really have for example x := in.voidfunction, right?
+			emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		println();
 		return null;
 	}
 
@@ -387,10 +408,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitLoop_stmt(Loop_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), "while stmt")).build());
-		System.out.println("cond exp is: " + ctx.exp.getText() + " Body is: " + ctx.loop_body.getText());
-		//visiting conditional expr
-		//visit(ctx.exp);
-		//updating labelcounter
 		labelCounter = labelCounter + 2;
 		int currentWhile = labelCounter;
 		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentWhile - 1)).build());
