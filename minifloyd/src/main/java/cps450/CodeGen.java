@@ -358,6 +358,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//the result of the expression should be on top of the stack
 		//popping it into eax
 		labelCounter = labelCounter + 2;
+		int currentIf = labelCounter;
 		emit(new TargetInstruction.Builder().instruction("popl").operand1("%eax").build());
 		//pushing 1 to EDX so I can compare it to the result of the expression and do the logical jumps
 		emit(new TargetInstruction.Builder().instruction("movl").operand1("$1,").operand2("%edx").build());
@@ -366,18 +367,18 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//+1 is false, + 2 is true
 		//-2 is false, -1 is true
 		//jump to +1 if false
-		emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (labelCounter - 2)).build());
+		emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentIf - 1)).build());
 		//emit tru stmt list
 		visit(ctx.truestm);
 		//emit jmp to +2
-		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (labelCounter - 1)).build());
+		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentIf)).build());
 		//emit +1 label and then false stmtlist
-		emit(new TargetInstruction.Builder().directive(".L" + (labelCounter - 2 + ":")).build());
+		emit(new TargetInstruction.Builder().directive(".L" + (currentIf - 1 + ":")).build());
 		if (ctx.falsestm != null) {
 		visit(ctx.falsestm);
 		}
 		//emit +2 label
-		emit(new TargetInstruction.Builder().directive(".L" + (labelCounter - 1 + ":")).build());
+		emit(new TargetInstruction.Builder().directive(".L" + (currentIf+ ":")).build());
 
 		return null;
 	}
