@@ -1,3 +1,9 @@
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: SemanticChecker.java
+Description: Contains the class that checks for and prints semantic checks.
+*/
 package cps450;
 import java.util.ArrayList;
 import java.util.Arrays;

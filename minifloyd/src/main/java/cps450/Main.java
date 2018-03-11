@@ -20,7 +20,7 @@ public class Main
     public static void main(String[] arguments) throws IOException {
         // if the user doesn't pass in any arguments, print usage and exit
         if (arguments.length < 1) {
-            System.out.println("minifloyd [-ds] [-dp] [-s] <filename>");
+            System.out.println("usage: minifloyd [-ds] [-dp] [-S] <filename>");
             System.exit(1);
         }
         //Creating an Option argument. Defined in opition.java.

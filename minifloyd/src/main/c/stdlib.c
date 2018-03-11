@@ -45,7 +45,7 @@ int readint() {
   int convertedNum = 0;
   int isNegative = 0;
   int i = 0;
-  //if the number is negative, skip it and multiply the integer by -1 later
+  //if the number is negative, skip the first index and multiply the integer by -1 later
   if (buffer[0] == '-') {
     i = 1;
     isNegative = 1;

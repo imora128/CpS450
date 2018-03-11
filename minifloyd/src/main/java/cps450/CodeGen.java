@@ -1,5 +1,18 @@
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: CodeGen.java
+Description: Contains CodeGen class that generates all the code for the program
+*/
 package cps450;
+import org.antlr.v4.runtime.atn.*;
+import org.antlr.v4.runtime.dfa.DFA;
 
+import java.util.HashMap;
+
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.tree.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -37,16 +50,12 @@ import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
-//FIXME(Things to think about when method call procedure is released by dr. schaub )
-/*
- * Things to figure out relating methods: 
- * how to knwo whether or not need to push a return value
- * 
- */
+
 public class CodeGen extends FloydBaseVisitor<Void> {
 	List<TargetInstruction> instructions = new ArrayList<TargetInstruction>();
 	Stack<String> registers = new Stack<String>();
 	Option opt;
+	String startEndLine = "";
 	int labelCounter;
 	
 	CodeGen(Option opt) {
@@ -57,28 +66,54 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		labelCounter = 0;
 		this.opt = opt;
 	}
-	
+    /*
+    Function Name: println
+    Parameters: 
+    Description: Prints a new line. (for comments)
+    */
 	void println() {
 		emit(new TargetInstruction.Builder().directive("\n").build());
 	}
+	
+    /*
+    Function Name: emit
+    Parameters: TargetInstruction t
+    Description: Adds <t> to the list of instructions
+    */
 	void emit(TargetInstruction t) {
 		instructions.add(t);
 	}
 	
+    /*
+    Function Name: emitExit
+    Parameters:
+    Description: Pushes 0 and calls exit to end the prog
+    */
 	void emitExit() {
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", startEndLine, "end start()")).build());
 		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
 		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
 	}
 	
+    /*
+    Function Name: printInstructions
+    Parameters:
+    Description: For debugging purposes: prints out the instructions
+    */
 	void printInstructions() {
 		for (TargetInstruction i: instructions) {
 			System.out.println(i);
 		}
 	}
 	
+    /*
+    Function Name: writeToFile
+    Parameters: boolean s
+    Description: Creates a file and writes all the instructions to it. If s is true,
+    then it stops at creating the .s file. If s is false, it links it with stdlib and compiles.
+    */
 	void writeToFile(boolean s) {
-		//FIXME(Make suere to do error handling)
 		String fileName = opt.fileName.get(0);
 		fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 		try {
@@ -93,6 +128,12 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		compile(fileName, s);
 	}
 	
+    /*
+    Function Name: compile
+    Parameters: String fileName, boolean s
+    Description: Creates a processbuilder object and then calls invokeGCC
+    */
+	
 	void compile(String fileName, boolean s) {
 		//building the object file
 		if (!s) {
@@ -103,6 +144,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 	}
 	
+    /*
+    Function Name: invokeGCC
+    Parameters: ProcessBuilder procBuilder, String jobname
+    Description: Invokes GCC using procbuilder and prints out errors if it fails
+    */
 	void invokeGCC(ProcessBuilder procBuilder, String jobName) {
 		int exitCode;
 		try {
@@ -123,6 +169,15 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 		
 	}
+    /*
+    Function Name: emitComment
+    Parameters: ParserRUleContext ctx
+    Description: prints a conmment using the given context
+    */
+	void emitComment(ParserRuleContext ctx) {
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
+	}
+	
 	@Override
 	public Void visitExprCont_Intlit(ExprCont_IntlitContext ctx) {
 		TargetInstruction foo = new TargetInstruction.Builder().instruction("pushl").operand1(String.format("$%s", ctx.INTEGER_LITERAL().getText())).build();		
@@ -164,9 +219,12 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitVar_decl(Var_declContext ctx) {
 		TargetInstruction instruction = new TargetInstruction.Builder().
 				directive(String.format(".comm _%s,4,4", ctx.IDENTIFIER().getText())).build();
+		emitComment(ctx);
 		emit(instruction);
 		return null;
 	}
+	
+	
 
 	@Override
 	public Void visitAssignment_stmt(Assignment_stmtContext ctx) {
@@ -318,6 +376,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 	@Override
 	public Void visitClass_(Class_Context ctx) {
+		//emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s %s %s",ctx.start.getLine(), 
+				//ctx.CLASS().getText(), ctx.IDENTIFIER(0).getText(), ctx.IS().getText())).build());
+		
 		TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
 		emit(fileName);
 		return super.visitClass_(ctx);
@@ -325,8 +386,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitMethod_decl(Method_declContext ctx) {
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s() %s", ctx.start.getLine(), 
+				ctx.IDENTIFIER(0).getText(), ctx.IS().getText())).build());
 		emit(new TargetInstruction.Builder().directive(String.format(".global %s", "main")).build());
 		emit(new TargetInstruction.Builder().directive("main:").build());
+		startEndLine = Integer.toString(ctx.stop.getLine());
 		return super.visitMethod_decl(ctx);
 	}
 
@@ -373,9 +437,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitIf_stmt(If_stmtContext ctx) {
-		//lol it's priting out on multiple lines
-		//emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
-		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), "if stmt")).build());
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s %s %s",ctx.start.getLine(), ctx.IF().get(0).getText(),ctx.cond_expr.getText(),
+				ctx.THEN().getText())).build());
 		visit(ctx.cond_expr);
 		labelCounter = labelCounter + 2;
 		int currentIf = labelCounter;
@@ -389,35 +452,49 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//+1 is false, + 2 is true
 		//-2 is false, -1 is true
 		//jump to +1 if false
-		emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentIf - 1)).build());
+		//emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentIf - 1)).build());
+		emit(new TargetInstruction.Builder().instruction("jne").operand1(String.format(".L%s", (currentIf - 1))).build());
 		//emit tru stmt list
 		visit(ctx.truestm);
 		//emit jmp to +2
-		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentIf)).build());
+		//emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentIf)).build());
+		emit(new TargetInstruction.Builder().instruction("jmp").operand1(String.format(".L%s", currentIf)).build());
 		//emit +1 label and then false stmtlist
-		emit(new TargetInstruction.Builder().directive(".L" + (currentIf - 1 + ":")).build());
+		//emit(new TargetInstruction.Builder().directive(".L" + (currentIf - 1 + ":")).build());
+		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", (currentIf - 1))).build());
 		if (ctx.falsestm != null) {
 		visit(ctx.falsestm);
 		}
 		//emit +2 label
-		emit(new TargetInstruction.Builder().directive(".L" + (currentIf+ ":")).build());
+		//emit(new TargetInstruction.Builder().directive(".L" + (currentIf+ ":")).build());
+		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", currentIf)).build());
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s %s",ctx.stop.getLine(), ctx.END().getText(),
+				ctx.IF(0).getText())).build());
+	
 
 		return null;
 	}
 
 	@Override
 	public Void visitLoop_stmt(Loop_stmtContext ctx) {
-		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), "while stmt")).build());
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), 
+				"While loop: Jumping to conditional check")).build());
 		labelCounter = labelCounter + 2;
 		int currentWhile = labelCounter;
-		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentWhile - 1)).build());
-		emit(new TargetInstruction.Builder().directive(".L" + (currentWhile) + ":").build());
+//		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentWhile - 1)).build());
+		emit(new TargetInstruction.Builder().instruction("jmp").operand1(String.format(".L%s", (currentWhile - 1))).build());
+		//emit(new TargetInstruction.Builder().directive(".L" + (currentWhile) + ":").build());
+		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", currentWhile)).build());
 		visit(ctx.loop_body);
-		emit(new TargetInstruction.Builder().directive(".L" + (currentWhile - 1) + ":").build());
+		//emit(new TargetInstruction.Builder().directive(".L" + (currentWhile - 1) + ":").build());
+		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", (currentWhile - 1))).build());
+		emitComment(ctx.exp);
 		visit(ctx.exp);
 		emit(new TargetInstruction.Builder().instruction("pop").operand1("%eax").build());
 		emit(new TargetInstruction.Builder().instruction("cmpl").operand1("$0,").operand2("%eax").build());
-		emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentWhile)).build());
+		//emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentWhile)).build());
+		emit(new TargetInstruction.Builder().instruction("jne").operand1(String.format(".L%s", (currentWhile))).build());
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end loop")).build());
 		
 		return null;
 	}

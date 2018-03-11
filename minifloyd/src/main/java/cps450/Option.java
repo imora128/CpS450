@@ -8,7 +8,7 @@ as instance variables.
 package cps450;
 import java.util.ArrayList;
 import java.util.List;
-//FIXME(Parsing logic. check the extension of all things that aren't -s, -ds, -dp, and if it isn't .floyd, give usage msg)
+
 
 /*
 Class Name: Option
@@ -35,20 +35,24 @@ public class Option {
     The last index of <args> will always be the filename.
     */
     void getCommandLineArguments(String[] args) {
-        //System.out.println(args.length);
-        //Will loop through the array looking for which options the users gave us and 
-        //set the specific bool to true when found
         for (int i = 0; i < args.length; i++) {
             if ((i == 0 || i == 1 || i == 2) && args[i].equals("-ds")) {
                 ds = true;
             } else if ((i == 0 || i == 1 || i == 2) && args[i].equals("-dp")) {
                 dp = true;
-            } else if ((i == 0 || i == 1 || i == 2) && args[i].equals("-s")) {
+            } else if ((i == 0 || i == 1 || i == 2) && args[i].equals("-S")) {
             	s = true;
             }
             else {
+            	String ext = args[i].substring(args[i].lastIndexOf(".") + 1, args[i].length());
+            	if (ext.equals("floyd")) {
                 fileName.add(args[i]);
+                return;
+            	}
+            	System.out.println("usage: minifloyd [-ds] [-dp] [-S] <floyd_source_filename>");
+            	System.exit(0);
             }
+            
         }
     }
 }

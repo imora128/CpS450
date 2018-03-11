@@ -1,3 +1,9 @@
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: TargetInstruction.java
+Description: Contains the TargetInstruction class that will be used to build each individual x86 instruction.
+*/
 package cps450;
 
 import java.util.ArrayList;
