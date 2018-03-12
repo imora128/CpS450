@@ -1,8 +1,9 @@
 # Report
-**Hours spent:** 12 hours <br/>
+**Hours spent:**  28 hours <br/>
 **Known bugs:**  <br/>
-**Academic Integrity Statement:** All code is my own. I visited websites to brush up on regular expression rules, ANTLR rules, and Java library methods.
-
+**Academic Integrity Statement:** All code is my own. I used javarevisted.blogspot.com for information on a Builder design pattern for my targetinstruction class. 
+Link: http://javarevisited.blogspot.com/2012/06/builder-design-pattern-in-java-example.html
+I asked Sam Henry and Izaac Morales questions regarding the specifications and how certain things should work, but no code was shared or looked at.
 
 
 # Readme

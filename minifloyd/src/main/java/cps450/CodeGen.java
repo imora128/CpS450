@@ -90,7 +90,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
     Description: Pushes 0 and calls exit to end the prog
     */
 	void emitExit() {
-		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", startEndLine, "end start()")).build());
+		//emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", startEndLine, "end start()")).build());
 		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
 		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
@@ -381,7 +381,19 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		
 		TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
 		emit(fileName);
-		return super.visitClass_(ctx);
+		for (int i = 0; i < ctx.var_decl().size(); i++) {
+			visit(ctx.var_decl(i));
+		}
+		for(int i = 0; i < ctx.method_decl().size(); i++) {
+			visit(ctx.method_decl(i));
+		}
+		
+		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
+		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
+		
+		
+		return null;
 	}
 
 	@Override
@@ -390,8 +402,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				ctx.IDENTIFIER(0).getText(), ctx.IS().getText())).build());
 		emit(new TargetInstruction.Builder().directive(String.format(".global %s", "main")).build());
 		emit(new TargetInstruction.Builder().directive("main:").build());
-		startEndLine = Integer.toString(ctx.stop.getLine());
-		return super.visitMethod_decl(ctx);
+		visit(ctx.statement_list());
+		//startEndLine = Integer.toString(ctx.stop.getLine());
+		//return super.visitMethod_decl(ctx);
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end " + ctx.IDENTIFIER(0).getText())).build());
+		return null;
 	}
 
 	@Override

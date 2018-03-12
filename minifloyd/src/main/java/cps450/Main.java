@@ -42,7 +42,7 @@ public class Main
         	CodeGen foo = new CodeGen(parsedArgs);
         	foo.visit(tree);
         	//appending the exit instructions to the end of the file
-        	foo.emitExit();
+        	//foo.emitExit();
         	//debugging
         	//foo.printInstructions();
         	//writing instructions to file
