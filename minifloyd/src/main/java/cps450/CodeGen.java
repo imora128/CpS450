@@ -55,8 +55,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	List<TargetInstruction> instructions = new ArrayList<TargetInstruction>();
 	Stack<String> registers = new Stack<String>();
 	Option opt;
-	String startEndLine = "";
 	int labelCounter;
+	
 	
 	CodeGen(Option opt) {
 		registers.push("%edx");
@@ -66,6 +66,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		labelCounter = 0;
 		this.opt = opt;
 	}
+
     /*
     Function Name: println
     Parameters: 
@@ -176,6 +177,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
     */
 	void emitComment(ParserRuleContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
+		//===============DEBUGGING============================
+		//.stabn 68,0,%s,.line%s-main
+		//.line%s:
+		if (opt.g) {
+		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
+				ctx.start.getLine(), ctx.start.getLine())).build());
+		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
+				ctx.start.getLine())).build());
+		}
+		//===============DEBUGGING============================
 	}
 	
 	@Override
@@ -195,7 +206,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 		TargetInstruction foo = new TargetInstruction.Builder()
 				.instruction("pushl")
-				.operand1(String.format("_%s", name)).build();		
+				.operand1(String.format("%s", name)).build();		
 		emit(foo);
 		return null;
 	}
@@ -218,9 +229,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitVar_decl(Var_declContext ctx) {
 		TargetInstruction instruction = new TargetInstruction.Builder().
-				directive(String.format(".comm _%s,4,4", ctx.IDENTIFIER().getText())).build();
-		emitComment(ctx);
+				directive(String.format(".comm %s,4,4", ctx.IDENTIFIER().getText())).build();
+		//emitComment(ctx);
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
 		emit(instruction);
+		//===============DEBUGGING============================
+		//.stabs  "x:G(0,1)",32,0,0,0
+		if (opt.g) {
+		emit(new TargetInstruction.Builder().directive(String.format(".stabs  \"%s:G(0,1)\",32,0,0,0", ctx.IDENTIFIER().getText())).build());
+		}
+		//===============DEBUGGING============================
 		return null;
 	}
 	
@@ -229,9 +247,19 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitAssignment_stmt(Assignment_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
+		//===============DEBUGGING============================
+		//.stabn 68,0,%s,.line%s-main
+		//.line%s:
+		if (opt.g) {
+		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
+				ctx.start.getLine(), ctx.start.getLine())).build());
+		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
+				ctx.start.getLine())).build());
+		}
+		//===============DEBUGGING============================
 		visit(ctx.e1);
 		TargetInstruction instruction = new TargetInstruction.Builder().
-				instruction(String.format("popl _%s", ctx.IDENTIFIER().getText())).build();		
+				instruction(String.format("popl %s", ctx.IDENTIFIER().getText())).build();		
 		emit(instruction);
 		println();
 		return null;
@@ -375,11 +403,17 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 	}
 	@Override
-	public Void visitClass_(Class_Context ctx) {
-		//emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s %s %s",ctx.start.getLine(), 
-				//ctx.CLASS().getText(), ctx.IDENTIFIER(0).getText(), ctx.IS().getText())).build());
-		
+	public Void visitClass_(Class_Context ctx) {		
 		TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
+		//===============DEBUGGING============================
+		//.stabs  "demo.floyd",100,0,0,.Ltext0
+		if (opt.g) {
+		emit(new TargetInstruction.Builder().directive(String.format(".stabs \"%s\",100,0,0,.Ltext0", opt.fileName.get(0))).build());
+		emit(new TargetInstruction.Builder().directive(".text").build());
+		emit(new TargetInstruction.Builder().directive(".Ltext0:").build());
+		emit(new TargetInstruction.Builder().directive(".stabs  \"int:t(0,1)=r(0,1);-2147483648;2147483647;\",128,0,0,0").build());
+		}
+		//===============DEBUGGING============================
 		emit(fileName);
 		for (int i = 0; i < ctx.var_decl().size(); i++) {
 			visit(ctx.var_decl(i));
@@ -388,6 +422,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			visit(ctx.method_decl(i));
 		}
 		
+		//===============DEBUGGING============================
+		//.stabn 68,0,%s,.line%s-main
+		//.line%s:
+		if (opt.g) {
+		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
+				ctx.stop.getLine(), ctx.stop.getLine())).build());
+		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
+				ctx.stop.getLine())).build());
+		}
+		//===============DEBUGGING============================
 		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
 		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
@@ -398,13 +442,18 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitMethod_decl(Method_declContext ctx) {
+		//only allowed method is main in minifloyd
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s() %s", ctx.start.getLine(), 
 				ctx.IDENTIFIER(0).getText(), ctx.IS().getText())).build());
+		
 		emit(new TargetInstruction.Builder().directive(String.format(".global %s", "main")).build());
+		//===============DEBUGGING============================
+		if (opt.g) {
+		emit (new TargetInstruction.Builder().directive(".stabs  \"main:F\",36,0,0,main").build());
+		}
+		//===============DEBUGGING============================
 		emit(new TargetInstruction.Builder().directive("main:").build());
 		visit(ctx.statement_list());
-		//startEndLine = Integer.toString(ctx.stop.getLine());
-		//return super.visitMethod_decl(ctx);
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end " + ctx.IDENTIFIER(0).getText())).build());
 		return null;
 	}
@@ -412,6 +461,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitCall_stmt(Call_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
+		//===============DEBUGGING============================
+		//.stabn 68,0,%s,.line%s-main
+		//.line%s:
+		if (opt.g) {
+		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
+				ctx.start.getLine(), ctx.start.getLine())).build());
+		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
+				ctx.start.getLine())).build());
+		}
+		//===============DEBUGGING============================
 		//only functions allowed are writeint and readint for this phase, so dont need to visit
 		//visit(ctx.t1);
 		visit(ctx.t2);
@@ -454,6 +513,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitIf_stmt(If_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s %s %s",ctx.start.getLine(), ctx.IF().get(0).getText(),ctx.cond_expr.getText(),
 				ctx.THEN().getText())).build());
+		//===============DEBUGGING============================
+		//.stabn 68,0,%s,.line%s-main
+		//.line%s:
+		if (opt.g) {
+		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
+				ctx.start.getLine(), ctx.start.getLine())).build());
+		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
+				ctx.start.getLine())).build());
+		}
+		//===============DEBUGGING============================
 		visit(ctx.cond_expr);
 		labelCounter = labelCounter + 2;
 		int currentIf = labelCounter;
@@ -467,22 +536,18 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//+1 is false, + 2 is true
 		//-2 is false, -1 is true
 		//jump to +1 if false
-		//emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentIf - 1)).build());
 		emit(new TargetInstruction.Builder().instruction("jne").operand1(String.format(".L%s", (currentIf - 1))).build());
 		//emit tru stmt list
 		visit(ctx.truestm);
 		//emit jmp to +2
-		//emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentIf)).build());
 		emit(new TargetInstruction.Builder().instruction("jmp").operand1(String.format(".L%s", currentIf)).build());
 		//emit +1 label and then false stmtlist
-		//emit(new TargetInstruction.Builder().directive(".L" + (currentIf - 1 + ":")).build());
 		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", (currentIf - 1))).build());
 		if (ctx.falsestm != null) {
 			emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", (ctx.falsestm.start.getLine() - 1), "Else")).build());
 			visit(ctx.falsestm);
 		}
 		//emit +2 label
-		//emit(new TargetInstruction.Builder().directive(".L" + (currentIf+ ":")).build());
 		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", currentIf)).build());
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s %s",ctx.stop.getLine(), ctx.END().getText(),
 				ctx.IF(0).getText())).build());
@@ -493,8 +558,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitLoop_stmt(Loop_stmtContext ctx) {
-		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), 
-				"While loop: Jumping to conditional check")).build());
 		labelCounter = labelCounter + 2;
 		int currentWhile = labelCounter;
 //		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentWhile - 1)).build());
@@ -511,6 +574,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentWhile)).build());
 		emit(new TargetInstruction.Builder().instruction("jne").operand1(String.format(".L%s", (currentWhile))).build());
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end loop")).build());
+//		//===============DEBUGGING============================
+//		//.stabn 68,0,%s,.line%s-main
+//		//.line%s:
+//		if (opt.g) {
+//		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
+//				ctx.stop.getLine(), ctx.stop.getLine())).build());
+//		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
+//				ctx.stop.getLine())).build());
+//		}
+//		//===============DEBUGGING============================
 		
 		return null;
 	}

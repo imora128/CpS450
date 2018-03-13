@@ -20,6 +20,7 @@ public class Option {
      boolean ds;
      boolean dp;
      boolean s;
+     boolean g;
      int semanticErrors = 0;
      List<String> fileName = new ArrayList<String>();
 
@@ -27,6 +28,7 @@ public class Option {
         ds = false;
         dp = false;
         s = false;
+        g = false;
     }
     /*
     Function Name: getCommandLineArguments
@@ -36,12 +38,14 @@ public class Option {
     */
     void getCommandLineArguments(String[] args) {
         for (int i = 0; i < args.length; i++) {
-            if ((i == 0 || i == 1 || i == 2) && args[i].equals("-ds")) {
+            if ((i == 0 || i == 1 || i == 2 || i == 3) && args[i].equals("-ds")) {
                 ds = true;
-            } else if ((i == 0 || i == 1 || i == 2) && args[i].equals("-dp")) {
+            } else if ((i == 0 || i == 1 || i == 2 || i == 3) && args[i].equals("-dp")) {
                 dp = true;
-            } else if ((i == 0 || i == 1 || i == 2) && args[i].equals("-S")) {
+            } else if ((i == 0 || i == 1 || i == 2 || i == 3) && args[i].equals("-S")) {
             	s = true;
+            }else if ((i == 0 || i == 1 || i == 2 || i == 3) && args[i].equals("-g")) {
+            	g = true;
             }
             else {
             	String ext = args[i].substring(args[i].lastIndexOf(".") + 1, args[i].length());
@@ -49,7 +53,7 @@ public class Option {
                 fileName.add(args[i]);
                 return;
             	}
-            	System.out.println("usage: minifloyd [-ds] [-dp] [-S] <floyd_source_filename>");
+            	System.out.println("usage: minifloyd [-ds] [-dp] [-S] [-g] <floyd_source_filename>");
             	System.exit(0);
             }
             
