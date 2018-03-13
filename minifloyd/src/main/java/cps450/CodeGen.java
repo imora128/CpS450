@@ -478,7 +478,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//emit(new TargetInstruction.Builder().directive(".L" + (currentIf - 1 + ":")).build());
 		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", (currentIf - 1))).build());
 		if (ctx.falsestm != null) {
-		visit(ctx.falsestm);
+			emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", (ctx.falsestm.start.getLine() - 1), "Else")).build());
+			visit(ctx.falsestm);
 		}
 		//emit +2 label
 		//emit(new TargetInstruction.Builder().directive(".L" + (currentIf+ ":")).build());
