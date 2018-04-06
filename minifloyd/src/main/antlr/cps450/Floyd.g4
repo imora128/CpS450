@@ -127,7 +127,7 @@ method_exp returns [Type myType]
 | expr_cont							#MethodExpr_Cont
 ;
 
-expr_cont returns [Type myType]
+expr_cont returns [Type myType, Symbol sym]
 : IDENTIFIER	#ExprCont_ID
 | STRING_LITERAL	#ExprCont_Strlit
 | INTEGER_LITERAL 	#ExprCont_Intlit

@@ -1,8 +1,8 @@
 #!/bin/bash
-fileName="breakit"
+fileName="jaja"
 rm *.o
 rm *.s
 rm $fileName
 make
 ./gradlew clean install
-build/install/minifloyd/bin/minifloyd -g $fileName.floyd
+build/install/minifloyd/bin/minifloyd -S $fileName.floyd

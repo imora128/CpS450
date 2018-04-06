@@ -445,14 +445,18 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//only allowed method is main in minifloyd
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s() %s", ctx.start.getLine(), 
 				ctx.IDENTIFIER(0).getText(), ctx.IS().getText())).build());
-		
+		//if it's start, print the main directive to know where to start prog
+		if (ctx.IDENTIFIER(0).getText() == "start") {
 		emit(new TargetInstruction.Builder().directive(String.format(".global %s", "main")).build());
+		}
 		//===============DEBUGGING============================
 		if (opt.g) {
 		emit (new TargetInstruction.Builder().directive(".stabs  \"main:F\",36,0,0,main").build());
 		}
 		//===============DEBUGGING============================
-		emit(new TargetInstruction.Builder().directive("main:").build());
+		//printing out the function name
+		emit(new TargetInstruction.Builder().directive(String.format(("%s:"), ctx.IDENTIFIER(0).getText())).build());
+		//folowed by visiting the statement list to print the instructions for the content of the function
 		visit(ctx.statement_list());
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end " + ctx.IDENTIFIER(0).getText())).build());
 		return null;
@@ -492,7 +496,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
-		
 		int paramNum = 0;
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();

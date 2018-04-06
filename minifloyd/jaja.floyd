@@ -1,0 +1,22 @@
+~ CBasics.floyd
+~ - Tests C-level parameter passing and variable access
+~ - Expected output: 0 10 20 0 10 -5 0 10 20 -5 25
+
+class CBasics is
+  d: int  
+  meth1(a: int; b: int): int is
+    c: int
+    d: int
+  begin
+      c := 5
+      meth1 := c
+  end meth1
+
+  start() is
+    num: int
+  begin 
+    num := meth1
+    out.writeint(meth1)
+  end start
+end CBasics
+

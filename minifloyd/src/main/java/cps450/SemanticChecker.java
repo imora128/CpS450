@@ -90,7 +90,7 @@ public class SemanticChecker extends FloydBaseListener {
 		writer = new ClassDeclaration(Type.WRITER);
 		//writeint function
 		MethodDeclaration writeint = new MethodDeclaration(Type.VOID);
-		writeint.appendParameter(Type.INT, "num");
+		writeint.appendParameter(Type.INT, "num", 0);
 		writer.appendMethod("writeint", writeint);
 		
 		//creating reader class
@@ -610,6 +610,9 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
+		//FIXME(MAKE SURE THIS GETS POOPULATED SO IT CAN BE USED IN CODE GEN)
+		ctx.sym = symTable.lookup(ctx.IDENTIFIER().getText()); 
+		System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING");
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 		}
@@ -775,12 +778,36 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMethod_decl(Method_declContext ctx) {
+		int paramOffset = 8;
+		int localOffset = -4;
 		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+		//giving offsets to all parameters. (POSITIVE)
 		if (ctx.argument_decl_list() != null) {
 			for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
-				mDecl.appendParameter(ctx.argument_decl_list().argument_decl(i).type().myType,ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText());
+				mDecl.appendParameter(ctx.argument_decl_list().argument_decl(i).type().myType,ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText(), paramOffset);
+				paramOffset += 4;
 			}
 		}
+		//giving offsets to all locals (NEGATIVE)
+		if (ctx.var_decl().size() > 0) {
+			
+			for (int i = 0; i < ctx.var_decl().size(); i++) {
+				//System.out.println("var is: " + ctx.var_decl(i).IDENTIFIER().getText());
+				mDecl.appendVariable(ctx.var_decl(i).type().myType, ctx.var_decl(i).IDENTIFIER().getText(), localOffset);
+				localOffset = localOffset - 4;
+			}
+		}
+		MethodDeclaration mDecl1 = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+		System.out.println("Printing out the parameters i just added to the metho dinside the syumbol table:");
+		for (int i = 0; i < mDecl1.getParameters().size(); i++) {
+			System.out.println(mDecl1.getParameters().get(i).name + " offset: " + mDecl1.getParameters().get(i).getOffset());
+		}
+		System.out.println("Printing out the locals i just added to the metho dinside the syumbol table:");
+		for (int i = 0; i < mDecl1.getVariables().size(); i++) {
+			System.out.println(mDecl1.getVariables().get(i).name + " offset: " +  mDecl1.getVariables().get(i).getOffset());
+		}
+		
+	
 		
 		symTable.endScope();
 		super.exitMethod_decl(ctx);

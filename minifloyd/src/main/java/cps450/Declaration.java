@@ -10,6 +10,7 @@ package cps450;
 
 public class Declaration {
 	protected Type type;
+	protected int offset;
 	Declaration () {
 		
 	}

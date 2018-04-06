@@ -17,17 +17,20 @@ public class MethodDeclaration extends Declaration {
 	}
 
 
-	public void appendParameter(Type t, String n) {
+	public void appendParameter(Type t, String n, int o) {
+		VarDeclaration foo = new VarDeclaration(t, n);
+		foo.setOffset(o);
+		parameters.add(foo);
 		
-		parameters.add(new VarDeclaration(t, n));
-		//System.out.println("Iasdfasdfasdfasdfsadfasdfasdfasfasdfsdanside of this function" + "Size: " + parameters.size() + " myty" + this.type );
 	}
 	public List<VarDeclaration> getVariables() {
 		return variables;
 	}
 
-	public void setVariables(List<VarDeclaration> variables) {
-		this.variables = variables;
+	public void appendVariable(Type t, String n, int o) {
+		VarDeclaration foo = new VarDeclaration(t, n);
+		foo.setOffset(o);
+		variables.add(foo);
 	}
 	
 	
