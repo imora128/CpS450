@@ -199,15 +199,29 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitExprCont_ID(ExprCont_IDContext ctx) {
 		String name = ctx.IDENTIFIER().getText();
+		Symbol sym = ctx.sym;
+		//System.out.println(String.format("Name from ctx: %s, name from sym:%s, scope:%s", name, sym.getName(), sym.getScope()));
 		//temporary bandaid until invoking class methods is set in stone
 		//otherwise the linker will say: "HEY, WHERE'S IN AND OUT DEFINED, BRO? I CANT PUSH THAT
 		if(ctx.IDENTIFIER().getText().equals("out") || ctx.IDENTIFIER().getText().equals("in")) {
 			return null;
 		}
-		TargetInstruction foo = new TargetInstruction.Builder()
-				.instruction("pushl")
-				.operand1(String.format("%s", name)).build();		
-		emit(foo);
+
+		//I think local scope is 2
+		//TODO(Make sure local scope is 2)
+		
+		if (sym.getScope() == 2) {
+			VarDeclaration variable = (VarDeclaration)sym.getDecl();
+			int offset = variable.getOffset();
+			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
+			emit(new TargetInstruction.Builder().instruction("pushl").operand1(String.format("%s(%%ebp)", offset)).build());
+		} else {
+			//(FIXME(Instance variable things)
+		}
+//		TargetInstruction foo = new TargetInstruction.Builder()
+//				.instruction("pushl")
+//				.operand1(String.format("%s", name)).build();		
+//		emit(foo);
 		return null;
 	}
 
@@ -243,7 +257,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 	
 	
-
+	//FIXME(Now change assignment to reference the offsets as opposed to the var names. Also, print comment to clarify what the var is)
 	@Override
 	public Void visitAssignment_stmt(Assignment_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
@@ -445,17 +459,19 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//only allowed method is main in minifloyd
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s() %s", ctx.start.getLine(), 
 				ctx.IDENTIFIER(0).getText(), ctx.IS().getText())).build());
-		//if it's start, print the main directive to know where to start prog
-		if (ctx.IDENTIFIER(0).getText() == "start") {
-		emit(new TargetInstruction.Builder().directive(String.format(".global %s", "main")).build());
-		}
+
 		//===============DEBUGGING============================
 		if (opt.g) {
-		emit (new TargetInstruction.Builder().directive(".stabs  \"main:F\",36,0,0,main").build());
+		emit (new TargetInstruction.Builder().directive(String.format(".stabs  \"%s\",36,0,0,%s", ctx.IDENTIFIER(0).getText(),ctx.IDENTIFIER(0).getText())).build());
 		}
 		//===============DEBUGGING============================
 		//printing out the function name
+		//if it's start, print the main directive to know where to start prog
+		if (ctx.IDENTIFIER(0).getText().equals("start")) {
+		emit(new TargetInstruction.Builder().directive(String.format(".global %s", "main")).build());
+		} else {
 		emit(new TargetInstruction.Builder().directive(String.format(("%s:"), ctx.IDENTIFIER(0).getText())).build());
+		}
 		//folowed by visiting the statement list to print the instructions for the content of the function
 		visit(ctx.statement_list());
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end " + ctx.IDENTIFIER(0).getText())).build());

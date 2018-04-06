@@ -73,6 +73,7 @@ import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
 import cps450.FloydParser.Method_declContext;
 
+//FIXME(Passing in a declared func as a parameter passes semantic checks. IE:out.writeint(meth1)
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable;
 	MyError print = new MyError(false);
@@ -128,7 +129,13 @@ public class SemanticChecker extends FloydBaseListener {
 						ctx.IDENTIFIER().toString()),ctx);
 				return;
 			}
-			symTable.push(ctx.IDENTIFIER().toString(),new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString()));
+			//FIXME(need to add offset to variable. question is, how in the world do i know how to calculate the right offset?)
+			VarDeclaration variable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
+			variable.setOffset(symTable.getLocalOffset());
+			System.out.println(String.format("%s: %s",variable.name, variable.getOffset()));
+			symTable.setLocalOffset(symTable.getLocalOffset() - 4);
+			
+			symTable.push(ctx.IDENTIFIER().toString(), variable);
 			
 		}
 		else {
@@ -606,15 +613,17 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		super.exitCall_stmt(ctx);
 	}
-
+	//FIXME(Make sure sematnic checks are being done to expr call too)
+	//FIXME(Make sure to fix readint and write int)
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
-		//FIXME(MAKE SURE THIS GETS POOPULATED SO IT CAN BE USED IN CODE GEN)
-		ctx.sym = symTable.lookup(ctx.IDENTIFIER().getText()); 
-		System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING");
+		
+		
+		//System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING");
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
+			//System.out.println("Param is this: " + paramNum);
 		}
 		if (ctx.IDENTIFIER().getText().equals("readint")) {
 			if (paramNum != 0) {
@@ -711,8 +720,11 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	@Override
 	public void exitExprCont_ID(ExprCont_IDContext ctx) {
+		
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
+			System.out.println(sym.getName() + " isn't null");
+			ctx.sym = sym;
 			ctx.myType = sym.getDecl().type;
 		}
 		else {
@@ -779,7 +791,6 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMethod_decl(Method_declContext ctx) {
 		int paramOffset = 8;
-		int localOffset = -4;
 		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
 		//giving offsets to all parameters. (POSITIVE)
 		if (ctx.argument_decl_list() != null) {
@@ -789,23 +800,23 @@ public class SemanticChecker extends FloydBaseListener {
 			}
 		}
 		//giving offsets to all locals (NEGATIVE)
-		if (ctx.var_decl().size() > 0) {
-			
-			for (int i = 0; i < ctx.var_decl().size(); i++) {
-				//System.out.println("var is: " + ctx.var_decl(i).IDENTIFIER().getText());
-				mDecl.appendVariable(ctx.var_decl(i).type().myType, ctx.var_decl(i).IDENTIFIER().getText(), localOffset);
-				localOffset = localOffset - 4;
-			}
-		}
-		MethodDeclaration mDecl1 = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
-		System.out.println("Printing out the parameters i just added to the metho dinside the syumbol table:");
-		for (int i = 0; i < mDecl1.getParameters().size(); i++) {
-			System.out.println(mDecl1.getParameters().get(i).name + " offset: " + mDecl1.getParameters().get(i).getOffset());
-		}
-		System.out.println("Printing out the locals i just added to the metho dinside the syumbol table:");
-		for (int i = 0; i < mDecl1.getVariables().size(); i++) {
-			System.out.println(mDecl1.getVariables().get(i).name + " offset: " +  mDecl1.getVariables().get(i).getOffset());
-		}
+//		if (ctx.var_decl().size() > 0) {
+//			
+//			for (int i = 0; i < ctx.var_decl().size(); i++) {
+//				//System.out.println("var is: " + ctx.var_decl(i).IDENTIFIER().getText());
+//				mDecl.appendVariable(ctx.var_decl(i).type().myType, ctx.var_decl(i).IDENTIFIER().getText(), localOffset);
+//				localOffset = localOffset - 4;
+//			}
+//		}
+//		MethodDeclaration mDecl1 = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+//		System.out.println("Printing out the parameters i just added to the metho dinside the syumbol table:");
+//		for (int i = 0; i < mDecl1.getParameters().size(); i++) {
+//			System.out.println(mDecl1.getParameters().get(i).name + " offset: " + mDecl1.getParameters().get(i).getOffset());
+//		}
+//		System.out.println("Printing out the locals i just added to the metho dinside the syumbol table:");
+//		for (int i = 0; i < mDecl1.getVariables().size(); i++) {
+//			System.out.println(mDecl1.getVariables().get(i).name + " offset: " +  mDecl1.getVariables().get(i).getOffset());
+//		}
 		
 	
 		
@@ -828,6 +839,8 @@ public class SemanticChecker extends FloydBaseListener {
 
 		symTable.push(ctx.IDENTIFIER(0).getText(), new MethodDeclaration(t));
 		symTable.beginScope();
+		//setting local offset to -8 because the function is beginning
+		symTable.setLocalOffset(-8);
 		super.enterMethod_decl(ctx);
 	}
 
@@ -863,6 +876,7 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
+		System.out.println("NEED TO IMPLEMENT IT HEREIASOJOIASJDJOIASDIOJASJOIDIOASJ");
 		Symbol sym = symTable.lookup(ctx.e1.getText());
 		if (sym != null) {
 			ctx.myType = Type.INT;

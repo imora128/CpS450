@@ -10,6 +10,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 public class SymbolTable {
+	int localOffset;
     private static SymbolTable instance = null;
     int scope = 0;
     List<Symbol> symbolTable = new ArrayList<Symbol>();
@@ -22,7 +23,14 @@ public class SymbolTable {
         }
         return instance;
     }
-    /*
+    
+    public int getLocalOffset() {
+		return localOffset;
+	}
+	public void setLocalOffset(int localOffset) {
+		this.localOffset = localOffset;
+	}
+	/*
     Desc: Pushes a new symbol entry onto the stack with the given name and decl information, 
     and the current scope level. It should return the new symbol entry
     */

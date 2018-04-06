@@ -9,14 +9,16 @@ class CBasics is
     d: int
   begin
       c := 5
+      d := 2
       meth1 := c
+      meth1 := d
   end meth1
 
   start() is
     num: int
   begin 
-    num := meth1
-    out.writeint(meth1)
+    num := meth1(1,2)
+    out.writeint(num)
   end start
 end CBasics
 
