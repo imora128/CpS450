@@ -39,6 +39,10 @@ int unaryNot(int x) {
   return !x;
 }
 
+void hi() {
+  printf("HI\n");
+}
+
 int readint() {
   char buffer[11];
   read(0, buffer, 11);

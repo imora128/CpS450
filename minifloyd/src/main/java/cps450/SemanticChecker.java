@@ -132,7 +132,7 @@ public class SemanticChecker extends FloydBaseListener {
 			//FIXME(need to add offset to variable. question is, how in the world do i know how to calculate the right offset?)
 			VarDeclaration variable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
 			variable.setOffset(symTable.getLocalOffset());
-			System.out.println(String.format("%s: %s",variable.name, variable.getOffset()));
+			//System.out.println(String.format("%s: %s",variable.name, variable.getOffset()));
 			symTable.setLocalOffset(symTable.getLocalOffset() - 4);
 			
 			symTable.push(ctx.IDENTIFIER().toString(), variable);
@@ -160,6 +160,16 @@ public class SemanticChecker extends FloydBaseListener {
 							sym.getDecl().type, ctx.expression(i).myType),ctx);
 				}
 			}
+//			if (sym.getDecl() instanceof VarDeclaration) {
+//			VarDeclaration foo = (VarDeclaration)sym.getDecl();
+//			ctx.sym = foo;
+//			System.out.println(String.format("Offset for %s is %s)", foo.name, foo.getOffset()));
+//			} else if (sym.getDecl() instanceof MethodDeclaration) {
+//				MethodDeclaration foo = (MethodDeclaration)sym.getDecl();
+//				ctx.sym = foo;
+//				System.out.println(String.format("Method %s has been decorated", sym.getName()));
+//			}
+			ctx.sym = sym;
 		}
 		else {
 
@@ -613,7 +623,6 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		super.exitCall_stmt(ctx);
 	}
-	//FIXME(Make sure sematnic checks are being done to expr call too)
 	//FIXME(Make sure to fix readint and write int)
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
@@ -723,7 +732,7 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
-			System.out.println(sym.getName() + " isn't null");
+			//System.out.println(sym.getName() + " isn't null");
 			ctx.sym = sym;
 			ctx.myType = sym.getDecl().type;
 		}
@@ -852,10 +861,6 @@ public class SemanticChecker extends FloydBaseListener {
 				new ClassDeclaration(symTable.types.get(ctx.IDENTIFIER(0).getText())));
 		mainClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
 		symTable.beginScope();
-		//FIXME(Make sure this get fixed in the next phase.)
-		//since many ppl said it doesnt matter how we implement
-		//the reader/writer stuff because it'll be vastly different in phase 4
-		//imma just hack it this way
 		symTable.push("in", new VarDeclaration(Type.READER, "in"));
 		symTable.push("out", new VarDeclaration(Type.WRITER, "out"));
 		

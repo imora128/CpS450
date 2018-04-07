@@ -6,18 +6,20 @@ class CBasics is
   d: int  
   meth1(a: int; b: int): int is
     c: int
-    d: int
   begin
-      c := 5
-      d := 2
-      meth1 := c
-      meth1 := d
+      c := 99
+      out.writeint(c)
+      meth1 := 50
   end meth1
 
   start() is
     num: int
+    foo: int
   begin 
-    num := meth1(1,2)
+    out.writeint(11)
+    d := meth1(1, 2)
+    out.writeint(d)
+    num := d
     out.writeint(num)
   end start
 end CBasics

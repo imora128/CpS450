@@ -6,10 +6,20 @@ import java.util.List;
 public class MethodDeclaration extends Declaration {
 	List<VarDeclaration> parameters = new ArrayList<VarDeclaration>();
 	List<VarDeclaration> variables = new ArrayList<VarDeclaration>();
+	int offset;
 
 	public MethodDeclaration(Type varType) {
 		super();
 		type = varType;
+		offset = -4;
+	}
+
+	public int getOffset() {
+		return offset;
+	}
+
+	public void setOffset(int offset) {
+		this.offset = offset;
 	}
 
 	public List<VarDeclaration> getParameters() {

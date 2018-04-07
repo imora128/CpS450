@@ -55,7 +55,7 @@ statement
 | call_stmt
 ;
 
-assignment_stmt
+assignment_stmt returns [Symbol sym]
 : IDENTIFIER ('[' expression ']')* ASSIGNMENT_OPERATOR e1=expression
 ;
 

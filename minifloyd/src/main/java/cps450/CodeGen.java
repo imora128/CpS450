@@ -56,7 +56,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	Stack<String> registers = new Stack<String>();
 	Option opt;
 	int labelCounter;
-	
+	static int LOCAL_SCOPE = 2;
 	
 	CodeGen(Option opt) {
 		registers.push("%edx");
@@ -210,18 +210,19 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//I think local scope is 2
 		//TODO(Make sure local scope is 2)
 		
-		if (sym.getScope() == 2) {
+		if (sym.getScope() == LOCAL_SCOPE) {
 			VarDeclaration variable = (VarDeclaration)sym.getDecl();
 			int offset = variable.getOffset();
+			//printing comment so i know which local is getting pushed
 			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
 			emit(new TargetInstruction.Builder().instruction("pushl").operand1(String.format("%s(%%ebp)", offset)).build());
 		} else {
-			//(FIXME(Instance variable things)
+			TargetInstruction foo = new TargetInstruction.Builder()
+			.instruction("pushl")
+			.operand1(String.format("%s", name)).build();		
+			emit(foo);
 		}
-//		TargetInstruction foo = new TargetInstruction.Builder()
-//				.instruction("pushl")
-//				.operand1(String.format("%s", name)).build();		
-//		emit(foo);
+
 		return null;
 	}
 
@@ -257,7 +258,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 	
 	
-	//FIXME(Now change assignment to reference the offsets as opposed to the var names. Also, print comment to clarify what the var is)
+	//FIXME(May have to change the operation from push-pop. to push-popinto register-move into stack location)
 	@Override
 	public Void visitAssignment_stmt(Assignment_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
@@ -272,9 +273,32 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 		//===============DEBUGGING============================
 		visit(ctx.e1);
-		TargetInstruction instruction = new TargetInstruction.Builder().
-				instruction(String.format("popl %s", ctx.IDENTIFIER().getText())).build();		
-		emit(instruction);
+		Symbol sym = ctx.sym;
+		//check if its a variable
+		if (sym.getDecl() instanceof VarDeclaration) {
+			VarDeclaration lhs = (VarDeclaration)sym.getDecl();
+			//local variable
+			if (sym.getScope() == LOCAL_SCOPE) {
+				emit(new TargetInstruction.Builder().comment(String.format("popl %s", sym.getName())).build());
+				emit(new TargetInstruction.Builder().instruction("popl %edx").build());
+				emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
+			} else {
+				//instnace variable
+				TargetInstruction instruction = new TargetInstruction.Builder().
+						instruction(String.format("popl %s", ctx.IDENTIFIER().getText())).build();		
+				emit(instruction);
+			}
+			//check if its a function
+		} else if (sym.getDecl() instanceof MethodDeclaration) {
+			//i set the function offset at -4 when it is created, since that's where in the stack the ret value goes
+			System.out.println("Got a method decl named " + sym.getName());
+			MethodDeclaration lhs = (MethodDeclaration) sym.getDecl();
+			emit(new TargetInstruction.Builder().comment(String.format("popl %s", sym.getName())).build());
+			emit(new TargetInstruction.Builder().instruction("popl %edx").build());
+			emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
+		}
+		
+
 		println();
 		return null;
 	}
@@ -469,11 +493,32 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//if it's start, print the main directive to know where to start prog
 		if (ctx.IDENTIFIER(0).getText().equals("start")) {
 		emit(new TargetInstruction.Builder().directive(String.format(".global %s", "main")).build());
+		emit(new TargetInstruction.Builder().directive(String.format("main:")).build());
+		//FUNCTION PREAMBLE
+		emit(new TargetInstruction.Builder().comment("Function preamble").build());
+		emit(new TargetInstruction.Builder().instruction("pushl %ebp").build());
+		emit(new TargetInstruction.Builder().instruction("movl %esp, %ebp").build());
+		visit(ctx.statement_list());
+		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end " + ctx.IDENTIFIER(0).getText())).build());
+		return null;
 		} else {
 		emit(new TargetInstruction.Builder().directive(String.format(("%s:"), ctx.IDENTIFIER(0).getText())).build());
+		//FUNCTION PREAMBLE
+		emit(new TargetInstruction.Builder().comment("Function preamble").build());
+		emit(new TargetInstruction.Builder().instruction("pushl %ebp").build());
+		emit(new TargetInstruction.Builder().instruction("movl %esp, %ebp").build());
 		}
 		//folowed by visiting the statement list to print the instructions for the content of the function
 		visit(ctx.statement_list());
+		
+		//at the end of the function, put the value inside the return value area into eax
+		emit(new TargetInstruction.Builder().comment("Moving the value inside the return value section of the stack into eax").build());
+		emit(new TargetInstruction.Builder().instruction(("movl -4(%ebp), %eax")).build());
+		
+		//cleaning up the stack
+		emit(new TargetInstruction.Builder().comment("cleaning up the stack and returnig").build());
+		emit(new TargetInstruction.Builder().instruction("leave").build());
+		emit(new TargetInstruction.Builder().instruction(("ret")).build());
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end " + ctx.IDENTIFIER(0).getText())).build());
 		return null;
 	}
@@ -491,13 +536,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				ctx.start.getLine())).build());
 		}
 		//===============DEBUGGING============================
-		//only functions allowed are writeint and readint for this phase, so dont need to visit
+		//No class methods yet, so I don't need to visit the lhs of the .
 		//visit(ctx.t1);
 		visit(ctx.t2);
 		int paramNum = 0;
 		if (ctx.expression_list() != null) {
 		paramNum = ctx.expression_list().expression().size();
 		}
+		//FUNCTION PREAMBLE
+//		emit(new TargetInstruction.Builder().instruction("pushl %ebp").build());
+//		emit(new TargetInstruction.Builder().instruction("movl %esp, %ebp").build());
 		
 		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
 		if (paramNum > 0) {
@@ -515,15 +563,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		int paramNum = 0;
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
+			for (int i = ctx.expression_list().expression().size() - 1; i > -1; i--) {
+				//System.out.println( ctx.expression_list().expression().get(i).getText());
+				visit(ctx.expression_list().expression().get(i));
+			}
 		}
-		
 		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
 		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
-		//If I'm thinking about this correctly, then expr function calls should always return something..
-		//you can't really have for example x := in.voidfunction, right?
-			emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		println();
 		return null;
 	}
