@@ -675,8 +675,8 @@ public class SemanticChecker extends FloydBaseListener {
 
 		
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
-			System.out.println(String.format("Function: %s Parameters: %s", ctx.IDENTIFIER().getText(), info.size()));
-			symTable.printSymTable();
+			//System.out.println(String.format("Function: %s Parameters: %s", ctx.IDENTIFIER().getText(), info.size()));
+			//symTable.printSymTable();
 			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
 					//recursion case
@@ -908,7 +908,7 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
-		System.out.println("NEED TO IMPLEMENT IT HEREIASOJOIASJDJOIASDIOJASJOIDIOASJ");
+		System.out.println("This method requires further implementation in the B Level. Text:" + ctx.getText());
 		Symbol sym = symTable.lookup(ctx.e1.getText());
 		if (sym != null) {
 			ctx.myType = Type.INT;

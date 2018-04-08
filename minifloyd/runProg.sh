@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="cchange"
+fileName="cgcd"
 rm *.o
 rm *.s
 rm $fileName

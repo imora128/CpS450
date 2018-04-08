@@ -255,7 +255,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//emitComment(ctx);
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
 		emit(instruction);
-		System.out.println("i am ehre: " + ctx.IDENTIFIER().getText());
+		//System.out.println("i am ehre: " + ctx.IDENTIFIER().getText());
 		//===============DEBUGGING============================
 		//.stabs  "x:G(0,1)",32,0,0,0
 		if (opt.g) {
@@ -300,7 +300,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			//check if its a function
 		} else if (sym.getDecl() instanceof MethodDeclaration) {
 			//i set the function offset at -4 when it is created, since that's where in the stack the ret value goes
-			System.out.println("Got a method decl named " + sym.getName());
+			//System.out.println("Got a method decl named " + sym.getName());
 			MethodDeclaration lhs = (MethodDeclaration) sym.getDecl();
 			emit(new TargetInstruction.Builder().comment(String.format("popl %s", sym.getName())).build());
 			//emit(new TargetInstruction.Builder().instruction("popl %edx").build());
@@ -547,7 +547,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//===============DEBUGGING============================
 		//No class methods yet, so I don't need to visit the lhs of the .
 		//visit(ctx.t1);
-		System.out.println(String.format("%s", ctx.IDENTIFIER().getText()));
+		//System.out.println(String.format("%s", ctx.IDENTIFIER().getText()));
 		if (ctx.t2 != null) {
 		visit(ctx.t2);
 		}
