@@ -52,7 +52,6 @@ public class Main
         } else {
         	System.out.println(String.format("ERROR: %s semantic error(s). Code generation will not execute" +
         			" until those are fixed.", parsedArgs.semanticErrors));
-        	return;
         }
         if (parsedArgs.dp) {
             Trees.inspect(tree, parser);

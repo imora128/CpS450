@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="breakit"
+fileName="cchange"
 rm *.o
 rm *.s
 rm $fileName

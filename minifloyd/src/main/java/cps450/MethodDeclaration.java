@@ -25,8 +25,16 @@ public class MethodDeclaration extends Declaration {
 	public List<VarDeclaration> getParameters() {
 		return parameters;
 	}
+	
+	public void clearParameters() {
+		parameters.clear();
+	}
 
-
+	public void changeType(int i, Type t) {
+		VarDeclaration moo = parameters.get(i);
+		moo.type = t;
+		parameters.set(i, moo);
+	}
 	public void appendParameter(Type t, String n) {
 		VarDeclaration foo = new VarDeclaration(t, n);
 		parameters.add(foo);

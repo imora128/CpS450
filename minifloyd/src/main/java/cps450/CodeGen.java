@@ -547,7 +547,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//===============DEBUGGING============================
 		//No class methods yet, so I don't need to visit the lhs of the .
 		//visit(ctx.t1);
+		System.out.println(String.format("%s", ctx.IDENTIFIER().getText()));
+		if (ctx.t2 != null) {
 		visit(ctx.t2);
+		}
 		int paramNum = 0;
 		if (ctx.expression_list() != null) {
 		paramNum = ctx.expression_list().expression().size();

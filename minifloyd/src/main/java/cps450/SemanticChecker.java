@@ -676,8 +676,18 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			System.out.println(String.format("Function: %s Parameters: %s", ctx.IDENTIFIER().getText(), info.size()));
+			symTable.printSymTable();
 			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
+					//recursion case
+//					Symbol jaja = symTable.lookup(info.get(i).name);
+//					System.out.println("Look up: " + info.get(i).name + " got: " + jaja.getDecl().type);
+					if (info.get(i).type == null) {
+						//mDecl.changeType(i, symTable.lookup(info.get(i).name).getDecl().type);
+						VarDeclaration moo = info.get(i);
+						moo.type = symTable.lookup(info.get(i).name).getDecl().type;
+						info.set(i, moo);
+					}
 					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
 						//print.DEBUG("MATCHED Type: " + info.get(i).type);
 					}
@@ -735,7 +745,7 @@ public class SemanticChecker extends FloydBaseListener {
 		if (sym != null) {
 			if (sym.getDecl() instanceof VarDeclaration) {
 				VarDeclaration test = (VarDeclaration) sym.getDecl();
-				System.out.println("offset of " + sym.getName() + " is: " + test.getOffset());
+				//System.out.println("offset of " + sym.getName() + " is: " + test.getOffset());
 			}
 			//System.out.println(sym.getName() + " isn't null");
 			ctx.sym = sym;
@@ -811,6 +821,7 @@ public class SemanticChecker extends FloydBaseListener {
 		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
 		//giving offsets to all parameters. (POSITIVE)
 		if (ctx.argument_decl_list() != null) {
+			mDecl.clearParameters();
 			for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
 				mDecl.appendParameter(ctx.argument_decl_list().argument_decl(i).type().myType,ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText());
 				paramOffset += 4;
@@ -856,6 +867,13 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 
 		symTable.push(ctx.IDENTIFIER(0).getText(), new MethodDeclaration(t));
+		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+		//giving offsets to all parameters. (POSITIVE)
+		if (ctx.argument_decl_list() != null) {
+			for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
+				mDecl.appendParameter(ctx.argument_decl_list().argument_decl(i).type().myType,ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText());
+			}
+		}
 		symTable.beginScope();
 		//setting local offset to -8 because the function is beginning
 		symTable.setLocalOffset(-8);

@@ -23,9 +23,8 @@ class CBasics is
     num: int
     foo: int
   begin 
-    num := meth1(1, 2)
-    ~out.writeint(1)
-    out.writeint(num)
+    num := meth1(1, 2 - 5)
+    ~out.writeint(num)
   end start
 end CBasics
 
