@@ -209,7 +209,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 		//I think local scope is 2
 		//TODO(Make sure local scope is 2)
-		
+		if (sym.getDecl() instanceof VarDeclaration) {
 		if (sym.getScope() == LOCAL_SCOPE) {
 			VarDeclaration variable = (VarDeclaration)sym.getDecl();
 			int offset = variable.getOffset();
@@ -217,10 +217,17 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
 			emit(new TargetInstruction.Builder().instruction("pushl").operand1(String.format("%s(%%ebp)", offset)).build());
 		} else {
+
 			TargetInstruction foo = new TargetInstruction.Builder()
 			.instruction("pushl")
 			.operand1(String.format("%s", name)).build();		
 			emit(foo);
+		}
+		} else {
+			MethodDeclaration variable = (MethodDeclaration)sym.getDecl();
+			int offset = variable.getOffset();
+			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
+			emit(new TargetInstruction.Builder().instruction("pushl").operand1(String.format("%s(%%ebp)", offset)).build());
 		}
 
 		return null;
@@ -248,6 +255,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//emitComment(ctx);
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
 		emit(instruction);
+		System.out.println("i am ehre: " + ctx.IDENTIFIER().getText());
 		//===============DEBUGGING============================
 		//.stabs  "x:G(0,1)",32,0,0,0
 		if (opt.g) {
@@ -280,8 +288,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			//local variable
 			if (sym.getScope() == LOCAL_SCOPE) {
 				emit(new TargetInstruction.Builder().comment(String.format("popl %s", sym.getName())).build());
-				emit(new TargetInstruction.Builder().instruction("popl %edx").build());
-				emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
+				//emit(new TargetInstruction.Builder().instruction("popl %edx").build());
+				//emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
+				emit(new TargetInstruction.Builder().instruction(String.format("popl %s(%%ebp)", lhs.getOffset())).build());
 			} else {
 				//instnace variable
 				TargetInstruction instruction = new TargetInstruction.Builder().
@@ -294,8 +303,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			System.out.println("Got a method decl named " + sym.getName());
 			MethodDeclaration lhs = (MethodDeclaration) sym.getDecl();
 			emit(new TargetInstruction.Builder().comment(String.format("popl %s", sym.getName())).build());
-			emit(new TargetInstruction.Builder().instruction("popl %edx").build());
-			emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
+			//emit(new TargetInstruction.Builder().instruction("popl %edx").build());
+			//emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
+			emit(new TargetInstruction.Builder().instruction(String.format("popl %s(%%ebp)", lhs.getOffset())).build());
 		}
 		
 
@@ -492,21 +502,20 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//printing out the function name
 		//if it's start, print the main directive to know where to start prog
 		if (ctx.IDENTIFIER(0).getText().equals("start")) {
-		emit(new TargetInstruction.Builder().directive(String.format(".global %s", "main")).build());
-		emit(new TargetInstruction.Builder().directive(String.format("main:")).build());
-		//FUNCTION PREAMBLE
-		emit(new TargetInstruction.Builder().comment("Function preamble").build());
-		emit(new TargetInstruction.Builder().instruction("pushl %ebp").build());
-		emit(new TargetInstruction.Builder().instruction("movl %esp, %ebp").build());
-		visit(ctx.statement_list());
-		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end " + ctx.IDENTIFIER(0).getText())).build());
-		return null;
+		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
+		emit(new TargetInstruction.Builder().label(String.format("main:")).build());
 		} else {
-		emit(new TargetInstruction.Builder().directive(String.format(("%s:"), ctx.IDENTIFIER(0).getText())).build());
+		emit(new TargetInstruction.Builder().label(String.format(("%s:"), ctx.IDENTIFIER(0).getText())).build());
+		}
 		//FUNCTION PREAMBLE
 		emit(new TargetInstruction.Builder().comment("Function preamble").build());
 		emit(new TargetInstruction.Builder().instruction("pushl %ebp").build());
 		emit(new TargetInstruction.Builder().instruction("movl %esp, %ebp").build());
+		//return value
+		emit(new TargetInstruction.Builder().instruction("push $0").build());
+		//locals
+		for (int i =  0; i < ctx.params; i++) {
+			emit(new TargetInstruction.Builder().instruction("push $0").build());
 		}
 		//folowed by visiting the statement list to print the instructions for the content of the function
 		visit(ctx.statement_list());

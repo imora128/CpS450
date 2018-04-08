@@ -28,11 +28,11 @@ class TargetInstruction {
 		   private String comment = "";
 		   private String directive = "";
 		   public Builder label(String x) {this.label = x; return this;}
-		   public Builder instruction (String x) {this.instruction = x; return this;}
+		   public Builder instruction (String x) {this.instruction = String.format("\t %s", x); return this;}
 		   public Builder operand1(String x) {this.operand1 = x; return this;}
 		   public Builder operand2(String x) {this.operand2 = x; return this;}
-		   public Builder comment(String x) {this.comment = String.format("# %s", x); return this;}
-		   public Builder directive(String x) {this.directive = x; return this;}
+		   public Builder comment(String x) {this.comment = String.format("\t# %s", x); return this;}
+		   public Builder directive(String x) {this.directive = String.format("\t %s", x); return this;}
 		   
 		   public TargetInstruction build() {
 			   return new TargetInstruction(this);

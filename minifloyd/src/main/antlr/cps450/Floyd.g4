@@ -23,7 +23,7 @@ var_decl
 ;
 
 
-method_decl
+method_decl returns [int params]
 : IDENTIFIER R_PAR ((argument_decl_list)?) L_PAR (COLON typ=type)? IS cr var_decl* BEGIN cr statement_list END IDENTIFIER cr
 ;
 

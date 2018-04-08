@@ -27,9 +27,8 @@ public class MethodDeclaration extends Declaration {
 	}
 
 
-	public void appendParameter(Type t, String n, int o) {
+	public void appendParameter(Type t, String n) {
 		VarDeclaration foo = new VarDeclaration(t, n);
-		foo.setOffset(o);
 		parameters.add(foo);
 		
 	}

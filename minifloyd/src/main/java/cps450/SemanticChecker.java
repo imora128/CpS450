@@ -72,7 +72,7 @@ import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
 import cps450.FloydParser.Method_declContext;
-
+//FIXME(FIGURE OUT WHY CALLING A FUNCTION MESSES UP MY STACK)
 //FIXME(Passing in a declared func as a parameter passes semantic checks. IE:out.writeint(meth1)
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable;
@@ -91,7 +91,7 @@ public class SemanticChecker extends FloydBaseListener {
 		writer = new ClassDeclaration(Type.WRITER);
 		//writeint function
 		MethodDeclaration writeint = new MethodDeclaration(Type.VOID);
-		writeint.appendParameter(Type.INT, "num", 0);
+		writeint.appendParameter(Type.INT, "num");
 		writer.appendMethod("writeint", writeint);
 		
 		//creating reader class
@@ -675,6 +675,7 @@ public class SemanticChecker extends FloydBaseListener {
 
 		
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
+			System.out.println(String.format("Function: %s Parameters: %s", ctx.IDENTIFIER().getText(), info.size()));
 			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
 					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
@@ -732,6 +733,10 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
+			if (sym.getDecl() instanceof VarDeclaration) {
+				VarDeclaration test = (VarDeclaration) sym.getDecl();
+				System.out.println("offset of " + sym.getName() + " is: " + test.getOffset());
+			}
 			//System.out.println(sym.getName() + " isn't null");
 			ctx.sym = sym;
 			ctx.myType = sym.getDecl().type;
@@ -786,9 +791,12 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitArgument_decl_list(Argument_decl_listContext ctx) {
-		
+		int offset = 8;
 		for (int i = 0; i < ctx.argument_decl().size(); i++) {
-			symTable.push(ctx.argument_decl(i).IDENTIFIER().getText(), new VarDeclaration(ctx.argument_decl(i).type().myType,ctx.argument_decl(i).IDENTIFIER().getText() ));
+			VarDeclaration foo = new VarDeclaration(ctx.argument_decl(i).type().myType,ctx.argument_decl(i).IDENTIFIER().getText());
+			foo.setOffset(offset);
+			offset += 4;
+			symTable.push(ctx.argument_decl(i).IDENTIFIER().getText(), foo);
 			
 		}
 		
@@ -804,10 +812,11 @@ public class SemanticChecker extends FloydBaseListener {
 		//giving offsets to all parameters. (POSITIVE)
 		if (ctx.argument_decl_list() != null) {
 			for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
-				mDecl.appendParameter(ctx.argument_decl_list().argument_decl(i).type().myType,ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText(), paramOffset);
+				mDecl.appendParameter(ctx.argument_decl_list().argument_decl(i).type().myType,ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText());
 				paramOffset += 4;
 			}
 		}
+		ctx.params = ctx.var_decl().size();
 		//giving offsets to all locals (NEGATIVE)
 //		if (ctx.var_decl().size() > 0) {
 //			

@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="jaja"
+fileName="breakit"
 rm *.o
 rm *.s
 rm $fileName

@@ -4,22 +4,27 @@
 
 class CBasics is
   d: int  
+  ~meth2(a: int; b: int): int is
+  ~  c: int
+  ~  d: int
+  ~begin
+ ~     meth2 := 9
+  ~end meth2
   meth1(a: int; b: int): int is
     c: int
+    d: int
   begin
-      c := 99
-      out.writeint(c)
-      meth1 := 50
+      meth1 := 5
+      out.writeint(a)
+      out.writeint(2)
   end meth1
 
   start() is
     num: int
     foo: int
   begin 
-    out.writeint(11)
-    d := meth1(1, 2)
-    out.writeint(d)
-    num := d
+    num := meth1(1, 2)
+    ~out.writeint(1)
     out.writeint(num)
   end start
 end CBasics
