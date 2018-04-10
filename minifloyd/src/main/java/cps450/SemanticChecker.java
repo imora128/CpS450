@@ -123,7 +123,7 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	boolean doesTypeExist(Type t) {
 		//if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING || t ==Type.READER || t == Type.WRITER) {
-		if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING) {
+		if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING || Type.getTypeForName(t.name) != null) {
 			return true;
 		}
 		else {
@@ -972,6 +972,7 @@ public class SemanticChecker extends FloydBaseListener {
 //		}
 		
 		//INSTANCE VARIABLES
+		symTable.printSymTable();
 		for (FloydParser.Var_declContext variable : ctx.var_decl()) {
 			VarDeclaration classVariable = (VarDeclaration)symTable.lookup(variable.IDENTIFIER().getText()).getDecl();
 			myClass.appendVar(classVariable);
@@ -1010,6 +1011,15 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitMethodDot_Exp(ctx);
 	}
 
+	@Override
+	public void enterMethodDot_Exp(MethodDot_ExpContext ctx) {
+		System.out.println("Please tell me this is above it." + ctx.getText() );
+		symTable.printSymTable();
+		super.enterMethodDot_Exp(ctx);
+	}
+
+	
+	
 	
 
 	

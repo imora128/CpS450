@@ -5,6 +5,7 @@ class Point is
 
   x : int
   y : int
+  f: Point
 
   ComputeChange(amt: int; denom: int): int is
   begin
@@ -15,7 +16,8 @@ class Point is
   begin
     x := ComputeChange(1, 5)
     out.writeint(5)
-    x := in.readint()
+    f.ComputeChange(1, 2)
+    ~x := in.readint()
   end start
   
 end BChange
