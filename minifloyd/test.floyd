@@ -15,7 +15,7 @@ class Point is
   begin
     x := ComputeChange(1, 5)
     out.writeint(5)
-    x := in.readint()
+    ha.writeint(4)
   end start
   
 end BChange

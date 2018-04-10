@@ -103,7 +103,6 @@ public class SemanticChecker extends FloydBaseListener {
 		writer.type = myType;
 		symTable.push("writer", writer);
 		symTable.push("out", new VarDeclaration(myType, "out"));
-		
 		//creating reader class
 		reader = new ClassDeclaration("reader");
 		//readint function
@@ -192,6 +191,7 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.sym = sym;
 		}
 		else {
+			
 
 			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
 					ctx.IDENTIFIER().getText()),ctx);
@@ -576,22 +576,26 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 
 		if (ctx.t1 != null ) {
-			System.out.println("Name of t1 is: " + ctx.t1.getText());
+			//System.out.println("Name of t1 is: " + ctx.t1.getText());
 			Symbol foo = symTable.lookup(ctx.t1.getText());
 			//continue work here.
 //			/*
 //			 * 
 //			 * testing to make sure the class info is in there
 //			 */
-//			ClassDeclaration classInfo = foo.getDecl().type.getClassDecl();
-//			HashMap<String, MethodDeclaration> boo = classInfo.methods;
-//			for (String key : boo.keySet()) {
-//				System.out.println("Function name for " + classInfo.name + " is: " + key);
-//				
-//			}
+			if (foo == null) {
+				print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
+						ctx.IDENTIFIER().getText()),ctx);
+				return;
+			}
+			ClassDeclaration classInfo = foo.getDecl().type.getClassDecl();
+			HashMap<String, MethodDeclaration> boo = classInfo.methods;
+			for (String key : boo.keySet()) {
+				System.out.println("Function name for " + classInfo.name + " is: " + key);
+				
+			}
 				
 
-			if (foo != null) {
 				if (foo.getDecl().type.getClassDecl().methods.containsKey(ctx.IDENTIFIER().getText())) {
 					MethodDeclaration meth = foo.getDecl().type.getClassDecl().methods.get(ctx.IDENTIFIER().getText());
 					if (meth.parameters.size() != paramNum) {
@@ -616,10 +620,6 @@ public class SemanticChecker extends FloydBaseListener {
 							ctx.IDENTIFIER().getText()),ctx);
 					return;
 				}
-			} else {
-				print.err(String.format(print.errMsgs.get("UndefinedVar"), 
-						ctx.IDENTIFIER().getText()),ctx);
-			}
 		}
 		
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
@@ -672,34 +672,34 @@ public class SemanticChecker extends FloydBaseListener {
 			paramNum = ctx.expression_list().expression().size();
 			//System.out.println("Param is this: " + paramNum);
 		}
-		if (ctx.IDENTIFIER().getText().equals("readint")) {
-			if (paramNum != 0) {
-				print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
-						0, paramNum),ctx);
-				ctx.myType = Type.ERROR;
-				return;
-			} else {
-				ctx.myType = Type.INT;
-				return;
-			}
-		} else if (ctx.IDENTIFIER().getText().equals("writeint")) {
-			if (paramNum != 1) {
-				print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
-						1, paramNum),ctx);
-				return;
-			} else {
-				for (int i = 0; i < paramNum; i++) {
-					if (ctx.expression_list().expression().get(i).myType == Type.INT) {
-						//we gucci
-					} else {
-						print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
-								0, paramNum),ctx);
-					}
-				}
-				ctx.myType = Type.VOID;
-				return;
-			}
-		}
+//		if (ctx.IDENTIFIER().getText().equals("readint")) {
+//			if (paramNum != 0) {
+//				print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
+//						0, paramNum),ctx);
+//				ctx.myType = Type.ERROR;
+//				return;
+//			} else {
+//				ctx.myType = Type.INT;
+//				return;
+//			}
+//		} else if (ctx.IDENTIFIER().getText().equals("writeint")) {
+//			if (paramNum != 1) {
+//				print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
+//						1, paramNum),ctx);
+//				return;
+//			} else {
+//				for (int i = 0; i < paramNum; i++) {
+//					if (ctx.expression_list().expression().get(i).myType == Type.INT) {
+//						//we gucci
+//					} else {
+//						print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
+//								0, paramNum),ctx);
+//					}
+//				}
+//				ctx.myType = Type.VOID;
+//				return;
+//			}
+//		}
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
 			if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
 				print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
@@ -940,7 +940,7 @@ public class SemanticChecker extends FloydBaseListener {
 		symTable.beginScope();
 //		symTable.push("in", new VarDeclaration(Type.READER, "in"));
 //		symTable.push("out", new VarDeclaration(Type.WRITER, "out"));
-		symTable.printSymTable();
+		//symTable.printSymTable();
 		
 		super.enterClass_(ctx);
 	}
