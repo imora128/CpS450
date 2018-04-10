@@ -14,7 +14,7 @@ public class SymbolTable {
     private static SymbolTable instance = null;
     int scope = 0;
     List<Symbol> symbolTable = new ArrayList<Symbol>();
-    HashMap<String, Type> types = new HashMap<String,Type>();
+   // HashMap<String, Type> types = new HashMap<String,Type>();
 
     private SymbolTable () {;}
     public static SymbolTable getInstance() {
@@ -41,19 +41,19 @@ public class SymbolTable {
         return sym;
     }
 
-    void populatePredefinedTypes() {
-    	types.put("<error>", Type.ERROR);
-    	types.put("int", Type.INT);
-    	types.put("boolean", Type.BOOLEAN);
-    	types.put("string", Type.STRING);
-    	types.put("reader", Type.READER);
-    	types.put("void", Type.VOID);
-    	types.put("writer", Type.WRITER);
-    }
+//    void populatePredefinedTypes() {
+//    	types.put("<error>", Type.ERROR);
+//    	types.put("int", Type.INT);
+//    	types.put("boolean", Type.BOOLEAN);
+//    	types.put("string", Type.STRING);
+//    	types.put("reader", Type.READER);
+//    	types.put("void", Type.VOID);
+//    	types.put("writer", Type.WRITER);
+//    }
     
-    void createType(String name) {
-    	types.put(name, new Type(name));
-    }
+//    void createType(String name) {
+//    	types.put(name, new Type(name));
+//    }
     
     /*
      * Desc:Searches for a symbol entry with name, starting at the top of the stack and working to the bottom. 

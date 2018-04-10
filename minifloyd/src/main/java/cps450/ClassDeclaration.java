@@ -7,10 +7,11 @@ import java.util.List;
 public class ClassDeclaration extends Declaration {
 	HashMap<String, MethodDeclaration> methods = new HashMap<String, MethodDeclaration>();
 	List<VarDeclaration> vars = new ArrayList<VarDeclaration>();
+	String name = "";
 	
-	public ClassDeclaration(Type varType) {
+	public ClassDeclaration(String _name) {
 		super();
-		type = varType;
+		name = _name;
 	}
 	void appendMethod(String name, MethodDeclaration meth) {
 		methods.put(name, meth);

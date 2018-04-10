@@ -72,7 +72,6 @@ import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
 import cps450.FloydParser.Method_declContext;
-//FIXME(FIGURE OUT WHY CALLING A FUNCTION MESSES UP MY STACK)
 //FIXME(Passing in a declared func as a parameter passes semantic checks. IE:out.writeint(meth1)
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable;
@@ -85,27 +84,47 @@ public class SemanticChecker extends FloydBaseListener {
 		this.opt = opt;
 		print.opt = opt;
 		symTable = SymbolTable.getInstance();
-		symTable.populatePredefinedTypes();
+
+		//symTable.populatePredefinedTypes();
+		/*
+		 * 
+		 * 		Type classType = Type.createType(myClass);
+		myClass.type = classType;
+		 */
 		
 		//creating writer class
-		writer = new ClassDeclaration(Type.WRITER);
+		writer = new ClassDeclaration("writer");
 		//writeint function
 		MethodDeclaration writeint = new MethodDeclaration(Type.VOID);
 		writeint.appendParameter(Type.INT, "num");
 		writer.appendMethod("writeint", writeint);
+		//writer.type = Type.WRITER;
+		Type myType = Type.createType(writer);
+		writer.type = myType;
+		symTable.push("writer", writer);
+		symTable.push("out", new VarDeclaration(myType, "out"));
 		
 		//creating reader class
-		reader = new ClassDeclaration(Type.READER);
+		reader = new ClassDeclaration("reader");
 		//readint function
 		MethodDeclaration readint = new MethodDeclaration(Type.INT);
 		reader.appendMethod("readint", readint);
-		symTable.types.get("reader").setClassDecl(reader);
-		symTable.types.get("writer").setClassDecl(writer);
+		//reader.type = Type.READER;
+		myType = Type.createType(reader);
+		reader.type = myType;
+		
+		symTable.push("reader", reader);
+//		symTable.types.get("reader").setClassDecl(reader);
+//		symTable.types.get("writer").setClassDecl(writer);
+		
+		symTable.push("in", new VarDeclaration(myType, "in"));
+		
 		
 	}
 	
 	boolean doesTypeExist(Type t) {
-		if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING || t ==Type.READER || t == Type.WRITER) {
+		//if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING || t ==Type.READER || t == Type.WRITER) {
+		if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING) {
 			return true;
 		}
 		else {
@@ -136,6 +155,7 @@ public class SemanticChecker extends FloydBaseListener {
 			symTable.setLocalOffset(symTable.getLocalOffset() - 4);
 			
 			symTable.push(ctx.IDENTIFIER().toString(), variable);
+			//symTable.printSymTable();
 			
 		}
 		else {
@@ -556,8 +576,22 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 
 		if (ctx.t1 != null ) {
+			System.out.println("Name of t1 is: " + ctx.t1.getText());
 			Symbol foo = symTable.lookup(ctx.t1.getText());
-			if (foo.getDecl().type.getClassDecl() instanceof ClassDeclaration) {
+			//continue work here.
+//			/*
+//			 * 
+//			 * testing to make sure the class info is in there
+//			 */
+//			ClassDeclaration classInfo = foo.getDecl().type.getClassDecl();
+//			HashMap<String, MethodDeclaration> boo = classInfo.methods;
+//			for (String key : boo.keySet()) {
+//				System.out.println("Function name for " + classInfo.name + " is: " + key);
+//				
+//			}
+				
+
+			if (foo != null) {
 				if (foo.getDecl().type.getClassDecl().methods.containsKey(ctx.IDENTIFIER().getText())) {
 					MethodDeclaration meth = foo.getDecl().type.getClassDecl().methods.get(ctx.IDENTIFIER().getText());
 					if (meth.parameters.size() != paramNum) {
@@ -582,12 +616,16 @@ public class SemanticChecker extends FloydBaseListener {
 							ctx.IDENTIFIER().getText()),ctx);
 					return;
 				}
+			} else {
+				print.err(String.format(print.errMsgs.get("UndefinedVar"), 
+						ctx.IDENTIFIER().getText()),ctx);
 			}
 		}
 		
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
 			print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
 					ctx.IDENTIFIER().getText()),ctx);
+
 			return;
 		} 
 		
@@ -857,7 +895,8 @@ public class SemanticChecker extends FloydBaseListener {
 	public void enterMethod_decl(Method_declContext ctx) {
 		//dumb way of doing it since it doesn't include user defined types, but
 		//it'll work for now
-		List<Type> types = Arrays.asList(Type.INT, Type.BOOLEAN, Type.STRING, Type.READER, Type.VOID, Type.WRITER);
+		//List<Type> types = Arrays.asList(Type.INT, Type.BOOLEAN, Type.STRING, Type.READER, Type.VOID, Type.WRITER);
+		List<Type> types = Arrays.asList(Type.INT, Type.BOOLEAN, Type.STRING, Type.VOID);
 		Type t = Type.VOID;
 		
 		for (Type i : types ) {
@@ -882,22 +921,26 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void enterClass_(Class_Context ctx) {
-		//Create type needs to be done for the type class
+		/*//Create type needs to be done for the type class
 		symTable.createType(ctx.IDENTIFIER(0).getText());
 		symTable.push(ctx.IDENTIFIER(0).getText(), 
 				new ClassDeclaration(symTable.types.get(ctx.IDENTIFIER(0).getText())));
-		mainClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
-		//Create a new type for the class
+		mainClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();*/
 		
+		
+		//Create a new type for the class
+		ClassDeclaration myClass = new ClassDeclaration(ctx.IDENTIFIER(0).getText());
+		Type classType = Type.createType(myClass);
+		myClass.type = classType;
 		//Add the class name as a symbol in the current scope
-		//ClassDeclaration myClass = new ClassDeclaration()
-		//symTable.push(ctx.IDENTIFIER(0).getText(), new ClassDeclaration())
+		symTable.push(ctx.IDENTIFIER(0).getText(), myClass);
 		
 		
 		//SymbolTable.BeginScope( )
 		symTable.beginScope();
-		symTable.push("in", new VarDeclaration(Type.READER, "in"));
-		symTable.push("out", new VarDeclaration(Type.WRITER, "out"));
+//		symTable.push("in", new VarDeclaration(Type.READER, "in"));
+//		symTable.push("out", new VarDeclaration(Type.WRITER, "out"));
+		symTable.printSymTable();
 		
 		super.enterClass_(ctx);
 	}
@@ -907,10 +950,43 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitClass_(Class_Context ctx) {
 		//Perform semantic processing on instance variable and method declarations (these symbols go in the new scope)
 		
+		ClassDeclaration myClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+		//METHODS
 		for (FloydParser.Method_declContext func : ctx.method_decl()) {
 			MethodDeclaration  classMethod = (MethodDeclaration)symTable.lookup(func.IDENTIFIER(0).getText()).getDecl();
-			mainClass.appendMethod(func.IDENTIFIER(0).getText(), classMethod);
+			if (myClass != null) {
+			myClass.appendMethod(func.IDENTIFIER(0).getText(), classMethod);
+			}
+			else {
+				print.err("Class doesn't seem to be in the symbol table",ctx);
+			}
 		}
+		/*
+		 *Seeing if method declarations are working 
+		 * 
+		 */
+//		ClassDeclaration testing = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+//		HashMap<String, MethodDeclaration> foo = testing.methods;
+//		for (String key : foo.keySet()) {
+//			System.out.println("class Name:" + ctx.IDENTIFIER(0).getText() + " Method name: " + key );
+//			
+//		}
+		
+		//INSTANCE VARIABLES
+		for (FloydParser.Var_declContext variable : ctx.var_decl()) {
+			VarDeclaration classVariable = (VarDeclaration)symTable.lookup(variable.IDENTIFIER().getText()).getDecl();
+			myClass.appendVar(classVariable);
+		}
+		/*
+		 *Seeing if method declarations are working 
+		 * 
+		 */
+//		testing = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+//		for (int i = 0; i < testing.vars.size(); i++ ) {
+//			System.out.println("Class: " + ctx.IDENTIFIER(0).getText() + " vars: " + testing.vars.get(i).name);
+//		}
+		
+		
 		//SymbolTable.EndScope( ) to remove the instance variable and method declarations from the symbol table
 		symTable.endScope();
 		//Update the class declaration info in the symbol table

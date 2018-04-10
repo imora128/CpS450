@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="loopy"
+fileName="test"
 rm *.o
 rm *.s
 rm $fileName

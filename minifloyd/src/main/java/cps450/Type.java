@@ -11,9 +11,7 @@ public class Type {
     INT = new Type("int"),
     BOOLEAN = new Type("boolean"),
     STRING = new Type("string"),
-    READER = new Type("reader"),
-    VOID = new Type("void"),
-    WRITER = new Type("writer");
+    VOID = new Type("void");
     
     protected String name;
     private ClassDeclaration classDecl;
@@ -31,18 +29,18 @@ public class Type {
 		this.classDecl = classDecl;
 	}
 
-	public static Type createType(ClassDeclaration decl, String name) {
+	public static Type createType(ClassDeclaration decl) {
 		//This method should create a new Type instance that stores a reference to decl in classDecl. 
 		//Store the Type instance in the types map using the class name as the key.
-		Type newType = new Type(name);
+		Type newType = new Type(decl.name);
 		newType.classDecl = decl;
-		types.put(name, newType);
+		types.put(decl.name, newType);
 		return newType;
 	}
 	
 	public static Type getTypeForName(String className) {
 		//Return the Type instance from the types map, or null if no class with the given name has been defined.
-		return types.get("className");
+		return types.get(className);
 	}
 	@Override
 	public boolean equals(Object obj) {

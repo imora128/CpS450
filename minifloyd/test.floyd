@@ -1,0 +1,21 @@
+~ BChange.floyd
+~ Calculates quarters, dimes, nickles, and pennies for a purchase of a given amount
+
+class Point is
+
+  x : int
+  y : int
+
+  ComputeChange(amt: int; denom: int): int is
+  begin
+    ComputeChange := amt / denom
+  end ComputeChange
+
+  start() is
+  begin
+    x := ComputeChange(1, 5)
+    out.writeint(5)
+    x := in.readint()
+  end start
+  
+end BChange
