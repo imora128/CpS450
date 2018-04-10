@@ -99,8 +99,8 @@ public class SemanticChecker extends FloydBaseListener {
 		//readint function
 		MethodDeclaration readint = new MethodDeclaration(Type.INT);
 		reader.appendMethod("readint", readint);
-		symTable.types.get("reader").decl = reader;
-		symTable.types.get("writer").decl = writer;
+		symTable.types.get("reader").setClassDecl(reader);
+		symTable.types.get("writer").setClassDecl(writer);
 		
 	}
 	
@@ -557,9 +557,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 		if (ctx.t1 != null ) {
 			Symbol foo = symTable.lookup(ctx.t1.getText());
-			if (foo.getDecl().type.decl instanceof ClassDeclaration) {
-				if (foo.getDecl().type.decl.methods.containsKey(ctx.IDENTIFIER().getText())) {
-					MethodDeclaration meth = foo.getDecl().type.decl.methods.get(ctx.IDENTIFIER().getText());
+			if (foo.getDecl().type.getClassDecl() instanceof ClassDeclaration) {
+				if (foo.getDecl().type.getClassDecl().methods.containsKey(ctx.IDENTIFIER().getText())) {
+					MethodDeclaration meth = foo.getDecl().type.getClassDecl().methods.get(ctx.IDENTIFIER().getText());
 					if (meth.parameters.size() != paramNum) {
 						print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
 								meth.parameters.size(), paramNum),ctx);
@@ -882,11 +882,19 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void enterClass_(Class_Context ctx) {
-		//increment scope
+		//Create type needs to be done for the type class
 		symTable.createType(ctx.IDENTIFIER(0).getText());
 		symTable.push(ctx.IDENTIFIER(0).getText(), 
 				new ClassDeclaration(symTable.types.get(ctx.IDENTIFIER(0).getText())));
 		mainClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
+		//Create a new type for the class
+		
+		//Add the class name as a symbol in the current scope
+		//ClassDeclaration myClass = new ClassDeclaration()
+		//symTable.push(ctx.IDENTIFIER(0).getText(), new ClassDeclaration())
+		
+		
+		//SymbolTable.BeginScope( )
 		symTable.beginScope();
 		symTable.push("in", new VarDeclaration(Type.READER, "in"));
 		symTable.push("out", new VarDeclaration(Type.WRITER, "out"));
@@ -897,12 +905,16 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	@Override
 	public void exitClass_(Class_Context ctx) {
-		//decrement scope
+		//Perform semantic processing on instance variable and method declarations (these symbols go in the new scope)
+		
 		for (FloydParser.Method_declContext func : ctx.method_decl()) {
 			MethodDeclaration  classMethod = (MethodDeclaration)symTable.lookup(func.IDENTIFIER(0).getText()).getDecl();
 			mainClass.appendMethod(func.IDENTIFIER(0).getText(), classMethod);
 		}
+		//SymbolTable.EndScope( ) to remove the instance variable and method declarations from the symbol table
 		symTable.endScope();
+		//Update the class declaration info in the symbol table
+		
 		super.exitClass_(ctx);
 	}
 

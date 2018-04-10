@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="cgcd"
+fileName="loopy"
 rm *.o
 rm *.s
 rm $fileName
