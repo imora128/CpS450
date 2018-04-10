@@ -212,7 +212,6 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprCont_Array(ExprCont_ArrayContext ctx) {
 		ctx.myType = Type.ERROR;
-		print.DEBUG("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
 		super.exitExprCont_Array(ctx);
 	}
 
@@ -665,9 +664,9 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
-		
-		
-		//System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING");
+		//ctx.get
+	
+		System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING: ");
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 			//System.out.println("Param is this: " + paramNum);
@@ -997,6 +996,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
 		System.out.println("This method requires further implementation in the B Level. Text:" + ctx.getText());
+		
 		Symbol sym = symTable.lookup(ctx.e1.getText());
 		if (sym != null) {
 			ctx.myType = Type.INT;
