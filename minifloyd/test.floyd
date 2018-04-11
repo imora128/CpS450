@@ -6,6 +6,7 @@ class Point is
   x : int
   y : int
   f: Point
+  z : reader
   ComputeChange(amt: int; denom: int): int is
   x : int
   begin
@@ -17,8 +18,7 @@ class Point is
     x := ComputeChange(1, 5)
     out.writeint(5)
     f.ComputeChange(1,5)
-    f.asdfds()
-    ~x := in.readint()
+    x := in.readint()
   end start
   
 end Point

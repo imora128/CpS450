@@ -586,12 +586,11 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 			}
 			ClassDeclaration classInfo = foo.getDecl().type.getClassDecl();
-			HashMap<String, MethodDeclaration> boo = classInfo.methods;
-			for (String key : boo.keySet()) {
-				System.out.println("Function name for " + classInfo.name + " is: " + key);
-				
-			}
-			System.out.println("Classname: " + classInfo.name);
+//			HashMap<String, MethodDeclaration> boo = classInfo.methods;
+//			for (String key : boo.keySet()) {
+//				System.out.println("Function name for " + classInfo.name + " is: " + key);
+//				
+//			}
 				
 
 				if (foo.getDecl().type.getClassDecl().methods.containsKey(ctx.IDENTIFIER().getText())) {
@@ -927,7 +926,6 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		//keeping track of current class
 		currentClass = ctx.IDENTIFIER(0).getText();
-		System.out.println("Curret class value: + " + currentClass);
 		//Create a new type for the class
 		ClassDeclaration myClass = new ClassDeclaration(ctx.IDENTIFIER(0).getText());
 		Type classType = Type.createType(myClass);
@@ -1007,8 +1005,9 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void enterMethodDot_Exp(MethodDot_ExpContext ctx) {
-		System.out.println("Please tell me this is above it." + ctx.getText() );
-		symTable.printSymTable();
+		Symbol sym = symTable.lookup(ctx.e1.getText());
+		System.out.println(String.format("ENTERMETHODDOT_EXP: Type of %s is %s", ctx.e1.getText(), sym.getDecl().type));
+		//symTable.printSymTable();
 		super.enterMethodDot_Exp(ctx);
 	}
 
