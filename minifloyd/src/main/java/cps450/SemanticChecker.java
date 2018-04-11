@@ -77,7 +77,7 @@ public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable;
 	MyError print = new MyError(false);
 	Option opt;
-	ClassDeclaration mainClass = null;
+	String currentClass = "";
 	ClassDeclaration reader;
 	ClassDeclaration writer;
 	SemanticChecker(Option opt) {
@@ -573,9 +573,7 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 		}
-
-		if (ctx.t1 != null ) {
-			//System.out.println("Name of t1 is: " + ctx.t1.getText());
+		if (ctx.t1 != null && !(symTable.lookup(ctx.t1.getText()).getDecl().type.getClassDecl().name.equals(currentClass))) {
 			Symbol foo = symTable.lookup(ctx.t1.getText());
 			//continue work here.
 //			/*
@@ -593,6 +591,7 @@ public class SemanticChecker extends FloydBaseListener {
 				System.out.println("Function name for " + classInfo.name + " is: " + key);
 				
 			}
+			System.out.println("Classname: " + classInfo.name);
 				
 
 				if (foo.getDecl().type.getClassDecl().methods.containsKey(ctx.IDENTIFIER().getText())) {
@@ -619,8 +618,9 @@ public class SemanticChecker extends FloydBaseListener {
 							ctx.IDENTIFIER().getText()),ctx);
 					return;
 				}
+				
 		}
-		
+
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
 			print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
 					ctx.IDENTIFIER().getText()),ctx);
@@ -666,7 +666,7 @@ public class SemanticChecker extends FloydBaseListener {
 		int paramNum = 0;
 		//ctx.get
 	
-		System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING: ");
+		System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING: " + ctx.getText());
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 			//System.out.println("Param is this: " + paramNum);
@@ -713,7 +713,6 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			//System.out.println(String.format("Function: %s Parameters: %s", ctx.IDENTIFIER().getText(), info.size()));
-			//symTable.printSymTable();
 			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
 					//recursion case
@@ -926,21 +925,17 @@ public class SemanticChecker extends FloydBaseListener {
 				new ClassDeclaration(symTable.types.get(ctx.IDENTIFIER(0).getText())));
 		mainClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();*/
 		
-		
+		//keeping track of current class
+		currentClass = ctx.IDENTIFIER(0).getText();
+		System.out.println("Curret class value: + " + currentClass);
 		//Create a new type for the class
 		ClassDeclaration myClass = new ClassDeclaration(ctx.IDENTIFIER(0).getText());
 		Type classType = Type.createType(myClass);
 		myClass.type = classType;
 		//Add the class name as a symbol in the current scope
 		symTable.push(ctx.IDENTIFIER(0).getText(), myClass);
-		
-		
 		//SymbolTable.BeginScope( )
 		symTable.beginScope();
-//		symTable.push("in", new VarDeclaration(Type.READER, "in"));
-//		symTable.push("out", new VarDeclaration(Type.WRITER, "out"));
-		//symTable.printSymTable();
-		
 		super.enterClass_(ctx);
 	}
 
@@ -970,9 +965,8 @@ public class SemanticChecker extends FloydBaseListener {
 //			System.out.println("class Name:" + ctx.IDENTIFIER(0).getText() + " Method name: " + key );
 //			
 //		}
-		
+//		
 		//INSTANCE VARIABLES
-		symTable.printSymTable();
 		for (FloydParser.Var_declContext variable : ctx.var_decl()) {
 			VarDeclaration classVariable = (VarDeclaration)symTable.lookup(variable.IDENTIFIER().getText()).getDecl();
 			myClass.appendVar(classVariable);
