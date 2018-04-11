@@ -659,62 +659,80 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		super.exitCall_stmt(ctx);
 	}
+	
 	//FIXME(Make sure to fix readint and write int)
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
-		//ctx.get
-	
-		System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING: " + ctx.getText());
+		
+		
+		//System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING: ");
+		
+		
+		
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 			//System.out.println("Param is this: " + paramNum);
 		}
-//		if (ctx.IDENTIFIER().getText().equals("readint")) {
-//			if (paramNum != 0) {
-//				print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
-//						0, paramNum),ctx);
-//				ctx.myType = Type.ERROR;
-//				return;
-//			} else {
-//				ctx.myType = Type.INT;
-//				return;
-//			}
-//		} else if (ctx.IDENTIFIER().getText().equals("writeint")) {
-//			if (paramNum != 1) {
-//				print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
-//						1, paramNum),ctx);
-//				return;
-//			} else {
-//				for (int i = 0; i < paramNum; i++) {
-//					if (ctx.expression_list().expression().get(i).myType == Type.INT) {
-//						//we gucci
-//					} else {
-//						print.err(String.format(print.errMsgs.get("ParameterNumberMismatch"), 
-//								0, paramNum),ctx);
-//					}
-//				}
-//				ctx.myType = Type.VOID;
-//				return;
-//			}
-//		}
+		
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
-			if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
+		MethodDeclaration mDecl = new MethodDeclaration(Type.ERROR);
+		//if we are dealing with obj.function() then we need to do that here
+		if (ctx.getParent() instanceof MethodDot_ExpContext) {
+			MethodDot_ExpContext objCheck = (MethodDot_ExpContext)ctx.getParent();
+			Symbol obj = symTable.lookup(objCheck.e1.getText());
+			//CHECKING if this function is in the current class, if so, then we look in symbol table
+			if (obj != null && obj.getDecl().type.getClassDecl().name.equals(currentClass)) {
+				System.out.println("Hit currentclass condition " + ctx.IDENTIFIER().getText() + " currentClass");
+				mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
+			}
+			//checking if function is in its type.classdecl
+			else if (obj != null) {
+				System.out.println("Classdecl name: " + obj.getDecl().type.getClassDecl().name + " Looking for method: " + ctx.IDENTIFIER().getText());
+				MethodDeclaration test = obj.getDecl().type.getClassDecl().methods.get(ctx.IDENTIFIER().getText());
+				if (test == null) {
+					System.out.println("INSIDE OF NULL :**((((((((((" );
+					print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
+							ctx.IDENTIFIER().getText()),ctx);
+						ctx.myType = Type.ERROR;
+				} else {
+					System.out.println("Type of the function is: " + test.type);
+					mDecl = test;
+					 ctx.myType = mDecl.type;
+					 System.out.println(String.format("type of %s was set to %s", ctx.IDENTIFIER().getText(), mDecl.type));
+					
+				}
+				
+				
+				//if it's not null, then check if the method we'r elooking for exists in the class. if it does,
+				//then put set mDecl to the method in the class
+			} else {
+				print.err(String.format(print.errMsgs.get("UndefinedVar"), 
+						ctx.IDENTIFIER().getText()),ctx);
+			}
+		} else if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
 				print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
 					ctx.IDENTIFIER().getText()),ctx);
 				ctx.myType = Type.ERROR;
 				return;
-			}
-			MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
+		} else if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
+			 mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
+			 System.out.println(String.format("type of %s was set to %s", ctx.IDENTIFIER().getText(), mDecl.type));
+			 ctx.myType = mDecl.type;
+			 
+		}
 	
 			info = mDecl.getParameters();
-
+			System.out.println("Did i make it this far? " + ctx.IDENTIFIER().getText());
 		
-		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
+		//if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			//System.out.println(String.format("Function: %s Parameters: %s", ctx.IDENTIFIER().getText(), info.size()));
 			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
-					//recursion case
+					/*
+					 * 
+					 * recursion case
+					 */
 //					Symbol jaja = symTable.lookup(info.get(i).name);
 //					System.out.println("Look up: " + info.get(i).name + " got: " + jaja.getDecl().type);
 					if (info.get(i).type == null) {
@@ -741,14 +759,14 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 			}
 			
-		} else {
+		/*} else {
 			print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
 					ctx.IDENTIFIER().getText()),ctx);
 			ctx.myType = Type.ERROR;
 			return;
-		}
-		Symbol foo = symTable.lookup(ctx.IDENTIFIER().getText());
-		ctx.myType = foo.getDecl().type;
+		}*/
+		//Symbol foo = symTable.lookup(ctx.IDENTIFIER().getText());
+		//ctx.myType = foo.getDecl().type;
 		super.exitExprCont_IDExpr(ctx);
 	}
 
@@ -1002,11 +1020,11 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		super.exitMethodDot_Exp(ctx);
 	}
-
+//TODO(method.exp)
 	@Override
 	public void enterMethodDot_Exp(MethodDot_ExpContext ctx) {
-		Symbol sym = symTable.lookup(ctx.e1.getText());
-		System.out.println(String.format("ENTERMETHODDOT_EXP: Type of %s is %s", ctx.e1.getText(), sym.getDecl().type));
+	
+		//returns
 		//symTable.printSymTable();
 		super.enterMethodDot_Exp(ctx);
 	}
