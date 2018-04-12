@@ -2,29 +2,38 @@
 ~ Calculates quarters, dimes, nickles, and pennies for a purchase of a given amount
 
 
-class myTest is
-x : int
 
-start1() is
-begin
-  x := in.readint()
-end start
-end myTest
 
 class Point is
   x : int
   y : int
   f: Point
+  b: boolean
   ComputeChange(amt: int; denom: int): int is
   x : int
   begin
     ComputeChange := amt / denom
   end ComputeChange
-
-  start() is
-  z : boolean
+  testing() is
   begin
-  sadfsdfasd
+  x := 5
+  end testing
+  
+  start() is
+  x : int
+  begin
+  b := true
   end start
   
 end Point
+
+class myTest is
+x : int
+y : Point
+start1() is
+begin
+  x := in.readint()
+  x := y.ComputeChange(1, 1)
+  x := y.testing()
+end start
+end myTest

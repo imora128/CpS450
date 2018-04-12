@@ -5,4 +5,4 @@ rm *.s
 rm $fileName
 make
 ./gradlew clean install
-build/install/minifloyd/bin/minifloyd $fileName.floyd
+build/install/minifloyd/bin/minifloyd -S -dp $fileName.floyd

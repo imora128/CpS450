@@ -688,11 +688,13 @@ public class SemanticChecker extends FloydBaseListener {
 			if (objType == null){
 				print.err(String.format("The type of object %s is null.", objCheck.e1.getText()),ctx);
 				ctx.myType = Type.ERROR;
+				return;
 			}
 			//CHECKING if this function is in the current class, if so, then we look in symbol table
 			if (objType.getClassDecl().name.equals(currentClass) && symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 				mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
 				ctx.myType = mDecl.type;
+				System.out.println(String.format("Function %s type %s", ctx.IDENTIFIER().getText(), ctx.myType));
 			}
 			//checking if function is in its type.classdecl
 			else if (objType != null) {
@@ -704,6 +706,7 @@ public class SemanticChecker extends FloydBaseListener {
 				} else {
 					mDecl = test;
 					 ctx.myType = mDecl.type;
+					 System.out.println(String.format("Function %s type %s", ctx.IDENTIFIER().getText(), ctx.myType));
 					
 				}
 				
@@ -719,6 +722,7 @@ public class SemanticChecker extends FloydBaseListener {
 		} else if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			 mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
 			 ctx.myType = mDecl.type;
+			 System.out.println(String.format("Function %s type %s", ctx.IDENTIFIER().getText(), ctx.myType));
 			 
 		}
 	
@@ -1020,14 +1024,15 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
-		System.out.println("This method requires further implementation in the B Level. Text:" + ctx.getText());
 		
 		Symbol sym = symTable.lookup(ctx.e1.getText());
 		if (sym != null) {
-			ctx.myType = Type.INT;
+			
+			ctx.myType = ctx.e2.myType;
 		}
 		else {
-			print.err("Error in methoddot_exp, implement in phase4. variable doesnt exist" + ctx.e1.getText(), ctx);
+			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
+					ctx.e1.getText()),ctx);
 			ctx.myType = Type.ERROR;
 			
 		}
