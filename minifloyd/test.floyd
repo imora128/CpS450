@@ -22,7 +22,8 @@ class Point is
   start() is
   x : int
   begin
-  b := true
+  testing()
+  x := ComputeChange(1,1)
   end start
   
 end Point
@@ -34,6 +35,5 @@ start1() is
 begin
   x := in.readint()
   x := y.ComputeChange(1, 1)
-  x := y.testing()
 end start
 end myTest

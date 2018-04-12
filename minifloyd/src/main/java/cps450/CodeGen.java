@@ -207,7 +207,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			return null;
 		}
 
-		//I think local scope is 2
 		//TODO(Make sure local scope is 2)
 		if (sym.getDecl() instanceof VarDeclaration) {
 		if (sym.getScope() == LOCAL_SCOPE) {
@@ -266,7 +265,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 	
 	
-	//FIXME(May have to change the operation from push-pop. to push-popinto register-move into stack location)
 	@Override
 	public Void visitAssignment_stmt(Assignment_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());

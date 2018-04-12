@@ -74,6 +74,13 @@ import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
 import cps450.FloydParser.Method_declContext;
 //FIXME(Passing in a declared func as a parameter passes semantic checks. IE:out.writeint(meth1)
+
+/*FIXME(me refers to the current object instance. It can be used only in ID expressions (such as those
+on the right-hand side of an assignment statement, or in a parameter list of a method call
+statement).)
+
+
+*/
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable;
 	MyError print = new MyError(false);
@@ -148,7 +155,6 @@ public class SemanticChecker extends FloydBaseListener {
 						ctx.IDENTIFIER().toString()),ctx);
 				return;
 			}
-			//FIXME(need to add offset to variable. question is, how in the world do i know how to calculate the right offset?)
 			VarDeclaration variable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
 			variable.setOffset(symTable.getLocalOffset());
 			//System.out.println(String.format("%s: %s",variable.name, variable.getOffset()));
@@ -566,7 +572,6 @@ public class SemanticChecker extends FloydBaseListener {
 		super.enterExprCont_Strlit(ctx);
 	}
 	
-	//FIXME(DO FURTHER TESTING)
 	@Override
 	public void exitCall_stmt(Call_stmtContext ctx) {
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
@@ -661,8 +666,6 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitCall_stmt(ctx);
 	}
 	
-	//FIXME(DO FURTHER TESTING)
-	//FIXME(IMPORTAAAAAANT: CHANGE FROM LOOKING UP IN SYMTABLE TO CTX.PARENT.E1.MYTYPE INSTEAD)
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
@@ -694,7 +697,6 @@ public class SemanticChecker extends FloydBaseListener {
 			if (objType.getClassDecl().name.equals(currentClass) && symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 				mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
 				ctx.myType = mDecl.type;
-				System.out.println(String.format("Function %s type %s", ctx.IDENTIFIER().getText(), ctx.myType));
 			}
 			//checking if function is in its type.classdecl
 			else if (objType != null) {
@@ -706,7 +708,6 @@ public class SemanticChecker extends FloydBaseListener {
 				} else {
 					mDecl = test;
 					 ctx.myType = mDecl.type;
-					 System.out.println(String.format("Function %s type %s", ctx.IDENTIFIER().getText(), ctx.myType));
 					
 				}
 				
@@ -722,7 +723,6 @@ public class SemanticChecker extends FloydBaseListener {
 		} else if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			 mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
 			 ctx.myType = mDecl.type;
-			 System.out.println(String.format("Function %s type %s", ctx.IDENTIFIER().getText(), ctx.myType));
 			 
 		}
 	
@@ -941,15 +941,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void enterStart(StartContext ctx) {
-		for (int i = 0; i < ctx.class_().size(); i++) {
-			System.out.println("Class: " + ctx.class_().get(i).IDENTIFIER(0).getText());
-		}
 		super.enterStart(ctx);
 	}
 
 	@Override
 	public void exitStart(StartContext ctx) {
-		// TODO Auto-generated method stub
 		super.exitStart(ctx);
 	}
 
@@ -1039,7 +1035,6 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		super.exitMethodDot_Exp(ctx);
 	}
-//TODO(method.exp)
 	@Override
 	public void enterMethodDot_Exp(MethodDot_ExpContext ctx) {
 	
@@ -1047,6 +1042,8 @@ public class SemanticChecker extends FloydBaseListener {
 		//symTable.printSymTable();
 		super.enterMethodDot_Exp(ctx);
 	}
+	
+	
 
 	
 	
