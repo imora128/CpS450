@@ -557,9 +557,44 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitExprCont_ME(ExprCont_MEContext ctx) {
+		Assignment_stmtContext meAssign = null;
+		Call_stmtContext meCall = null;
+
+		ParserRuleContext foo = ctx;
+		while (foo != null) {
+			if (foo.getParent() instanceof Assignment_stmtContext) {
+				meAssign = (Assignment_stmtContext)foo.getParent();
+				break;
+			} else if (foo.getParent() instanceof Call_stmtContext) {
+				meCall = (Call_stmtContext)foo.getParent();
+				break;
+			}
+			
+			foo = foo.getParent();
+		}
+		
+		if (meAssign != null) {
+			if (symTable.lookup(meAssign.IDENTIFIER().getText()) != null) {
+			System.out.println(String.format("inside of me. type of %s is: %s",meAssign.IDENTIFIER().getText(),symTable.lookup(meAssign.IDENTIFIER().getText()).getDecl().type ));
+			ctx.myType = symTable.lookup(meAssign.IDENTIFIER().getText()).getDecl().type;
+			return;
+			}
+			//me type for call stmts
+		} else if (meCall != null) {
+			if (meCall.t1.myType != null) {
+				System.out.println(String.format("inside of me. type of %s is: %s",meCall.getText(),meCall.t1.myType));
+				ctx.myType = meCall.t1.myType;
+				return;
+			} else {
+				ctx.myType = Type.ERROR;
+				
+				print.err("Call stmt obj expression type is null.",ctx);
+				return;
+			}
+		}
 		ctx.myType = Type.ERROR;
-		print.err(String.format(print.errMsgs.get("Unsupported"), 
-				ctx.ME().toString()),ctx);
+		
+		print.err("Me failed. No valid type found.",ctx);
 		super.exitExprCont_ME(ctx);
 	}
 
@@ -687,8 +722,9 @@ public class SemanticChecker extends FloydBaseListener {
 			MethodDot_ExpContext objCheck = (MethodDot_ExpContext)ctx.getParent();
 
 			Type objType = objCheck.e1.myType;
+			System.out.println(String.format("Inside of exitExprCont_IDExpr: %s type: %s", objCheck.e1.getText(), objCheck.e1.myType));
 			//if it's null, then we have an issue. error an dleave.
-			if (objType == null){
+			if (objType == null || objType == Type.ERROR){
 				print.err(String.format("The type of object %s is null.", objCheck.e1.getText()),ctx);
 				ctx.myType = Type.ERROR;
 				return;
@@ -922,6 +958,10 @@ public class SemanticChecker extends FloydBaseListener {
 				t = i;
 			}
 		}
+		//user defined types check
+		if (t == Type.VOID && ctx.typ != null &&  Type.getTypeForName(ctx.typ.getText()) != null) {
+			t = Type.getTypeForName(ctx.typ.getText());
+		}
 
 		symTable.push(ctx.IDENTIFIER(0).getText(), new MethodDeclaration(t));
 		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
@@ -1021,17 +1061,18 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
 		
-		Symbol sym = symTable.lookup(ctx.e1.getText());
-		if (sym != null) {
-			
+//		Symbol sym = symTable.lookup(ctx.e1.getText());
+//		if (sym != null) {
+//			
 			ctx.myType = ctx.e2.myType;
-		}
-		else {
-			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
-					ctx.e1.getText()),ctx);
-			ctx.myType = Type.ERROR;
-			
-		}
+//		}
+//		else {
+//			System.out.println("AOISDIAOSDIOJASOIJDAOIJSDOJIAOIDJIAS");
+//			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
+//					ctx.e1.getText()),ctx);
+//			ctx.myType = Type.ERROR;
+//			
+//		}
 		
 		super.exitMethodDot_Exp(ctx);
 	}
