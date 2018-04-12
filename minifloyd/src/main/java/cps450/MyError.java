@@ -7,7 +7,13 @@ import java.util.HashMap;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
+
+
 public class MyError {
+	//for error colors https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_BLACK = "\u001B[30m";
+	public static final String ANSI_RED = "\u001B[31m";
 	boolean debugMode;
 	Option opt;
 	HashMap<String, String> errMsgs = new HashMap<String, String>();
@@ -23,8 +29,8 @@ public class MyError {
 //	}
 	
 	void err(String msg, ParserRuleContext ctx) {
-		System.err.println(String.format("%s:%d,%d:%s", opt.fileName.get(0),
-				ctx.start.getLine(), ctx.start.getCharPositionInLine(), msg));
+		System.err.println( String.format(ANSI_RED + "%s:%d,%d:%s", opt.fileName.get(0),
+				ctx.start.getLine(), ctx.start.getCharPositionInLine(), msg) + ANSI_RESET);
 		opt.semanticErrors++;
 	}
 	

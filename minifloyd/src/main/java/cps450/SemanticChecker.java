@@ -46,6 +46,7 @@ import cps450.FloydParser.RelationalGE_ExpContext;
 import cps450.FloydParser.RelationalGT_ExpContext;
 import cps450.FloydParser.RelationalOr_ExpContext;
 import cps450.FloydParser.Relational_expContext;
+import cps450.FloydParser.StartContext;
 import cps450.FloydParser.TypeBoolContext;
 import cps450.FloydParser.TypeContext;
 import cps450.FloydParser.TypeIDContext;
@@ -565,7 +566,7 @@ public class SemanticChecker extends FloydBaseListener {
 		super.enterExprCont_Strlit(ctx);
 	}
 	
-	
+	//FIXME(DO FURTHER TESTING)
 	@Override
 	public void exitCall_stmt(Call_stmtContext ctx) {
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
@@ -660,7 +661,8 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitCall_stmt(ctx);
 	}
 	
-	//FIXME(Make sure to fix readint and write int)
+	//FIXME(DO FURTHER TESTING)
+	//FIXME(IMPORTAAAAAANT: CHANGE FROM LOOKING UP IN SYMTABLE TO CTX.PARENT.E1.MYTYPE INSTEAD)
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
@@ -676,39 +678,38 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
-		MethodDeclaration mDecl = new MethodDeclaration(Type.ERROR);
+		MethodDeclaration mDecl = null;
 		//if we are dealing with obj.function() then we need to do that here
 		if (ctx.getParent() instanceof MethodDot_ExpContext) {
 			MethodDot_ExpContext objCheck = (MethodDot_ExpContext)ctx.getParent();
-			Symbol obj = symTable.lookup(objCheck.e1.getText());
+
+			Type objType = objCheck.e1.myType;
+			//if it's null, then we have an issue. error an dleave.
+			if (objType == null){
+				print.err(String.format("The type of object %s is null.", objCheck.e1.getText()),ctx);
+				ctx.myType = Type.ERROR;
+			}
 			//CHECKING if this function is in the current class, if so, then we look in symbol table
-			if (obj != null && obj.getDecl().type.getClassDecl().name.equals(currentClass)) {
-				System.out.println("Hit currentclass condition " + ctx.IDENTIFIER().getText() + " currentClass");
+			if (objType.getClassDecl().name.equals(currentClass) && symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 				mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
+				ctx.myType = mDecl.type;
 			}
 			//checking if function is in its type.classdecl
-			else if (obj != null) {
-				System.out.println("Classdecl name: " + obj.getDecl().type.getClassDecl().name + " Looking for method: " + ctx.IDENTIFIER().getText());
-				MethodDeclaration test = obj.getDecl().type.getClassDecl().methods.get(ctx.IDENTIFIER().getText());
+			else if (objType != null) {
+				MethodDeclaration test = objType.getClassDecl().methods.get(ctx.IDENTIFIER().getText());
 				if (test == null) {
-					System.out.println("INSIDE OF NULL :**((((((((((" );
 					print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
 							ctx.IDENTIFIER().getText()),ctx);
 						ctx.myType = Type.ERROR;
 				} else {
-					System.out.println("Type of the function is: " + test.type);
 					mDecl = test;
 					 ctx.myType = mDecl.type;
-					 System.out.println(String.format("type of %s was set to %s", ctx.IDENTIFIER().getText(), mDecl.type));
 					
 				}
 				
 				
 				//if it's not null, then check if the method we'r elooking for exists in the class. if it does,
 				//then put set mDecl to the method in the class
-			} else {
-				print.err(String.format(print.errMsgs.get("UndefinedVar"), 
-						ctx.IDENTIFIER().getText()),ctx);
 			}
 		} else if (symTable.lookup(ctx.IDENTIFIER().getText()) == null) {
 				print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
@@ -717,13 +718,11 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 		} else if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			 mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
-			 System.out.println(String.format("type of %s was set to %s", ctx.IDENTIFIER().getText(), mDecl.type));
 			 ctx.myType = mDecl.type;
 			 
 		}
 	
 			info = mDecl.getParameters();
-			System.out.println("Did i make it this far? " + ctx.IDENTIFIER().getText());
 		
 		//if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			//System.out.println(String.format("Function: %s Parameters: %s", ctx.IDENTIFIER().getText(), info.size()));
@@ -933,6 +932,22 @@ public class SemanticChecker extends FloydBaseListener {
 		symTable.setLocalOffset(-8);
 		super.enterMethod_decl(ctx);
 	}
+	
+	
+
+	@Override
+	public void enterStart(StartContext ctx) {
+		for (int i = 0; i < ctx.class_().size(); i++) {
+			System.out.println("Class: " + ctx.class_().get(i).IDENTIFIER(0).getText());
+		}
+		super.enterStart(ctx);
+	}
+
+	@Override
+	public void exitStart(StartContext ctx) {
+		// TODO Auto-generated method stub
+		super.exitStart(ctx);
+	}
 
 	@Override
 	public void enterClass_(Class_Context ctx) {
@@ -941,7 +956,6 @@ public class SemanticChecker extends FloydBaseListener {
 		symTable.push(ctx.IDENTIFIER(0).getText(), 
 				new ClassDeclaration(symTable.types.get(ctx.IDENTIFIER(0).getText())));
 		mainClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();*/
-		
 		//keeping track of current class
 		currentClass = ctx.IDENTIFIER(0).getText();
 		//Create a new type for the class

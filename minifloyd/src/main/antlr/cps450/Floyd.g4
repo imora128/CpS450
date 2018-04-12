@@ -8,7 +8,7 @@ grammar Floyd;
 
 
 start 
-: cr? class_ (CR class_)* cr?
+: cr? class_ (cr class_)* cr?
 ;
 
 cr 
