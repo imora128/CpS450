@@ -206,8 +206,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		if(ctx.IDENTIFIER().getText().equals("out") || ctx.IDENTIFIER().getText().equals("in")) {
 			return null;
 		}
-
-		//TODO(Make sure local scope is 2)
 		if (sym.getDecl() instanceof VarDeclaration) {
 		if (sym.getScope() == LOCAL_SCOPE) {
 			VarDeclaration variable = (VarDeclaration)sym.getDecl();

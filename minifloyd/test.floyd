@@ -4,7 +4,7 @@ class Bobjbasics is
     foo : int
     boo : boolean
   begin
-  boo := 5 > 3 and true
+  boo := 5 > 3 or true
 
   end start
   
