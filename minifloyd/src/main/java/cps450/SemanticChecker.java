@@ -4,6 +4,7 @@ Class: CpS 450
 Filename: SemanticChecker.java
 Description: Contains the class that checks for and prints semantic checks.
 */
+//FIXME(Issue with INT and INT without parentheses)
 package cps450;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -286,13 +287,14 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
-		System.out.println("inside of relation gt");
+
 		if (ctx.e1.myType == Type.STRING) {
 			List<String> foo = Arrays.asList("TypeMismatch", ctx.GT().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
 			ctx.myType = exprCompareTypes(Type.STRING, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 			if (ctx.myType == Type.STRING) {ctx.myType = Type.BOOLEAN;}
 		}
 		else if (ctx.e1.myType == Type.INT) {
+			System.out.println("inside of relation gt" + ctx.getText());
 			List<String> foo = Arrays.asList("TypeMismatch", ctx.GT().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
 			ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 			if (ctx.myType == Type.INT) {ctx.myType = Type.BOOLEAN;}
@@ -302,7 +304,7 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.GT().toString(), "int or string ", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
-		System.out.println("typ eat end of GT is: " + ctx.myType);
+		System.out.println("typ eat end of GT is: " + ctx.myType + ctx.getText());
 		
 		super.exitRelationalGT_Exp(ctx);
 	}
@@ -310,11 +312,11 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
 		//making sure equality tests can be don
-//		Type classTestType = Type.getTypeForName(ctx.e1.myType.name);
-//		if (classTestType != null && (classTestType == Type.getTypeForName(ctx.e2.myType.name)) ) {
-//			ctx.myType = Type.BOOLEAN;
-//			return;
-//		}
+		Type classTestType = Type.getTypeForName(ctx.e1.myType.name);
+		if (classTestType != null && (classTestType == Type.getTypeForName(ctx.e2.myType.name)) ) {
+			ctx.myType = Type.BOOLEAN;
+			return;
+		}
 		
 		if (ctx.e1.myType == Type.INT) {
 			List<String> foo = Arrays.asList("TypeMismatch", ctx.EQ().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());

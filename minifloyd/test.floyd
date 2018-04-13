@@ -1,13 +1,11 @@
-class Bobjbasics is
 
+~ main class
+class Bnulltest is
+z : boolean
   start() is
-    foo : int
-    boo : boolean
   begin
-    ~loop while 5 > 1 or 5 > 0
-    ~foo := 5
-    ~end loop
-    boo := 1 > 7 and (5 = 2)
+
+  z := (1 > 2) and true
   end start
   
-end Bobjbasics
+end Bnulltest
