@@ -84,6 +84,7 @@ public class SemanticChecker extends FloydBaseListener {
 	String currentClass = "";
 	ClassDeclaration reader;
 	ClassDeclaration writer;
+	int instanceVarOffset = 8;
 	SemanticChecker(Option opt) {
 		this.opt = opt;
 		print.opt = opt;
@@ -145,6 +146,9 @@ public class SemanticChecker extends FloydBaseListener {
 			
 			if (symTable.getScope() == INSTANCE_SCOPE) {
 				VarDeclaration classVariable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
+				//setting offset of instance var
+				classVariable.setOffset(instanceVarOffset);
+				instanceVarOffset += 4;
 				Type foo = Type.getTypeForName(currentClass);
 				foo.getClassDecl().appendVar(classVariable);
 			}
@@ -158,7 +162,6 @@ public class SemanticChecker extends FloydBaseListener {
 			}
 			VarDeclaration variable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
 			variable.setOffset(symTable.getLocalOffset());
-			//System.out.println(String.format("%s: %s",variable.name, variable.getOffset()));
 			symTable.setLocalOffset(symTable.getLocalOffset() - 4);
 			
 			symTable.push(ctx.IDENTIFIER().toString(), variable);
@@ -187,15 +190,6 @@ public class SemanticChecker extends FloydBaseListener {
 							sym.getDecl().type, ctx.expression(i).myType),ctx);
 				}
 			}
-//			if (sym.getDecl() instanceof VarDeclaration) {
-//			VarDeclaration foo = (VarDeclaration)sym.getDecl();
-//			ctx.sym = foo;
-//			System.out.println(String.format("Offset for %s is %s)", foo.name, foo.getOffset()));
-//			} else if (sym.getDecl() instanceof MethodDeclaration) {
-//				MethodDeclaration foo = (MethodDeclaration)sym.getDecl();
-//				ctx.sym = foo;
-//				System.out.println(String.format("Method %s has been decorated", sym.getName()));
-//			}
 			ctx.sym = sym;
 		}
 		else {
@@ -1059,6 +1053,8 @@ public class SemanticChecker extends FloydBaseListener {
 		symTable.push(ctx.IDENTIFIER(0).getText(), 
 				new ClassDeclaration(symTable.types.get(ctx.IDENTIFIER(0).getText())));
 		mainClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();*/
+		//instance variable offset set to 8;
+		instanceVarOffset = 8;
 		//keeping track of current class
 		currentClass = ctx.IDENTIFIER(0).getText();
 		//Create a new type for the class
@@ -1116,6 +1112,8 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		//SymbolTable.EndScope( ) to remove the instance variable and method declarations from the symbol table
 		symTable.endScope();
+		//instanceVarOffset set to 8
+		instanceVarOffset = 8;
 		//Update the class declaration info in the symbol table
 		
 		super.exitClass_(ctx);
