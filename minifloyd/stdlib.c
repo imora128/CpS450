@@ -1,4 +1,6 @@
 #include <syscall.h>
+#include <stdlib.h>
+#include "stdlib.h"
 int andOp(int x, int y) {
   return x && y;
 }

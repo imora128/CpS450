@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="cfact"
+fileName="test"
 rm *.o
 rm *.s
 rm $fileName

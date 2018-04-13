@@ -14,19 +14,16 @@ public class MyError {
 	public static final String ANSI_RESET = "\u001B[0m";
 	public static final String ANSI_BLACK = "\u001B[30m";
 	public static final String ANSI_RED = "\u001B[31m";
+	public static final String ANSI_GREEN = "\u001B[32m";
 	boolean debugMode;
 	Option opt;
 	HashMap<String, String> errMsgs = new HashMap<String, String>();
 	
 	void DEBUG(String msg) {
 		if (debugMode) {
-		System.out.println(msg);
+		System.err.println(ANSI_GREEN + msg + ANSI_RESET);
 		}
 	}
-//	void error(String msg) {
-//		System.out.println(msg);
-//		opt.semanticErrors++;
-//	}
 	
 	void err(String msg, ParserRuleContext ctx) {
 		System.err.println( String.format(ANSI_RED + "%s:%d,%d:%s", opt.fileName.get(0),

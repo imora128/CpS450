@@ -36,6 +36,7 @@ import cps450.FloydParser.ExprCont_FalseContext;
 import cps450.FloydParser.ExprCont_IDContext;
 import cps450.FloydParser.ExprCont_IDExprContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
+import cps450.FloydParser.ExprCont_NewContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.If_stmtContext;
 import cps450.FloydParser.Loop_stmtContext;
@@ -57,6 +58,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	Option opt;
 	int labelCounter;
 	static int LOCAL_SCOPE = 2;
+	MyError PRINT = new MyError(true);
 	
 	CodeGen(Option opt) {
 		registers.push("%edx");
@@ -288,7 +290,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				//emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
 				emit(new TargetInstruction.Builder().instruction(String.format("popl %s(%%ebp)", lhs.getOffset())).build());
 			} else {
+				PRINT.DEBUG("Inside of var assignment for isntance vars");
 				//instnace variable
+				
 				TargetInstruction instruction = new TargetInstruction.Builder().
 						instruction(String.format("popl %s", ctx.IDENTIFIER().getText())).build();		
 				emit(instruction);
@@ -296,11 +300,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			//check if its a function
 		} else if (sym.getDecl() instanceof MethodDeclaration) {
 			//i set the function offset at -4 when it is created, since that's where in the stack the ret value goes
-			//System.out.println("Got a method decl named " + sym.getName());
 			MethodDeclaration lhs = (MethodDeclaration) sym.getDecl();
 			emit(new TargetInstruction.Builder().comment(String.format("popl %s", sym.getName())).build());
-			//emit(new TargetInstruction.Builder().instruction("popl %edx").build());
-			//emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
 			emit(new TargetInstruction.Builder().instruction(String.format("popl %s(%%ebp)", lhs.getOffset())).build());
 		}
 		
@@ -546,6 +547,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//System.out.println(String.format("%s", ctx.IDENTIFIER().getText()));
 		if (ctx.t2 != null) {
 		visit(ctx.t2);
+		emit(new TargetInstruction.Builder().comment("this is where I want the reference to thsi obj").build());
 		}
 		int paramNum = 0;
 		if (ctx.expression_list() != null) {
@@ -662,6 +664,20 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 //		//===============DEBUGGING============================
 		
 		return null;
+	}
+
+	@Override
+	public Void visitExprCont_New(ExprCont_NewContext ctx) {
+		//Allocate memory from the heap to hold the instance variables for Point
+		//NumberOfParameters*4 + 8 reserved bytes
+		int reserveBytes = (ctx.paramNum * 4) + 8;
+		emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", reserveBytes)).build());
+		emit(new TargetInstruction.Builder().instruction("pushl $1").build());
+		callFunction("calloc");
+		PRINT.DEBUG(String.format("visitExprCont_New: Number of parameters for this class: %s. Number of bytes sent to calloc: %s. ", ctx.paramNum, reserveBytes));
+		//Initialize the values of the instance variables to 0
+		//Leave a reference to the memory on the top of the stack
+		return super.visitExprCont_New(ctx);
 	}
 	
 	

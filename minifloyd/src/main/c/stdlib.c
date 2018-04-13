@@ -1,4 +1,6 @@
 #include <syscall.h>
+#include <stdlib.h>
+#include "stdlib.h"
 int andOp(int x, int y) {
   return x && y;
 }
@@ -37,6 +39,10 @@ int unaryPlus(int x) {
 }
 int unaryNot(int x) {
   return !x;
+}
+
+void hi() {
+  printf("HI\n");
 }
 
 int readint() {

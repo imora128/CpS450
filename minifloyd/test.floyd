@@ -1,11 +1,14 @@
-class Bobjbasics is
+class Test is
+    yo : Test
 
+    boo(a : int) is
+    begin
+      a := 5
+    end boo
   start() is
-    foo : int
-    boo : boolean
+  
   begin
-  boo := 5 > 3 or true
-
+  yo := new Test
   end start
   
-end Bobjbasics
+end Test

@@ -77,6 +77,7 @@ import cps450.FloydParser.Method_declContext;
 //FIXME(Passing in a declared func as a parameter passes semantic checks. IE:out.writeint(meth1)
 
 public class SemanticChecker extends FloydBaseListener {
+	static int INSTANCE_SCOPE = 1;
 	SymbolTable symTable;
 	MyError print = new MyError(false);
 	Option opt;
@@ -142,6 +143,11 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 			}
 			
+			if (symTable.getScope() == INSTANCE_SCOPE) {
+				VarDeclaration classVariable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
+				Type foo = Type.getTypeForName(currentClass);
+				foo.getClassDecl().appendVar(classVariable);
+			}
 		
 		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
 			Symbol sym = symTable.lookup(ctx.IDENTIFIER().toString());
@@ -549,14 +555,12 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitExprCont_New(ExprCont_NewContext ctx) {
 	if (Type.getTypeForName(ctx.typ.getText()) != null ) {
 		ctx.myType = Type.getTypeForName(ctx.typ.getText());
+		ctx.paramNum = ctx.myType.getClassDecl().vars.size();
 	} else {
 		print.err(String.format("Invalid type %s on RHS of new.", ctx.typ.getText()),ctx);
 		ctx.myType = Type.ERROR;
 	}
-	
-//	ctx.myType = Type.ERROR;
-//	print.err(String.format(print.errMsgs.get("Unsupported"), 
-//			ctx.NEW().toString()),ctx);
+
 		super.exitExprCont_New(ctx);
 	}
 
@@ -952,7 +956,7 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitArgument_decl_list(Argument_decl_listContext ctx) {
-		int offset = 8;
+		int offset = 12;
 		for (int i = 0; i < ctx.argument_decl().size(); i++) {
 			VarDeclaration foo = new VarDeclaration(ctx.argument_decl(i).type().myType,ctx.argument_decl(i).IDENTIFIER().getText());
 			foo.setOffset(offset);
@@ -1096,10 +1100,10 @@ public class SemanticChecker extends FloydBaseListener {
 //		}
 //		
 		//INSTANCE VARIABLES
-		for (FloydParser.Var_declContext variable : ctx.var_decl()) {
-			VarDeclaration classVariable = (VarDeclaration)symTable.lookup(variable.IDENTIFIER().getText()).getDecl();
-			myClass.appendVar(classVariable);
-		}
+//		for (FloydParser.Var_declContext variable : ctx.var_decl()) {
+//			VarDeclaration classVariable = (VarDeclaration)symTable.lookup(variable.IDENTIFIER().getText()).getDecl();
+//			myClass.appendVar(classVariable);
+//		}
 		/*
 		 *Seeing if method declarations are working 
 		 * 
