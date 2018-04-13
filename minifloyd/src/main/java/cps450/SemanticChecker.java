@@ -4,7 +4,7 @@ Class: CpS 450
 Filename: SemanticChecker.java
 Description: Contains the class that checks for and prints semantic checks.
 */
-//FIXME(Issue with INT and INT without parentheses)
+//FIXME(Issue with x and x without parentheses. Need to make equality operators above and/or)
 package cps450;
 import java.util.ArrayList;
 import java.util.Arrays;

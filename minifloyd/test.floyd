@@ -1,11 +1,11 @@
+class Bobjbasics is
 
-~ main class
-class Bnulltest is
-z : boolean
   start() is
+    foo : int
+    boo : boolean
   begin
+  boo := 5 > 3 and true
 
-  z := (1 > 2) and true
   end start
   
-end Bnulltest
+end Bobjbasics
