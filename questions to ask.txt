@@ -1,0 +1,1 @@
+Can me be used with non class types?

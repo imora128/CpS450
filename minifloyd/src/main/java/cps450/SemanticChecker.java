@@ -75,12 +75,6 @@ import cps450.FloydParser.MethodExpr_ContContext;
 import cps450.FloydParser.Method_declContext;
 //FIXME(Passing in a declared func as a parameter passes semantic checks. IE:out.writeint(meth1)
 
-/*FIXME(me refers to the current object instance. It can be used only in ID expressions (such as those
-on the right-hand side of an assignment statement, or in a parameter list of a method call
-statement).)
-
-
-*/
 public class SemanticChecker extends FloydBaseListener {
 	SymbolTable symTable;
 	MyError print = new MyError(false);
@@ -292,6 +286,7 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
+		System.out.println("inside of relation gt");
 		if (ctx.e1.myType == Type.STRING) {
 			List<String> foo = Arrays.asList("TypeMismatch", ctx.GT().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
 			ctx.myType = exprCompareTypes(Type.STRING, ctx.e1.myType, ctx.e2.myType, ctx, foo);
@@ -307,12 +302,20 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.GT().toString(), "int or string ", ctx.e1.myType),ctx);
 			ctx.myType = Type.ERROR;
 		}
+		System.out.println("typ eat end of GT is: " + ctx.myType);
 		
 		super.exitRelationalGT_Exp(ctx);
 	}
 
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
+		//making sure equality tests can be don
+//		Type classTestType = Type.getTypeForName(ctx.e1.myType.name);
+//		if (classTestType != null && (classTestType == Type.getTypeForName(ctx.e2.myType.name)) ) {
+//			ctx.myType = Type.BOOLEAN;
+//			return;
+//		}
+		
 		if (ctx.e1.myType == Type.INT) {
 			List<String> foo = Arrays.asList("TypeMismatch", ctx.EQ().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
 			ctx.myType = exprCompareTypes(Type.INT, ctx.e1.myType, ctx.e2.myType, ctx, foo);
@@ -369,6 +372,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitAndX_Exp(AndX_ExpContext ctx) {
 		List<String> foo = Arrays.asList("TypeMismatch", ctx.AND().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
+		System.out.println("andX_EXP: " + ctx.e1.getText() + " e1: " + ctx.e1.myType + " e2: " + ctx.e2.myType);
 		ctx.myType = exprCompareTypes(Type.BOOLEAN, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 		super.exitAndX_Exp(ctx);
 	}
@@ -541,18 +545,67 @@ public class SemanticChecker extends FloydBaseListener {
 	
 @Override
 	public void exitExprCont_New(ExprCont_NewContext ctx) {
-	ctx.myType = Type.ERROR;
-	print.err(String.format(print.errMsgs.get("Unsupported"), 
-			ctx.NEW().toString()),ctx);
+	if (Type.getTypeForName(ctx.typ.getText()) != null ) {
+		ctx.myType = Type.getTypeForName(ctx.typ.getText());
+	} else {
+		print.err(String.format("Invalid type %s on RHS of new.", ctx.typ.getText()),ctx);
+		ctx.myType = Type.ERROR;
+	}
+	
+//	ctx.myType = Type.ERROR;
+//	print.err(String.format(print.errMsgs.get("Unsupported"), 
+//			ctx.NEW().toString()),ctx);
 		super.exitExprCont_New(ctx);
 	}
 
+
 @Override
 	public void exitExprCont_Null(ExprCont_NullContext ctx) {
-	ctx.myType = Type.ERROR;
-	print.err(String.format(print.errMsgs.get("Unsupported"), 
-			ctx.NULL().toString()),ctx);
-		super.exitExprCont_Null(ctx);
+	   Assignment_stmtContext nullAssign = null;
+	   RelationalEQ_ExpContext equalityTest = null;
+		ParserRuleContext foo = ctx;
+		while (foo != null) {
+			if (foo.getParent() instanceof Assignment_stmtContext) {
+				nullAssign = (Assignment_stmtContext)foo.getParent();
+				break;
+			} else if (foo.getParent() instanceof RelationalEQ_ExpContext) {
+				equalityTest = (RelationalEQ_ExpContext)foo.getParent();
+			}
+			
+			foo = foo.getParent();
+		}
+		//if its not null, check that it's a class type.
+		if (nullAssign != null) {
+			Type typerino = symTable.lookup(nullAssign.IDENTIFIER().getText()).getDecl().type;
+			System.out.println("Type of " + nullAssign.IDENTIFIER().getText() + " Is:" + typerino);
+			//if its not a class type, error.
+			if (typerino == Type.INT ||typerino == Type.BOOLEAN ) {
+			ctx.myType = Type.ERROR;
+			print.err(String.format("Attempting to assign null to %s. Null can only be assigned to class types.", typerino),ctx);
+			return;
+			//it's not null and it's a class type, we're gucci.
+			//making the type the LHS type so assignment stmt doesn't throw an error. No further checks
+			//are necessary here, those must be made during runtime
+			} else {
+				ctx.myType = typerino;
+				return;
+			}
+		} else if (equalityTest != null) {
+			if (Type.getTypeForName(equalityTest.e1.myType.name) == null) {
+				ctx.myType = Type.ERROR;
+				print.err(String.format("Cannot compare type %s to null", equalityTest.e1.myType),ctx);
+				return;
+			} else {
+				ctx.myType = Type.getTypeForName(equalityTest.e1.myType.name);
+				return;
+			}
+			
+		}
+		
+		
+			ctx.myType = Type.ERROR;
+			print.err("Null failed. Could not find LHS",ctx);
+
 	}
 
 	@Override
@@ -575,7 +628,6 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		if (meAssign != null) {
 			if (symTable.lookup(meAssign.IDENTIFIER().getText()) != null) {
-			System.out.println(String.format("inside of me. type of %s is: %s",meAssign.IDENTIFIER().getText(),symTable.lookup(meAssign.IDENTIFIER().getText()).getDecl().type ));
 			ctx.myType = symTable.lookup(meAssign.IDENTIFIER().getText()).getDecl().type;
 			return;
 			}
@@ -705,7 +757,6 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
 		
-		
 		//System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING: ");
 		
 		
@@ -723,8 +774,14 @@ public class SemanticChecker extends FloydBaseListener {
 
 			Type objType = objCheck.e1.myType;
 			System.out.println(String.format("Inside of exitExprCont_IDExpr: %s type: %s", objCheck.e1.getText(), objCheck.e1.myType));
+			
+			//checkikng if error so I don't propogate anymore error msgs
+			if (objType == Type.ERROR) {
+				ctx.myType = Type.ERROR;
+				return;
+			}
 			//if it's null, then we have an issue. error an dleave.
-			if (objType == null || objType == Type.ERROR){
+			if (objType == null){
 				print.err(String.format("The type of object %s is null.", objCheck.e1.getText()),ctx);
 				ctx.myType = Type.ERROR;
 				return;
@@ -1083,19 +1140,7 @@ public class SemanticChecker extends FloydBaseListener {
 		//symTable.printSymTable();
 		super.enterMethodDot_Exp(ctx);
 	}
-	
-	
 
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
 	
 	
 

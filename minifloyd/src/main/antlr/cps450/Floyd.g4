@@ -136,7 +136,7 @@ expr_cont returns [Type myType, Symbol sym]
 | NULL #ExprCont_Null
 | ME	#ExprCont_ME
 | R_PAR expression L_PAR	#ExprCont_ParExp
-| NEW type	#ExprCont_New
+| NEW typ=type	#ExprCont_New
 | IDENTIFIER '[' expression ']' ('[' expression ']')*
 expression PERIOD IDENTIFIER R_PAR (expression_list)? L_PAR #ExprCont_Array
 | IDENTIFIER R_PAR (expression_list)? L_PAR #ExprCont_IDExpr
