@@ -1,14 +1,32 @@
-class Test is
-    yo : Test
-
-    boo(a : int) is
+class Point is
+    a : int
+    b : int
+ ~ testFunc() is
+ ~ begin
+  ~out.writeint(1)
+ ~ end testFunc
+    setA(newA : int) is
+    z : int
     begin
-      a := 5
-    end boo
+      a := newA
+    end setA
+    getA(): int is
+    begin
+    getA := a
+    end
+
+end Point
+
+class Testing is
+  ~testFunc() is
+ ~ begin
+ ~ out.writeint(5)
+  ~end testFunc
+
   start() is
-  
+  x : Point
   begin
-  yo := new Test
+  x := new Point
+  x.setA(55)
   end start
-  
-end Test
+end Testing

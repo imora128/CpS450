@@ -23,7 +23,7 @@ var_decl
 ;
 
 
-method_decl returns [int params]
+method_decl returns [int params, String className]
 : IDENTIFIER R_PAR ((argument_decl_list)?) L_PAR (COLON typ=type)? IS cr var_decl* BEGIN cr statement_list END IDENTIFIER cr
 ;
 
@@ -67,7 +67,7 @@ loop_stmt
 : LOOP WHILE exp=expression cr loop_body=statement_list END LOOP
 ;
 
-call_stmt
+call_stmt returns [String className, Symbol sym]
 : (t1=expression PERIOD)? func=IDENTIFIER R_PAR (t2=expression_list)? L_PAR
 ;
 

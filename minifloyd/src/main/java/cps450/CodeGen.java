@@ -47,6 +47,7 @@ import cps450.FloydParser.OrX_ExpContext;
 import cps450.FloydParser.RelationalEQ_ExpContext;
 import cps450.FloydParser.RelationalGE_ExpContext;
 import cps450.FloydParser.RelationalGT_ExpContext;
+import cps450.FloydParser.StartContext;
 import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
@@ -216,7 +217,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
 			emit(new TargetInstruction.Builder().instruction("pushl").operand1(String.format("%s(%%ebp)", offset)).build());
 		} else {
-
+			//FIXME( IMPLEMENT INSTANCE_SCOPE HERE)
 			TargetInstruction foo = new TargetInstruction.Builder()
 			.instruction("pushl")
 			.operand1(String.format("%s", name)).build();		
@@ -249,11 +250,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitVar_decl(Var_declContext ctx) {
-		TargetInstruction instruction = new TargetInstruction.Builder().
-				directive(String.format(".comm %s,4,4", ctx.IDENTIFIER().getText())).build();
+//		TargetInstruction instruction = new TargetInstruction.Builder().
+//				directive(String.format(".comm %s,4,4", ctx.IDENTIFIER().getText())).build();
 		//emitComment(ctx);
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
-		emit(instruction);
+		//emit(instruction);
 		//System.out.println("i am ehre: " + ctx.IDENTIFIER().getText());
 		//===============DEBUGGING============================
 		//.stabs  "x:G(0,1)",32,0,0,0
@@ -290,12 +291,21 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				//emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
 				emit(new TargetInstruction.Builder().instruction(String.format("popl %s(%%ebp)", lhs.getOffset())).build());
 			} else {
-				PRINT.DEBUG("Inside of var assignment for isntance vars");
+				//FIXME(IMPLEMENT INSTANCE CODE HERE)
 				//instnace variable
+//				
+//				TargetInstruction instruction = new TargetInstruction.Builder().
+//						instruction(String.format("popl %s", ctx.IDENTIFIER().getText())).build();		
+//				emit(instruction);
+				emit(new TargetInstruction.Builder().comment("put param value into eax").build());
+				emit(new TargetInstruction.Builder().instruction("popl %eax").build());
 				
-				TargetInstruction instruction = new TargetInstruction.Builder().
-						instruction(String.format("popl %s", ctx.IDENTIFIER().getText())).build();		
-				emit(instruction);
+				emit(new TargetInstruction.Builder().comment("get reference to me").build());
+				emit(new TargetInstruction.Builder().instruction("movl 8(%ebp), %ebx").build());
+				PRINT.DEBUG("offset of " + lhs.name + " is: " + lhs.getOffset());
+				emit(new TargetInstruction.Builder().comment("store new value in offset inside of me").build());
+				emit(new TargetInstruction.Builder().instruction(String.format("movl %%eax, %s(%%ebx)", lhs.getOffset())).build());
+				
 			}
 			//check if its a function
 		} else if (sym.getDecl() instanceof MethodDeclaration) {
@@ -447,9 +457,26 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 	}
+	
+	@Override
+	public Void visitStart(StartContext ctx) {
+		TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
+		emit(fileName);
+		
+		for (int i = 0; i < ctx.class_().size(); i++) {
+			visit(ctx.class_(i));
+		}
+		
+		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
+		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
+		
+		return null;
+	}
+
 	@Override
 	public Void visitClass_(Class_Context ctx) {		
-		TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
+		//TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
 		//===============DEBUGGING============================
 		//.stabs  "demo.floyd",100,0,0,.Ltext0
 		if (opt.g) {
@@ -459,7 +486,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().directive(".stabs  \"int:t(0,1)=r(0,1);-2147483648;2147483647;\",128,0,0,0").build());
 		}
 		//===============DEBUGGING============================
-		emit(fileName);
+		//emit(fileName);
 		for (int i = 0; i < ctx.var_decl().size(); i++) {
 			visit(ctx.var_decl(i));
 		}
@@ -477,9 +504,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				ctx.stop.getLine())).build());
 		}
 		//===============DEBUGGING============================
-		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
-		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
-		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
+		//FIXME(figure out where to calle xit)
+//		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
+//		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
+//		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
 		
 		
 		return null;
@@ -502,24 +530,29 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
 		emit(new TargetInstruction.Builder().label(String.format("main:")).build());
 		} else {
-		emit(new TargetInstruction.Builder().label(String.format(("%s:"), ctx.IDENTIFIER(0).getText())).build());
+		String funcName = String.format("%s_%s", ctx.className, ctx.IDENTIFIER(0).getText());
+		emit(new TargetInstruction.Builder().label(String.format(("%s:"), funcName)).build());
 		}
 		//FUNCTION PREAMBLE
 		emit(new TargetInstruction.Builder().comment("Function preamble").build());
 		emit(new TargetInstruction.Builder().instruction("pushl %ebp").build());
 		emit(new TargetInstruction.Builder().instruction("movl %esp, %ebp").build());
 		//return value
+		emit(new TargetInstruction.Builder().comment("Making space for return value").build());
 		emit(new TargetInstruction.Builder().instruction("push $0").build());
 		//locals
 		for (int i =  0; i < ctx.params; i++) {
+			emit(new TargetInstruction.Builder().comment(String.format("making space for %s locals", ctx.params)).build());
 			emit(new TargetInstruction.Builder().instruction("push $0").build());
 		}
 		//folowed by visiting the statement list to print the instructions for the content of the function
 		visit(ctx.statement_list());
 		
 		//at the end of the function, put the value inside the return value area into eax
+		if (ctx.typ != null) {
 		emit(new TargetInstruction.Builder().comment("Moving the value inside the return value section of the stack into eax").build());
 		emit(new TargetInstruction.Builder().instruction(("movl -4(%ebp), %eax")).build());
+		}
 		
 		//cleaning up the stack
 		emit(new TargetInstruction.Builder().comment("cleaning up the stack and returnig").build());
@@ -542,25 +575,52 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				ctx.start.getLine())).build());
 		}
 		//===============DEBUGGING============================
-		//No class methods yet, so I don't need to visit the lhs of the .
-		//visit(ctx.t1);
-		//System.out.println(String.format("%s", ctx.IDENTIFIER().getText()));
-		if (ctx.t2 != null) {
-		visit(ctx.t2);
-		emit(new TargetInstruction.Builder().comment("this is where I want the reference to thsi obj").build());
-		}
+//		if (ctx.t2 != null) {
+//		visit(ctx.t2);
+//		}
+		//righ tto left para passing
 		int paramNum = 0;
-		if (ctx.expression_list() != null) {
-		paramNum = ctx.expression_list().expression().size();
+		if (ctx.t2 != null) {
+			paramNum = ctx.expression_list().expression().size();
+			for (int i = ctx.expression_list().expression().size() - 1; i > -1; i--) {
+				visit(ctx.expression_list().expression().get(i));
+			}
 		}
-		//FUNCTION PREAMBLE
-//		emit(new TargetInstruction.Builder().instruction("pushl %ebp").build());
-//		emit(new TargetInstruction.Builder().instruction("movl %esp, %ebp").build());
 		
-		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
+		
+		
+		
+		//offset for LHS to pass in "this"
+		VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
+		//pushing "this"
+		emit(new TargetInstruction.Builder().comment("reference to the object").build());
+		emit(new TargetInstruction.Builder().comment(String.format("pushl %s", test.name)).build());
+		emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", test.getOffset())).build());
+		
+//		int paramNum = 0;
+//		if (ctx.expression_list() != null) {
+//		paramNum = ctx.expression_list().expression().size();
+//		}
+		String functionName = "FunctionNameFailed";
+		if (ctx.t1 != null ) {
+		//getting the right fnuctino name (with the class name prefix
+			
+			//FIXME(Temporary ducttape until I get the library functions in here)
+			if (ctx.t1.myType.name.equals("writer") || ctx.t1.myType.name.equals("reader")) {
+				functionName = ctx.IDENTIFIER().getText();
+			} else {
+			functionName = String.format("%s_%s", ctx.t1.myType.name, ctx.IDENTIFIER().getText());
+			}
+		} else {
+			functionName = String.format("%s_%s", ctx.className, ctx.IDENTIFIER().getText());
+		}
+		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 		if (paramNum > 0) {
+			emit(new TargetInstruction.Builder().comment(String.format("Clean up parameters: %s * 4", paramNum)).build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
+		emit(new TargetInstruction.Builder().comment("Clean up this pushed on last: 4").build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,",4)).operand2("%esp").build());
 		println();
 		
 		return null;
@@ -578,6 +638,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				visit(ctx.expression_list().expression().get(i));
 			}
 		}
+		emit(new TargetInstruction.Builder().comment("hi im insidevisitExprCont_IDExpr and it hasnt been implemented yet ").build());
+		PRINT.DEBUG("hi im inside visitExprCont_IDExpr and it hasnt been implemented yet");
 		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
 		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());

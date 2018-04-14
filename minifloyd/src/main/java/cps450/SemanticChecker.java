@@ -144,6 +144,23 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 			}
 			
+//			if (symTable.getScope() == INSTANCE_SCOPE) {
+//				System.out.println("INSTANCE VAR: " + ctx.IDENTIFIER().getText());
+//				VarDeclaration classVariable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
+//				//setting offset of instance var
+//				classVariable.setOffset(instanceVarOffset);
+//				instanceVarOffset += 4;
+//				Type foo = Type.getTypeForName(currentClass);
+//				foo.getClassDecl().appendVar(classVariable);
+//			}
+		
+		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
+			Symbol sym = symTable.lookup(ctx.IDENTIFIER().toString());
+			if (sym != null && sym.getScope() == symTable.getScope()) {
+				print.err(String.format(print.errMsgs.get("RedefineVar"), 
+						ctx.IDENTIFIER().toString()),ctx);
+				return;
+			}
 			if (symTable.getScope() == INSTANCE_SCOPE) {
 				VarDeclaration classVariable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
 				//setting offset of instance var
@@ -151,13 +168,7 @@ public class SemanticChecker extends FloydBaseListener {
 				instanceVarOffset += 4;
 				Type foo = Type.getTypeForName(currentClass);
 				foo.getClassDecl().appendVar(classVariable);
-			}
-		
-		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
-			Symbol sym = symTable.lookup(ctx.IDENTIFIER().toString());
-			if (sym != null && sym.getScope() == symTable.getScope()) {
-				print.err(String.format(print.errMsgs.get("RedefineVar"), 
-						ctx.IDENTIFIER().toString()),ctx);
+				symTable.push(ctx.IDENTIFIER().toString(), classVariable);
 				return;
 			}
 			VarDeclaration variable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
@@ -661,6 +672,9 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	@Override
 	public void exitCall_stmt(Call_stmtContext ctx) {
+		//class name for codegen
+		//FIXME(May not work if its just an expression, cuz i can tlook up the method info in the symTable)
+		ctx.className = currentClass;
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
 		int paramNum = 0;
 		if (ctx.expression_list() != null) {
@@ -668,6 +682,9 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		if (ctx.t1 != null && !(symTable.lookup(ctx.t1.getText()).getDecl().type.getClassDecl().name.equals(currentClass))) {
 			Symbol foo = symTable.lookup(ctx.t1.getText());
+			ctx.sym = foo;
+//			VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
+//			System.out.println(test.name + " offset: " + test.getOffset());
 			//continue work here.
 //			/*
 //			 * 
@@ -967,6 +984,7 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMethod_decl(Method_declContext ctx) {
 		int paramOffset = 8;
+		ctx.className = currentClass;
 		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
 		//giving offsets to all parameters. (POSITIVE)
 		if (ctx.argument_decl_list() != null) {
