@@ -217,11 +217,20 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
 			emit(new TargetInstruction.Builder().instruction("pushl").operand1(String.format("%s(%%ebp)", offset)).build());
 		} else {
-			//FIXME( IMPLEMENT INSTANCE_SCOPE HERE)
-			TargetInstruction foo = new TargetInstruction.Builder()
-			.instruction("pushl")
-			.operand1(String.format("%s", name)).build();		
-			emit(foo);
+//			VarDeclaration variable = (VarDeclaration)sym.getDecl();
+//			int offset = variable.getOffset();
+			VarDeclaration lhs = (VarDeclaration)sym.getDecl();
+//			//FIXME( IMPLEMENT INSTANCE_SCOPE HERE)
+//			TargetInstruction foo = new TargetInstruction.Builder()
+//			.instruction("pushl")
+//			.operand1(String.format("%s", name)).build();		
+//			emit(foo);
+			emit(new TargetInstruction.Builder().comment("get reference to me").build());
+			emit(new TargetInstruction.Builder().instruction("movl 8(%ebp), %ebx").build());
+			PRINT.DEBUG("offset of " + lhs.name + " is: " + lhs.getOffset());
+			emit(new TargetInstruction.Builder().comment("push value inside of the reference").build());
+			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebx)", lhs.getOffset())).build());
+			
 		}
 		} else {
 			MethodDeclaration variable = (MethodDeclaration)sym.getDecl();
@@ -302,7 +311,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				
 				emit(new TargetInstruction.Builder().comment("get reference to me").build());
 				emit(new TargetInstruction.Builder().instruction("movl 8(%ebp), %ebx").build());
-				PRINT.DEBUG("offset of " + lhs.name + " is: " + lhs.getOffset());
+				//PRINT.DEBUG("offset of " + lhs.name + " is: " + lhs.getOffset());
 				emit(new TargetInstruction.Builder().comment("store new value in offset inside of me").build());
 				emit(new TargetInstruction.Builder().instruction(String.format("movl %%eax, %s(%%ebx)", lhs.getOffset())).build());
 				
@@ -594,8 +603,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
 		//pushing "this"
 		emit(new TargetInstruction.Builder().comment("reference to the object").build());
+		//FIX(MAKE SURE THIS OUT STUFF IS SORTED OUT)
+		if (!test.name.equals("out")) {
 		emit(new TargetInstruction.Builder().comment(String.format("pushl %s", test.name)).build());
 		emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", test.getOffset())).build());
+		}
 		
 //		int paramNum = 0;
 //		if (ctx.expression_list() != null) {
@@ -619,8 +631,12 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().comment(String.format("Clean up parameters: %s * 4", paramNum)).build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
-		emit(new TargetInstruction.Builder().comment("Clean up this pushed on last: 4").build());
+	
+		//FIXME(another writer duct tape to test basic objs)
+		if(ctx.t1 != null && !(ctx.t1.myType.name.equals("writer")) ) {
+		emit(new TargetInstruction.Builder().comment("Clean up this reference pushed on last: 4").build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,",4)).operand2("%esp").build());
+		}
 		println();
 		
 		return null;

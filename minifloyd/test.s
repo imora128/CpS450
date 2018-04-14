@@ -39,9 +39,23 @@ Point_getA:
 	# Making space for return value 
 	 push $0 
 	# Line 15: getA:=a 
-	 pushl a 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
 	# popl getA 
 	 popl -4(%ebp) 
+	 
+ 
+	# Line 16: out.writeint(a) 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	# reference to the object 
+	 call writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
 	 
  
 	# Moving the value inside the return value section of the stack into eax 
@@ -49,8 +63,8 @@ Point_getA:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 17: end getA 
-	# Line 26: start() is 
+	# Line 18: end getA 
+	# Line 27: start() is 
 .global main 
 main: 
 	# Function preamble 
@@ -58,9 +72,26 @@ main:
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 push $0 
-	# making space for 1 locals 
+	# making space for 2 locals 
 	 push $0 
-	# Line 29: x:=newPoint 
+	# making space for 2 locals 
+	 push $0 
+	# Line 31: z:=123 
+	 pushl $123 
+	# popl z 
+	 popl -12(%ebp) 
+	 
+ 
+	# Line 32: out.writeint(z) 
+	# pushl z 
+	 pushl -12(%ebp) 
+	# reference to the object 
+	 call writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 33: x:=newPoint 
 	 pushl $16 
 	 pushl $1 
 	 call calloc 
@@ -70,22 +101,40 @@ main:
 	 popl -8(%ebp) 
 	 
  
-	# Line 30: x.setA(55) 
-	 pushl $55 
+	# Line 34: x.setA(99) 
+	 pushl $99 
 	# reference to the object 
 	# pushl x 
 	 pushl -8(%ebp) 
 	 call Point_setA 
 	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
-	# Clean up this pushed on last: 4 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 35: x.getA() 
+	# reference to the object 
+	# pushl x 
+	 pushl -8(%ebp) 
+	 call Point_getA 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 36: out.writeint(z) 
+	# pushl z 
+	 pushl -12(%ebp) 
+	# reference to the object 
+	 call writeint 
+	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	 
  
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 31: end start 
+	# Line 37: end start 
 	# Calling exit because the program is finished 
 	 pushl $0 
 	 call exit 

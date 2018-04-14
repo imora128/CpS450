@@ -13,7 +13,8 @@ class Point is
     getA(): int is
     begin
     getA := a
-    end
+    out.writeint(a)
+    end getA
 
 end Point
 
@@ -25,8 +26,13 @@ class Testing is
 
   start() is
   x : Point
+  z : int
   begin
+  z := 123
+  out.writeint(z)
   x := new Point
-  x.setA(55)
+  x.setA(99)
+   x.getA() 
+   out.writeint(z)
   end start
 end Testing
