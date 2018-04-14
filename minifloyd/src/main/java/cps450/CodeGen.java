@@ -54,6 +54,24 @@ import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
 //FIXME(It is illegal to invoke a method on a null reference. NEED TO MAKE SURE THIS IS CHECKED)
+/*FIXME(TO DO FOR SUNDAY)
+ * FIRST:
+ * test expressions like (new Point).blah, test an init expression too
+ * implement null (READ ABOUT IT IN THE SEMANTICS. When obj type var is declared, set it to null? ) I remember
+ * dr schaub maybe saying that null should be equivalent to 0?
+ * implement me
+ * 
+ * NEXT:
+ * Work on concat the library file and the given file. Make sure they do not lose their own line num.
+ * (Note: Collisn said something about putting them together and returning a stream?)
+ * Remove the writeint ducttape code for stuff like writeint that was used for testing
+ * Test library stuff to make sure it works.
+ * 
+ * LAST:
+ *
+ * Do when library is being added:
+ * null reference checks
+ */
 public class CodeGen extends FloydBaseVisitor<Void> {
 	List<TargetInstruction> instructions = new ArrayList<TargetInstruction>();
 	Stack<String> registers = new Stack<String>();
