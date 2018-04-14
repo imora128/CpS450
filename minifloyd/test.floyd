@@ -1,10 +1,10 @@
 class Point is
     a : int
     b : int
- ~ testFunc() is
- ~ begin
-  ~out.writeint(1)
- ~ end testFunc
+  testFunc() is
+  begin
+  out.writeint(1)
+  end testFunc
     setA(newA : int) is
     z : int
     begin
@@ -17,7 +17,25 @@ class Point is
     getA := a
     end getA
 
+        getB(): int is
+    p : int
+    begin
+    getB := b
+    end getA
+
 end Point
+
+class Another is
+a : int
+b : int
+c : int
+d : int
+  start1() is
+  begin
+  out.writeint(5)
+  end start
+end Another
+
 
 class Testing is
   testFunc(): int is
@@ -33,11 +51,14 @@ class Testing is
   start() is
   x : Point
   p : Point
-  poo : int
+  poo : Another
   z : int
 
   begin
+  poo := new Another
   x := new Point
+  out.writeint(x.getA())
+  out.writeint(x.getB())
   x.setA(5)
   out.writeint(x.getA())
 

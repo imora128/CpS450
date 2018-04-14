@@ -221,7 +221,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 //			VarDeclaration variable = (VarDeclaration)sym.getDecl();
 //			int offset = variable.getOffset();
 			VarDeclaration lhs = (VarDeclaration)sym.getDecl();
-//			//FIXME( IMPLEMENT INSTANCE_SCOPE HERE)
 //			TargetInstruction foo = new TargetInstruction.Builder()
 //			.instruction("pushl")
 //			.operand1(String.format("%s", name)).build();		
@@ -300,12 +299,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				//emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
 				emit(new TargetInstruction.Builder().instruction(String.format("popl %s(%%ebp)", lhs.getOffset())).build());
 			} else {
-				//FIXME(IMPLEMENT INSTANCE CODE HERE)
-				//instnace variable
-//				
-//				TargetInstruction instruction = new TargetInstruction.Builder().
-//						instruction(String.format("popl %s", ctx.IDENTIFIER().getText())).build();		
-//				emit(instruction);
 				emit(new TargetInstruction.Builder().comment("put param value into eax").build());
 				emit(new TargetInstruction.Builder().instruction("popl %eax").build());
 				
@@ -503,20 +496,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			visit(ctx.method_decl(i));
 		}
 		
-		//===============DEBUGGING============================
-		//.stabn 68,0,%s,.line%s-main
-		//.line%s:
-		if (opt.g) {
-		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
-				ctx.stop.getLine(), ctx.stop.getLine())).build());
-		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
-				ctx.stop.getLine())).build());
-		}
-		//===============DEBUGGING============================
-		//FIXME(figure out where to calle xit)
-//		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
-//		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
-//		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
 		
 		
 		return null;
@@ -796,10 +775,28 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		int reserveBytes = (ctx.paramNum * 4) + 8;
 		emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", reserveBytes)).build());
 		emit(new TargetInstruction.Builder().instruction("pushl $1").build());
-		callFunction("calloc");
-		PRINT.DEBUG(String.format("visitExprCont_New: Number of parameters for this class: %s. Number of bytes sent to calloc: %s. ", ctx.paramNum, reserveBytes));
+		emit(new TargetInstruction.Builder().instruction("call").operand1("calloc").build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
+		
+		
 		//Initialize the values of the instance variables to 0
+		if (ctx.paramNum > 0) {
+			emit(new TargetInstruction.Builder().comment(String.format("Initializing %s instance vars to 0", ctx.paramNum)).build());
+			//put 0 in each memory offset
+			for (int i = 8; i < (ctx.paramNum * 4) + 8; i += 4 ) {
+				emit(new TargetInstruction.Builder().instruction(String.format("movl $0, %s(%%eax)", i)).build());	
+			}
+		}
+
+		
 		//Leave a reference to the memory on the top of the stack
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+		
+		
+		
+		PRINT.DEBUG(String.format("visitExprCont_New: Number of parameters for this class: %s. Number of bytes sent to calloc: %s. ", ctx.paramNum, reserveBytes));
+	
+
 		return super.visitExprCont_New(ctx);
 	}
 	
