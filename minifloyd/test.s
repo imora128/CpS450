@@ -64,6 +64,25 @@ Point_getA:
 	 leave 
 	 ret 
 	# Line 18: end getA 
+	# Line 22: testFunc() is 
+Testing_testFunc: 
+	# Function preamble 
+	 pushl %ebp 
+	 movl %esp, %ebp 
+	# Making space for return value 
+	 push $0 
+	# Line 24: out.writeint(5) 
+	 pushl $5 
+	# reference to the object 
+	 call writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	 
+ 
+	# cleaning up the stack and returnig 
+	 leave 
+	 ret 
+	# Line 26: end testFunc 
 	# Line 27: start() is 
 .global main 
 main: 
@@ -72,26 +91,28 @@ main:
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 push $0 
-	# making space for 2 locals 
+	# making space for 3 locals 
 	 push $0 
-	# making space for 2 locals 
+	# making space for 3 locals 
 	 push $0 
-	# Line 31: z:=123 
+	# making space for 3 locals 
+	 push $0 
+	# Line 32: z:=123 
 	 pushl $123 
 	# popl z 
-	 popl -12(%ebp) 
+	 popl -16(%ebp) 
 	 
  
-	# Line 32: out.writeint(z) 
+	# Line 33: out.writeint(z) 
 	# pushl z 
-	 pushl -12(%ebp) 
+	 pushl -16(%ebp) 
 	# reference to the object 
 	 call writeint 
 	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	 
  
-	# Line 33: x:=newPoint 
+	# Line 34: x:=newPoint 
 	 pushl $16 
 	 pushl $1 
 	 call calloc 
@@ -101,7 +122,29 @@ main:
 	 popl -8(%ebp) 
 	 
  
-	# Line 34: x.setA(99) 
+	# Line 35: p:=newPoint 
+	 pushl $16 
+	 pushl $1 
+	 call calloc 
+	 addl $8, %esp 
+	 pushl %eax 
+	# popl p 
+	 popl -12(%ebp) 
+	 
+ 
+	# Line 36: p.setA(2) 
+	 pushl $2 
+	# reference to the object 
+	# pushl p 
+	 pushl -12(%ebp) 
+	 call Point_setA 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 37: x.setA(99) 
 	 pushl $99 
 	# reference to the object 
 	# pushl x 
@@ -113,7 +156,16 @@ main:
 	 addl $4, %esp 
 	 
  
-	# Line 35: x.getA() 
+	# Line 38: p.getA() 
+	# reference to the object 
+	# pushl p 
+	 pushl -12(%ebp) 
+	 call Point_getA 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 39: x.getA() 
 	# reference to the object 
 	# pushl x 
 	 pushl -8(%ebp) 
@@ -122,19 +174,23 @@ main:
 	 addl $4, %esp 
 	 
  
-	# Line 36: out.writeint(z) 
+	# Line 40: out.writeint(z) 
 	# pushl z 
-	 pushl -12(%ebp) 
+	 pushl -16(%ebp) 
 	# reference to the object 
 	 call writeint 
 	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	 
  
+	# Line 41: testFunc() 
+	 call Testing_testFunc 
+	 
+ 
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 37: end start 
+	# Line 42: end start 
 	# Calling exit because the program is finished 
 	 pushl $0 
 	 call exit 

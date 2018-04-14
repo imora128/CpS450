@@ -19,20 +19,25 @@ class Point is
 end Point
 
 class Testing is
-  ~testFunc() is
- ~ begin
- ~ out.writeint(5)
-  ~end testFunc
+  testFunc() is
+  begin
+  out.writeint(5)
+  end testFunc
 
   start() is
   x : Point
+  p : Point
   z : int
   begin
   z := 123
   out.writeint(z)
   x := new Point
+  p := new Point
+  p.setA(2)
   x.setA(99)
+    p.getA()
    x.getA() 
    out.writeint(z)
+   testFunc()
   end start
 end Testing

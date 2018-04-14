@@ -600,6 +600,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		
 		
 		//offset for LHS to pass in "this"
+		//only if sym is not null, meaning there's an object there
+		if (ctx.t1 != null) {
 		VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
 		//pushing "this"
 		emit(new TargetInstruction.Builder().comment("reference to the object").build());
@@ -607,6 +609,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		if (!test.name.equals("out")) {
 		emit(new TargetInstruction.Builder().comment(String.format("pushl %s", test.name)).build());
 		emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", test.getOffset())).build());
+		}
 		}
 		
 //		int paramNum = 0;
@@ -633,6 +636,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 	
 		//FIXME(another writer duct tape to test basic objs)
+		//if func doesnt have t1, it has no obj that we need to pass "me" for
 		if(ctx.t1 != null && !(ctx.t1.myType.name.equals("writer")) ) {
 		emit(new TargetInstruction.Builder().comment("Clean up this reference pushed on last: 4").build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,",4)).operand2("%esp").build());
