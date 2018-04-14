@@ -40,6 +40,7 @@ import cps450.FloydParser.ExprCont_NewContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.If_stmtContext;
 import cps450.FloydParser.Loop_stmtContext;
+import cps450.FloydParser.MethodDot_ExpContext;
 import cps450.FloydParser.Method_declContext;
 import cps450.FloydParser.MultiDIV_ExpContext;
 import cps450.FloydParser.MultiTimes_ExpContext;
@@ -227,7 +228,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 //			emit(foo);
 			emit(new TargetInstruction.Builder().comment("get reference to me").build());
 			emit(new TargetInstruction.Builder().instruction("movl 8(%ebp), %ebx").build());
-			PRINT.DEBUG("offset of " + lhs.name + " is: " + lhs.getOffset());
 			emit(new TargetInstruction.Builder().comment("push value inside of the reference").build());
 			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebx)", lhs.getOffset())).build());
 			
@@ -548,11 +548,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().instruction("movl %esp, %ebp").build());
 		//return value
 		emit(new TargetInstruction.Builder().comment("Making space for return value").build());
-		emit(new TargetInstruction.Builder().instruction("push $0").build());
+		emit(new TargetInstruction.Builder().instruction("pushl $0").build());
 		//locals
 		for (int i =  0; i < ctx.params; i++) {
 			emit(new TargetInstruction.Builder().comment(String.format("making space for %s locals", ctx.params)).build());
-			emit(new TargetInstruction.Builder().instruction("push $0").build());
+			emit(new TargetInstruction.Builder().instruction("pushl $0").build());
 		}
 		//folowed by visiting the statement list to print the instructions for the content of the function
 		visit(ctx.statement_list());
@@ -658,14 +658,55 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				visit(ctx.expression_list().expression().get(i));
 			}
 		}
-		emit(new TargetInstruction.Builder().comment("hi im insidevisitExprCont_IDExpr and it hasnt been implemented yet ").build());
 		PRINT.DEBUG("hi im inside visitExprCont_IDExpr and it hasnt been implemented yet");
-		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
+		PRINT.DEBUG("class i'm in is " + ctx.classType.name );
+		String functionName = String.format("%s_%s", ctx.classType.name, ctx.IDENTIFIER().getText());
+//		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
+		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		println();
+		return null;
+	}
+	
+	@Override
+	public Void visitMethodDot_Exp(MethodDot_ExpContext ctx) {
+		PRINT.DEBUG("INsid emethododtexp: LHS Type is: " + ctx.e1.myType);
+		int paramNum = 0;
+		ExprCont_IDExprContext foo = null;
+		//it SHOULD be exprcont_IDExprcontext if it ever reaches here....
+		if (ctx.expr_cont() instanceof ExprCont_IDExprContext) {
+			foo = (ExprCont_IDExprContext) ctx.expr_cont();
+			//parameter pushing right to left
+			if (foo.expression_list() != null) {
+				paramNum = foo.expression_list().expression().size();
+				for (int i = foo.expression_list().expression().size() - 1; i > -1; i--) {
+					visit(foo.expression_list().expression().get(i));
+					
+				}
+			}
+			
+			//pushing reference to "this"
+			//this should always run because this visit only ever happens when theres an object on the LHS
+			VarDeclaration lhsVar = (VarDeclaration)ctx.sym.getDecl();
+			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", lhsVar.name)).build());
+			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", lhsVar.getOffset())).build());
+			String functionName = String.format("%s_%s", ctx.e1.myType, foo.IDENTIFIER().getText());
+			emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
+			if (paramNum > 0) {
+				emit(new TargetInstruction.Builder().comment(String.format("Clean up parameters: (%s * 4) + 4 (this ptr)", paramNum)).build());
+				emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", (paramNum * 4) + 4)).operand2("%esp").build());
+			} else {
+				emit(new TargetInstruction.Builder().comment("Clean up THIS obj reference param").build());
+				emit(new TargetInstruction.Builder().instruction("addl $4, %esp").build());
+			}
+			
+			emit(new TargetInstruction.Builder().comment("Pushing the result from the called function").build());
+			emit(new TargetInstruction.Builder().instruction("pushl %eax").build());
+		}
+		//return super.visitMethodDot_Exp(ctx);
 		return null;
 	}
 

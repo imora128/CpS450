@@ -121,13 +121,13 @@ unary_exp returns [Type myType]
 | method_exp		#UnaryMethod_Exp
 ;
 
-method_exp returns [Type myType]
+method_exp returns [Type myType, Symbol sym]
 //: e1=method_exp NEW e2=expr_cont	#MethodNew_Exp
 : e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
 | expr_cont							#MethodExpr_Cont
 ;
 
-expr_cont returns [Type myType, Symbol sym, int paramNum]
+expr_cont returns [Type myType, Symbol sym, int paramNum, Type classType]
 : IDENTIFIER	#ExprCont_ID
 | STRING_LITERAL	#ExprCont_Strlit
 | INTEGER_LITERAL 	#ExprCont_Intlit

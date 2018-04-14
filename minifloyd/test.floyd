@@ -10,34 +10,36 @@ class Point is
     begin
       a := newA
     end setA
+    
     getA(): int is
+    p : int
     begin
     getA := a
-    out.writeint(a)
     end getA
 
 end Point
 
 class Testing is
-  testFunc() is
+  testFunc(): int is
   begin
-  out.writeint(5)
+  testFunc := 1337
   end testFunc
+
+    boo(a : int; b : int): int is
+  begin
+  testFunc := 12
+  end boo
 
   start() is
   x : Point
   p : Point
+  poo : int
   z : int
+
   begin
-  z := 123
-  out.writeint(z)
   x := new Point
-  p := new Point
-  p.setA(2)
-  x.setA(99)
-    p.getA()
-   x.getA() 
-   out.writeint(z)
-   testFunc()
+  x.setA(5)
+  out.writeint(x.getA())
+
   end start
 end Testing

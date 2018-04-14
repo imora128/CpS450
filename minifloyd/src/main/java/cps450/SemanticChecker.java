@@ -776,8 +776,6 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		//System.out.println("I AM INSIDE OF EXIT EXPR CONT ID THING: ");
 		
-		
-		
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 			//System.out.println("Param is this: " + paramNum);
@@ -831,13 +829,13 @@ public class SemanticChecker extends FloydBaseListener {
 				ctx.myType = Type.ERROR;
 				return;
 		} else if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
+			ctx.classType = Type.getTypeForName(currentClass);
 			 mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
 			 ctx.myType = mDecl.type;
 			 
 		}
 	
 			info = mDecl.getParameters();
-		
 		//if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			//System.out.println(String.format("Function: %s Parameters: %s", ctx.IDENTIFIER().getText(), info.size()));
 			if (info.size() == paramNum) {
@@ -1140,6 +1138,10 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
 		
+		Symbol sym = symTable.lookup(ctx.e1.getText());
+		if (sym != null) {
+			ctx.sym = sym;
+		}
 //		Symbol sym = symTable.lookup(ctx.e1.getText());
 //		if (sym != null) {
 //			
