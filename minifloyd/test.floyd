@@ -1,5 +1,5 @@
-~ Bnulltest.floyd
-~ - Checks to see if null pointer exception checking is being performed
+~ Bobjbasics.floyd
+~ - Simple object tests
 
 class Point is
   x: int
@@ -30,6 +30,8 @@ class Point is
 
   setXY(newX: int; newY: int) is
   begin
+  out.writeint(newX) ~-5 
+  out.writeint(newY) ~10
     x := newX
     y := newY
   end setXY
@@ -43,28 +45,28 @@ class Point is
   begin
     y := newY
   end setY
-
-  start() is
-  begin
-  out.writeint(5)
-  end start
   
 end Point
 
-class Test is
-kkkk : Point
-start() is
-p : Point
-z : int
-begin
-p := new Point
-p := p.init(1,3)
-p := (new Point).init(100, 200)  ~ another way of instantiating
-p := null
-if p = null then
-  out.writeint(55)
-else
-  out.writeint(99)
-  end if
-end start
-end Test
+~ main class
+class Bobjbasics is
+
+  start() is
+    p1: Point
+    p2: Point
+  begin
+    p1 := new Point
+    p1.init(5, 10)
+    
+    p2 := (new Point).init(100, 200)  ~ another way of instantiating
+    
+    p1.print()
+  p2.print()
+    
+    p1.setX(-5)
+    p1.print()
+    p2.print()
+
+  end start
+  
+end Bobjbasics

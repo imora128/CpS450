@@ -647,6 +647,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().comment(String.format("pushl %s", test.name)).build());
 		emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", test.getOffset())).build());
 		}
+		//derp, i also need to pass "this" even if it doesnt have
+		} else {
+			emit(new TargetInstruction.Builder().comment("reference to the object (this)").build());
+			emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
 		}
 		
 //		int paramNum = 0;
