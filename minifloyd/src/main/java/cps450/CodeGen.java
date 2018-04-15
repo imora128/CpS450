@@ -280,9 +280,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
 		//checking if it's a class obj, if so, need to go ahead and make it null (which is 0)
 		VarDeclaration newVar = (VarDeclaration)ctx.sym.getDecl();
-		PRINT.DEBUG("The variable" + ctx.IDENTIFIER().getText() + " is type: " + ctx.ty.getText() + " offset: " + newVar.getOffset());
 		if (Type.getTypeForName(ctx.ty.getText()) != null) {
-			PRINT.DEBUG(ctx.IDENTIFIER().getText() + " was set to 0 at var_Decl");
 			//initializing variable to 0 (null) at declaration
 			emit(new TargetInstruction.Builder().instruction(String.format("movl $0, %s(%%ebp)", newVar.getOffset())).build());
 			
@@ -321,7 +319,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				
 				emit(new TargetInstruction.Builder().comment("get reference to me").build());
 				emit(new TargetInstruction.Builder().instruction("movl 8(%ebp), %ebx").build());
-				//PRINT.DEBUG("offset of " + lhs.name + " is: " + lhs.getOffset());
 				emit(new TargetInstruction.Builder().comment("store new value in offset inside of me").build());
 				emit(new TargetInstruction.Builder().instruction(String.format("movl %%eax, %s(%%ebx)", lhs.getOffset())).build());
 				
@@ -489,7 +486,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//checking all the methods of the last defined class. If it has start, we're good
 		for (int i = 0; i < lastClass.method_decl().size(); i++) {
 			if (lastClass.method_decl().get(i).IDENTIFIER(0).getText().equals("start")) {
-				PRINT.DEBUG("start methoid is defined in the last calss");
 				startDefined = true;
 			}
 		}
@@ -543,7 +539,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitClass_(Class_Context ctx) {	
-		PRINT.DEBUG("VISIT CLASS");
 		//TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
 		//===============DEBUGGING============================
 		//.stabs  "demo.floyd",100,0,0,.Ltext0
@@ -704,8 +699,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				visit(ctx.expression_list().expression().get(i));
 			}
 		}
-		PRINT.DEBUG("hi im inside visitExprCont_IDExpr and it hasnt been implemented yet");
-		PRINT.DEBUG("class i'm in is " + ctx.classType.name );
 		String functionName = String.format("%s_%s", ctx.classType.name, ctx.IDENTIFIER().getText());
 //		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
 		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
@@ -719,7 +712,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	@Override
 	public Void visitMethodDot_Exp(MethodDot_ExpContext ctx) {
-		PRINT.DEBUG("INsid emethododtexp: LHS Type is: " + ctx.e1.myType);
 		int paramNum = 0;
 		ExprCont_IDExprContext foo = null;
 		//it SHOULD be exprcont_IDExprcontext if it ever reaches here....
@@ -736,9 +728,14 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			
 			//pushing reference to "this"
 			//this should always run because this visit only ever happens when theres an object on the LHS
-			VarDeclaration lhsVar = (VarDeclaration)ctx.sym.getDecl();
-			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", lhsVar.name)).build());
-			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", lhsVar.getOffset())).build());
+//			if (ctx.e1. instanceof ExprCont_NewContext) {
+//				PRINT.DEBUG("JAJAJAJJAJAJA");
+//			}
+			visit(ctx.e1);
+			PRINT.DEBUG(ctx.e2.getText());
+			//VarDeclaration lhsVar = (VarDeclaration)ctx.sym.getDecl();
+//			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", lhsVar.name)).build());
+//			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", lhsVar.getOffset())).build());
 			String functionName = String.format("%s_%s", ctx.e1.myType, foo.IDENTIFIER().getText());
 			emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 			if (paramNum > 0) {
@@ -840,6 +837,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitExprCont_New(ExprCont_NewContext ctx) {
 		//Allocate memory from the heap to hold the instance variables for Point
 		//NumberOfParameters*4 + 8 reserved bytes
+		PRINT.DEBUG("I AM IN NEWWWWWWW");
 		int reserveBytes = (ctx.paramNum * 4) + 8;
 		emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", reserveBytes)).build());
 		emit(new TargetInstruction.Builder().instruction("pushl $1").build());
@@ -861,8 +859,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		
 		
-		
-		PRINT.DEBUG(String.format("visitExprCont_New: Number of parameters for this class: %s. Number of bytes sent to calloc: %s. ", ctx.paramNum, reserveBytes));
+	
 	
 
 		//return super.visitExprCont_New(ctx);
