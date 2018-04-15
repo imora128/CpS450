@@ -143,16 +143,6 @@ public class SemanticChecker extends FloydBaseListener {
 						"Attempting to initialize a variable in the declaration section."),ctx);
 				return;
 			}
-			
-//			if (symTable.getScope() == INSTANCE_SCOPE) {
-//				System.out.println("INSTANCE VAR: " + ctx.IDENTIFIER().getText());
-//				VarDeclaration classVariable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
-//				//setting offset of instance var
-//				classVariable.setOffset(instanceVarOffset);
-//				instanceVarOffset += 4;
-//				Type foo = Type.getTypeForName(currentClass);
-//				foo.getClassDecl().appendVar(classVariable);
-//			}
 		
 		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
 			Symbol sym = symTable.lookup(ctx.IDENTIFIER().toString());
@@ -169,6 +159,7 @@ public class SemanticChecker extends FloydBaseListener {
 				Type foo = Type.getTypeForName(currentClass);
 				foo.getClassDecl().appendVar(classVariable);
 				symTable.push(ctx.IDENTIFIER().toString(), classVariable);
+				ctx.sym = symTable.lookup(ctx.IDENTIFIER().toString());
 				return;
 			}
 			VarDeclaration variable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
@@ -176,6 +167,7 @@ public class SemanticChecker extends FloydBaseListener {
 			symTable.setLocalOffset(symTable.getLocalOffset() - 4);
 			
 			symTable.push(ctx.IDENTIFIER().toString(), variable);
+			ctx.sym = symTable.lookup(ctx.IDENTIFIER().toString());
 			//symTable.printSymTable();
 			
 		}

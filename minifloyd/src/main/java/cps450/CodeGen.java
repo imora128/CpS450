@@ -37,6 +37,7 @@ import cps450.FloydParser.ExprCont_IDContext;
 import cps450.FloydParser.ExprCont_IDExprContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.ExprCont_NewContext;
+import cps450.FloydParser.ExprCont_NullContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.If_stmtContext;
 import cps450.FloydParser.Loop_stmtContext;
@@ -277,18 +278,17 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 
 	@Override
 	public Void visitVar_decl(Var_declContext ctx) {
-//		TargetInstruction instruction = new TargetInstruction.Builder().
-//				directive(String.format(".comm %s,4,4", ctx.IDENTIFIER().getText())).build();
-		//emitComment(ctx);
+		
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
-		//emit(instruction);
-		//System.out.println("i am ehre: " + ctx.IDENTIFIER().getText());
-		//===============DEBUGGING============================
-		//.stabs  "x:G(0,1)",32,0,0,0
-		if (opt.g) {
-		emit(new TargetInstruction.Builder().directive(String.format(".stabs  \"%s:G(0,1)\",32,0,0,0", ctx.IDENTIFIER().getText())).build());
+		//checking if it's a class obj, if so, need to go ahead and make it null (which is 0)
+		VarDeclaration newVar = (VarDeclaration)ctx.sym.getDecl();
+		PRINT.DEBUG("The variable" + ctx.IDENTIFIER().getText() + " is type: " + ctx.ty.getText() + " offset: " + newVar.getOffset());
+		if (Type.getTypeForName(ctx.ty.getText()) != null) {
+			PRINT.DEBUG(ctx.IDENTIFIER().getText() + " was set to 0 at var_Decl");
+			//initializing variable to 0 (null) at declaration
+			emit(new TargetInstruction.Builder().instruction(String.format("movl $0, %s(%%ebp)", newVar.getOffset())).build());
+			
 		}
-		//===============DEBUGGING============================
 		return null;
 	}
 	
@@ -481,11 +481,52 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	@Override
 	public Void visitStart(StartContext ctx) {
+		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
+		Class_Context lastClass = ctx.class_().get(ctx.class_().size()-1);
+		boolean startDefined = false;
+		PRINT.DEBUG("VISIT START. last class: " + ctx.class_().get(ctx.class_().size()-1).IDENTIFIER(0));
 		TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
 		emit(fileName);
 		
 		for (int i = 0; i < ctx.class_().size(); i++) {
 			visit(ctx.class_(i));
+		}
+		//main code. jumps to the last class start method.
+		//checking if last class has a start method.
+		for (int i = 0; i < lastClass.method_decl().size(); i++) {
+			if (lastClass.method_decl().get(i).IDENTIFIER(0).getText().equals("start")) {
+				PRINT.DEBUG("start methoid is defined in the last calss");
+				startDefined = true;
+			}
+		}
+		if (startDefined) {
+			int instanceVars = lastClass.var_decl().size();
+			emit(new TargetInstruction.Builder().comment("Main method. Creates obj instance of the last class and calls its start method").build());
+			emit(new TargetInstruction.Builder().label(String.format("main:")).build());
+			//Number of instance vars * 4 (because each var is 4 bytes) + 8 (8 extra bytes for every object instanc)
+			emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", (instanceVars * 4) + 8)).build());
+			emit(new TargetInstruction.Builder().instruction("pushl $1").build());
+			emit(new TargetInstruction.Builder().instruction("call").operand1("calloc").build());
+			emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
+			//setting instance vars to 0
+			if (instanceVars > 0) {
+				emit(new TargetInstruction.Builder().comment(String.format("Initializing %s instance vars to 0", instanceVars)).build());
+				//put 0 in each memory offset
+				for (int i = 8; i < (instanceVars * 4) + 8; i += 4 ) {
+					emit(new TargetInstruction.Builder().instruction(String.format("movl $0, %s(%%eax)", i)).build());	
+				}
+			}
+			
+			//pushing pointer to the class obj onto the stack
+			emit(new TargetInstruction.Builder().instruction("pushl %eax").build());
+			//calling the start method
+			String startName = String.format("%s_%s", lastClass.IDENTIFIER(0).getText(), "start");
+			emit(new TargetInstruction.Builder().instruction(String.format("call %s", startName)).build());
+			
+			
+		} else {
+			PRINT.err("ERROR: start method is not defined in the last defined class.", ctx);
+			
 		}
 		
 		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
@@ -496,7 +537,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 
 	@Override
-	public Void visitClass_(Class_Context ctx) {		
+	public Void visitClass_(Class_Context ctx) {	
+		PRINT.DEBUG("VISIT CLASS");
 		//TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
 		//===============DEBUGGING============================
 		//.stabs  "demo.floyd",100,0,0,.Ltext0
@@ -508,6 +550,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 		//===============DEBUGGING============================
 		//emit(fileName);
+		emit(new TargetInstruction.Builder().comment("CLASS BEGINNIGN HERE").build());
 		for (int i = 0; i < ctx.var_decl().size(); i++) {
 			visit(ctx.var_decl(i));
 		}
@@ -533,13 +576,13 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//===============DEBUGGING============================
 		//printing out the function name
 		//if it's start, print the main directive to know where to start prog
-		if (ctx.IDENTIFIER(0).getText().equals("start")) {
-		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
-		emit(new TargetInstruction.Builder().label(String.format("main:")).build());
-		} else {
+//		if (ctx.IDENTIFIER(0).getText().equals("start")) {
+//		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
+//		emit(new TargetInstruction.Builder().label(String.format("main:")).build());
+//		} else {
 		String funcName = String.format("%s_%s", ctx.className, ctx.IDENTIFIER(0).getText());
 		emit(new TargetInstruction.Builder().label(String.format(("%s:"), funcName)).build());
-		}
+		//}
 		//FUNCTION PREAMBLE
 		emit(new TargetInstruction.Builder().comment("Function preamble").build());
 		emit(new TargetInstruction.Builder().instruction("pushl %ebp").build());
@@ -787,6 +830,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+	
 	@Override
 	public Void visitExprCont_New(ExprCont_NewContext ctx) {
 		//Allocate memory from the heap to hold the instance variables for Point
@@ -816,8 +860,17 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		PRINT.DEBUG(String.format("visitExprCont_New: Number of parameters for this class: %s. Number of bytes sent to calloc: %s. ", ctx.paramNum, reserveBytes));
 	
 
-		return super.visitExprCont_New(ctx);
+		//return super.visitExprCont_New(ctx);
+		return null;
 	}
+
+	@Override
+	public Void visitExprCont_Null(ExprCont_NullContext ctx) {
+		//null is 0
+		emit(new TargetInstruction.Builder().instruction("pushl $0").build());
+		return super.visitExprCont_Null(ctx);
+	}
+	
 	
 	
 	

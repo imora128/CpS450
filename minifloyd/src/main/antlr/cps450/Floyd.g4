@@ -18,7 +18,7 @@ class_
 : CLASS IDENTIFIER (INHERITS FROM IDENTIFIER)? IS cr var_decl* method_decl* END IDENTIFIER
 ;
 
-var_decl
+var_decl returns [Symbol sym]
 : IDENTIFIER (COLON ty=type)? (ASSIGNMENT_OPERATOR expression)? cr
 ;
 

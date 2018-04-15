@@ -1,66 +1,67 @@
+~ Bnulltest.floyd
+~ - Checks to see if null pointer exception checking is being performed
+
 class Point is
-    a : int
-    b : int
-  testFunc() is
+  x: int
+  y: int
+  
+  init(initX: int; initY: int): Point is
   begin
-  out.writeint(1)
-  end testFunc
-    setA(newA : int) is
-    z : int
-    begin
-      a := newA
-    end setA
+    x := initX
+    y := initY
+    init := me  ~ return this object's reference
+  end init
     
-    getA(): int is
-    p : int
-    begin
-    getA := a
-    end getA
+  getX(): int is
+  begin
+    getX := x
+  end getX
+  
+  getY(): int is
+  begin
+    getY := y
+  end getY
+  
+  print() is
+  begin
+    out.writeint(x)
+    out.writeint(y)
+  end print
 
-        getB(): int is
-    p : int
-    begin
-    getB := b
-    end getA
+  setXY(newX: int; newY: int) is
+  begin
+    x := newX
+    y := newY
+  end setXY
 
+  setX(newX: int) is
+  begin
+    setXY(newX, y)
+  end setX
+  
+  setY(newY: int) is
+  begin
+    y := newY
+  end setY
+  
 end Point
 
-class Another is
-a : int
-b : int
-c : int
-d : int
-  start1() is
-  begin
-  out.writeint(5)
-  end start
-end Another
+class Test is
+kkkk : Point
+start() is
+p : Point
+z : int
+begin
+p := new Point
+  p.setXY(5, 4)
+  p.print()
+  if kkkk = null then
 
+    out.writeint(1000)
+  else
+    out.writeint(2000)
+  end if
 
-class Testing is
-  testFunc(): int is
-  begin
-  testFunc := 1337
-  end testFunc
-
-    boo(a : int; b : int): int is
-  begin
-  testFunc := 12
-  end boo
-
-  start() is
-  x : Point
-  p : Point
-  poo : Another
-  z : int
-
-  begin
-  poo := new Another
-  x := new Point
-  out.writeint(x.getA())
-  out.writeint(x.getB())
-  x.setA(5)
-  out.writeint(x.getA())
-
-  end start
-end Testing
+  out.writeint(9999)
+end start
+end Test
