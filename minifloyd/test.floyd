@@ -57,19 +57,8 @@ start() is
 p : Point
 z : int
 begin
-z := 5
 p := new Point
-  p.setXY(5, 4)
-  p.print()
-  kkkk := new Point
-  if kkkk = null then
-
-    out.writeint(1000)
-  else
-    out.writeint(2000)
-  end if
-
-  out.writeint(9999)
-   out.writeint(z)
+p := (new Point).init(100, 200)  ~ another way of instantiating
+p.print()
 end start
 end Test

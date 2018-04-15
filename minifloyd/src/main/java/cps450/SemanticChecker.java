@@ -610,7 +610,7 @@ public class SemanticChecker extends FloydBaseListener {
 			print.err("Null failed. Could not find LHS",ctx);
 
 	}
-
+//FIXME(My me semantic check may be waaay wrong. ask just in case)
 	@Override
 	public void exitExprCont_ME(ExprCont_MEContext ctx) {
 		Assignment_stmtContext meAssign = null;

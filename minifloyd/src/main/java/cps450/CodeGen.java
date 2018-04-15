@@ -36,6 +36,7 @@ import cps450.FloydParser.ExprCont_FalseContext;
 import cps450.FloydParser.ExprCont_IDContext;
 import cps450.FloydParser.ExprCont_IDExprContext;
 import cps450.FloydParser.ExprCont_IntlitContext;
+import cps450.FloydParser.ExprCont_MEContext;
 import cps450.FloydParser.ExprCont_NewContext;
 import cps450.FloydParser.ExprCont_NullContext;
 import cps450.FloydParser.ExprCont_TrueContext;
@@ -57,10 +58,7 @@ import cps450.FloydParser.Var_declContext;
 //FIXME(It is illegal to invoke a method on a null reference. NEED TO MAKE SURE THIS IS CHECKED)
 /*FIXME(TO DO FOR SUNDAY)
  * FIRST:
- * test expressions like (new Point).blah, test an init expression too
- * implement null (READ ABOUT IT IN THE SEMANTICS. When obj type var is declared, set it to null? ) I remember
- * dr schaub maybe saying that null should be equivalent to 0? So wouldnt the null expr just push 0? Also maybe set
- * objects in vardeclaration like x : point to 0 initially b/c that's what they are, null
+ * test expressions like (new Point).blah, test an init expression too (can only do after me)
  * implement me
  * 
  * NEXT:
@@ -876,6 +874,12 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//null is 0
 		emit(new TargetInstruction.Builder().instruction("pushl $0").build());
 		return super.visitExprCont_Null(ctx);
+	}
+
+	@Override
+	public Void visitExprCont_ME(ExprCont_MEContext ctx) {
+		emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
+		return super.visitExprCont_ME(ctx);
 	}
 	
 	
