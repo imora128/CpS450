@@ -43,6 +43,11 @@ class Point is
   begin
     y := newY
   end setY
+
+  start() is
+  begin
+  out.writeint(5)
+  end start
   
 end Point
 
@@ -52,9 +57,11 @@ start() is
 p : Point
 z : int
 begin
+z := 5
 p := new Point
   p.setXY(5, 4)
   p.print()
+  kkkk := new Point
   if kkkk = null then
 
     out.writeint(1000)
@@ -63,5 +70,6 @@ p := new Point
   end if
 
   out.writeint(9999)
+   out.writeint(z)
 end start
 end Test

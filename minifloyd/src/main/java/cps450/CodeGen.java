@@ -481,18 +481,14 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	@Override
 	public Void visitStart(StartContext ctx) {
+		//necessary for the program to run
 		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
+		emit(new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build());
+		
+		//going to use this to make sure the class defined class has defined a start method
 		Class_Context lastClass = ctx.class_().get(ctx.class_().size()-1);
 		boolean startDefined = false;
-		PRINT.DEBUG("VISIT START. last class: " + ctx.class_().get(ctx.class_().size()-1).IDENTIFIER(0));
-		TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
-		emit(fileName);
-		
-		for (int i = 0; i < ctx.class_().size(); i++) {
-			visit(ctx.class_(i));
-		}
-		//main code. jumps to the last class start method.
-		//checking if last class has a start method.
+		//checking all the methods of the last defined class. If it has start, we're good
 		for (int i = 0; i < lastClass.method_decl().size(); i++) {
 			if (lastClass.method_decl().get(i).IDENTIFIER(0).getText().equals("start")) {
 				PRINT.DEBUG("start methoid is defined in the last calss");
@@ -500,10 +496,12 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			}
 		}
 		if (startDefined) {
+			//Creating a main method to instantiate the main clas object and then call the start function
 			int instanceVars = lastClass.var_decl().size();
 			emit(new TargetInstruction.Builder().comment("Main method. Creates obj instance of the last class and calls its start method").build());
 			emit(new TargetInstruction.Builder().label(String.format("main:")).build());
 			//Number of instance vars * 4 (because each var is 4 bytes) + 8 (8 extra bytes for every object instanc)
+			//calling calloc to make the object
 			emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", (instanceVars * 4) + 8)).build());
 			emit(new TargetInstruction.Builder().instruction("pushl $1").build());
 			emit(new TargetInstruction.Builder().instruction("call").operand1("calloc").build());
@@ -521,17 +519,26 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().instruction("pushl %eax").build());
 			//calling the start method
 			String startName = String.format("%s_%s", lastClass.IDENTIFIER(0).getText(), "start");
+			//calling the start method
 			emit(new TargetInstruction.Builder().instruction(String.format("call %s", startName)).build());
-			
+			//when we return from the start method, the program should exit, so that code goes here
+			emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
+			emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
+			emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
+			//visiting all the classes
+			for (int i = 0; i < ctx.class_().size(); i++) {
+				visit(ctx.class_(i));
+			}
 			
 		} else {
-			PRINT.err("ERROR: start method is not defined in the last defined class.", ctx);
-			
+			String ansi_reset = "\u001B[0m";
+			String ansi_red = "\u001B[31m";
+			System.out.println(String.format("%sThe start method was not defined in the last class %s. Exiting.%s",ansi_red, lastClass.IDENTIFIER(0).getText(), ansi_reset));
+			System.exit(1);
 		}
-		
-		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
-		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
-		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
+				
+
+
 		
 		return null;
 	}

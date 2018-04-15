@@ -1,5 +1,18 @@
 .global main 
 	 .file "test.floyd" 
+	# Main method. Creates obj instance of the last class and calls its start method 
+main: 
+	 pushl $12 
+	 pushl $1 
+	 call calloc 
+	 addl $8, %esp 
+	# Initializing 1 instance vars to 0 
+	 movl $0, 8(%eax) 
+	 pushl %eax 
+	 call Test_start 
+	# Calling exit because the program is finished 
+	 pushl $0 
+	 call exit 
 	# CLASS BEGINNIGN HERE 
 	# Line 5: x:int
  
@@ -201,11 +214,30 @@ Point_setY:
 	 leave 
 	 ret 
 	# Line 46: end setY 
+	# Line 47: start() is 
+Point_start: 
+	# Function preamble 
+	 pushl %ebp 
+	 movl %esp, %ebp 
+	# Making space for return value 
+	 pushl $0 
+	# Line 49: out.writeint(5) 
+	 pushl $5 
+	# reference to the object 
+	 call writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	 
+ 
+	# cleaning up the stack and returnig 
+	 leave 
+	 ret 
+	# Line 51: end start 
 	# CLASS BEGINNIGN HERE 
-	# Line 50: kkkk:Point
+	# Line 55: kkkk:Point
  
 	 movl $0, 8(%ebp) 
-	# Line 51: start() is 
+	# Line 56: start() is 
 Test_start: 
 	# Function preamble 
 	 pushl %ebp 
@@ -216,7 +248,13 @@ Test_start:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 55: p:=newPoint 
+	# Line 60: z:=5 
+	 pushl $5 
+	# popl z 
+	 popl -12(%ebp) 
+	 
+ 
+	# Line 61: p:=newPoint 
 	 pushl $16 
 	 pushl $1 
 	 call calloc 
@@ -229,7 +267,7 @@ Test_start:
 	 popl -8(%ebp) 
 	 
  
-	# Line 56: p.setXY(5,4) 
+	# Line 62: p.setXY(5,4) 
 	 pushl $4 
 	 pushl $5 
 	# reference to the object 
@@ -242,7 +280,7 @@ Test_start:
 	 addl $4, %esp 
 	 
  
-	# Line 57: p.print() 
+	# Line 63: p.print() 
 	# reference to the object 
 	# pushl p 
 	 pushl -8(%ebp) 
@@ -251,7 +289,24 @@ Test_start:
 	 addl $4, %esp 
 	 
  
-	# Line 58: if kkkk=null then 
+	# Line 64: kkkk:=newPoint 
+	 pushl $16 
+	 pushl $1 
+	 call calloc 
+	 addl $8, %esp 
+	# Initializing 2 instance vars to 0 
+	 movl $0, 8(%eax) 
+	 movl $0, 12(%eax) 
+	 pushl %eax 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 8(%ebx) 
+	 
+ 
+	# Line 65: if kkkk=null then 
 	 pushl $0 
 	# get reference to me 
 	 movl 8(%ebp), %ebx 
@@ -264,7 +319,7 @@ Test_start:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L1 
-	# Line 60: out.writeint(1000) 
+	# Line 67: out.writeint(1000) 
 	 pushl $1000 
 	# reference to the object 
 	 call writeint 
@@ -274,8 +329,8 @@ Test_start:
  
 	 jmp .L2 
 	 .L1: 
-	# Line 61: Else 
-	# Line 62: out.writeint(2000) 
+	# Line 68: Else 
+	# Line 69: out.writeint(2000) 
 	 pushl $2000 
 	# reference to the object 
 	 call writeint 
@@ -284,9 +339,18 @@ Test_start:
 	 
  
 	 .L2: 
-	# Line 63: end if 
-	# Line 65: out.writeint(9999) 
+	# Line 70: end if 
+	# Line 72: out.writeint(9999) 
 	 pushl $9999 
+	# reference to the object 
+	 call writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 73: out.writeint(z) 
+	# pushl z 
+	 pushl -12(%ebp) 
 	# reference to the object 
 	 call writeint 
 	# Clean up parameters: 1 * 4 
@@ -296,17 +360,4 @@ Test_start:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 66: end start 
-	# Main method. Creates obj instance of the last class and calls its start method 
-main: 
-	 pushl $12 
-	 pushl $1 
-	 call calloc 
-	 addl $8, %esp 
-	# Initializing 1 instance vars to 0 
-	 movl $0, 8(%eax) 
-	 pushl %eax 
-	 call Test_start 
-	# Calling exit because the program is finished 
-	 pushl $0 
-	 call exit 
+	# Line 74: end start 
