@@ -296,38 +296,45 @@ Test_start:
 	 popl -8(%ebp) 
 	 
  
-	# Line 63: p.print() 
-	# reference to the object 
-	# pushl p 
-	 pushl -8(%ebp) 
-	 call Point_print 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 64: p:=me.init(1,9) 
-	 pushl $9 
-	 pushl $1 
-	 pushl 8(%ebp) 
-	 call Point_init 
-	# Clean up parameters: (2 * 4) + 4 (this ptr) 
-	 addl $12, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
+	# Line 63: p:=null 
+	 pushl $0 
 	# popl p 
 	 popl -8(%ebp) 
 	 
  
-	# Line 65: p.print() 
-	# reference to the object 
+	# Line 64: if p=null then 
+	 pushl $0 
 	# pushl p 
 	 pushl -8(%ebp) 
-	 call Point_print 
-	# Clean up this reference pushed on last: 4 
+	 call eqTo 
+	 addl $8, %esp 
+	 pushl %eax 
+	 popl %eax 
+	 movl $1, %edx 
+	 cmpl %eax, %edx 
+	 jne .L1 
+	# Line 65: out.writeint(55) 
+	 pushl $55 
+	# reference to the object 
+	 call writeint 
+	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	 
  
+	 jmp .L2 
+	 .L1: 
+	# Line 66: Else 
+	# Line 67: out.writeint(99) 
+	 pushl $99 
+	# reference to the object 
+	 call writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	 
+ 
+	 .L2: 
+	# Line 68: end if 
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 66: end start 
+	# Line 69: end start 

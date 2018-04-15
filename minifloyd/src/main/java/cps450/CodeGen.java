@@ -57,10 +57,6 @@ import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
 //FIXME(It is illegal to invoke a method on a null reference. NEED TO MAKE SURE THIS IS CHECKED)
 /*FIXME(TO DO FOR SUNDAY)
- * FIRST:
- * test expressions like (new Point).blah, test an init expression too (can only do after me)
- * implement me
- * 
  * NEXT:
  * Work on concat the library file and the given file. Make sure they do not lose their own line num.
  * (Note: Collisn said something about putting them together and returning a stream?)
