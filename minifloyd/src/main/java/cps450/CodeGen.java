@@ -58,7 +58,8 @@ import cps450.FloydParser.Var_declContext;
  * FIRST:
  * test expressions like (new Point).blah, test an init expression too
  * implement null (READ ABOUT IT IN THE SEMANTICS. When obj type var is declared, set it to null? ) I remember
- * dr schaub maybe saying that null should be equivalent to 0?
+ * dr schaub maybe saying that null should be equivalent to 0? So wouldnt the null expr just push 0? Also maybe set
+ * objects in vardeclaration like x : point to 0 initially b/c that's what they are, null
  * implement me
  * 
  * NEXT:
