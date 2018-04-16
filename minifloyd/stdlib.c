@@ -64,24 +64,24 @@ int unaryNot(int x) {
 // String Management Functions
 // ----------------------------------------------------------------------
 
-// Constructs and returns an Floyd String using chars in <lit>, which must be null terminated
-// struct String *string_fromlit(char *lit)
-// {
-//   struct String *newstr = (struct String *)calloc(sizeof(struct String), 1);
-//   struct CharNode *cur = NULL;
-//   while (*lit) {
-//     struct CharNode *node = (struct CharNode *)calloc(sizeof(struct CharNode), 1);
-//     node->ch = *lit;
-//     if (cur == NULL) {
-//       newstr->list = node;
-//     } else {
-//       cur->next = node;
-//     }
-//     cur = node;
-//     lit++;
-//   }
-//   return newstr; 
-// }
+//Constructs and returns an Floyd String using chars in <lit>, which must be null terminated
+struct String *string_fromlit(char *lit)
+{
+  struct String *newstr = (struct String *)calloc(sizeof(struct String), 1);
+  struct CharNode *cur = NULL;
+  while (*lit) {
+    struct CharNode *node = (struct CharNode *)calloc(sizeof(struct CharNode), 1);
+    node->ch = *lit;
+    if (cur == NULL) {
+      newstr->list = node;
+    } else {
+      cur->next = node;
+    }
+    cur = node;
+    lit++;
+  }
+  return newstr; 
+}
 
 
 

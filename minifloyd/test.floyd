@@ -56,20 +56,17 @@ kkkk : Point
 start() is
 p : Point
 z : int
+s : string
 begin
-z := 5
-p := new Point
-  p.setXY(5, 3)
-  p.print()
-  ~kkkk := new Point
-  if kkkk = null then
-
-    out.writeint(1000)
+s := "test"
+s := "foo"
+s := "boo"
+if s = null then
+  out.writeint(5)
   else
-    out.writeint(2000)
+  out.writeint(10)
+  out.writeln(s)
   end if
-
-  out.writeint(9999)
-   out.writeint(z)
+  out.writeln("jajajaj")
 end start
 end Test

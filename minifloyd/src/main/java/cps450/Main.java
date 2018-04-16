@@ -68,7 +68,6 @@ public class Main
         //if (false) {
         	CodeGen boo = new CodeGen(libraryArgs, 0);
         	boo.visit(libTree);
-        	System.out.println("libargs counter: + " + libraryArgs.labelCounter);
         	CodeGen foo = new CodeGen(parsedArgs, libraryArgs.labelCounter);
         	foo.visit(tree);
         	//appending the exit instructions to the end of the file

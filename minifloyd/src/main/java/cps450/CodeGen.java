@@ -39,6 +39,7 @@ import cps450.FloydParser.ExprCont_IntlitContext;
 import cps450.FloydParser.ExprCont_MEContext;
 import cps450.FloydParser.ExprCont_NewContext;
 import cps450.FloydParser.ExprCont_NullContext;
+import cps450.FloydParser.ExprCont_StrlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.If_stmtContext;
 import cps450.FloydParser.Loop_stmtContext;
@@ -75,14 +76,15 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	int labelCounter;
 	static int LOCAL_SCOPE = 2;
 	MyError PRINT = new MyError(true);
+	SymbolTable symTable;
 	
 	CodeGen(Option opt, int labelCounterValue) {
 		labelCounter = labelCounterValue;
-		System.out.println("Label counter isnide codegen is : " + labelCounter);
 		registers.push("%edx");
 		registers.push("%ecx");
 		registers.push("%ebx");
 		registers.push("%eax");
+		symTable = SymbolTable.getInstance();
 		this.opt = opt;
 	}
 
@@ -161,7 +163,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		invokeGCC(buildObject, fileName + " object file");
 		ProcessBuilder buildExecutable = new ProcessBuilder("gcc", fileName + ".o", "stdlib.o", "-o", fileName);
 		invokeGCC(buildExecutable, fileName + " executable");
-		System.out.println("so i built" + fileName);
 		}
 	}
 	
@@ -177,7 +178,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			proc.waitFor();
 			exitCode = proc.exitValue();
 			if (exitCode == 0) {
-				System.out.println(String.format("Successfully built %s", jobName));
 			} else {
 				 BufferedReader buf = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 				 String out;
@@ -227,6 +227,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 //			return null;
 //		}
 		if (sym.getDecl() instanceof VarDeclaration) {
+			if (sym.getName().equals("in") || sym.getName().equals("out")) {
+				System.out.println("IT'S IN OR OUT BRO");
+			}
 		if (sym.getScope() == LOCAL_SCOPE) {
 			VarDeclaration variable = (VarDeclaration)sym.getDecl();
 			int offset = variable.getOffset();
@@ -479,7 +482,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			for (int i = 0; i < ctx.class_().size(); i++) {
 				visit(ctx.class_(i));
 			}
-			PRINT.DEBUG("label cunter" + labelCounter);
 			opt.labelCounter = labelCounter;
 			return null;
 		}
@@ -649,6 +651,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//offset for LHS to pass in "this"
 		//only if sym is not null, meaning there's an object there
 		if (ctx.t1 != null) {
+			System.out.println(ctx.sym.getName());
+			System.out.println(ctx.getText());
 		VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
 		//pushing "this"
 		emit(new TargetInstruction.Builder().comment("reference to the object").build());
@@ -742,7 +746,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 //				PRINT.DEBUG("JAJAJAJJAJAJA");
 //			}
 			visit(ctx.e1);
-			PRINT.DEBUG(ctx.e2.getText());
 			//VarDeclaration lhsVar = (VarDeclaration)ctx.sym.getDecl();
 //			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", lhsVar.name)).build());
 //			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", lhsVar.getOffset())).build());
@@ -847,7 +850,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitExprCont_New(ExprCont_NewContext ctx) {
 		//Allocate memory from the heap to hold the instance variables for Point
 		//NumberOfParameters*4 + 8 reserved bytes
-		PRINT.DEBUG("I AM IN NEWWWWWWW");
 		int reserveBytes = (ctx.paramNum * 4) + 8;
 		emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", reserveBytes)).build());
 		emit(new TargetInstruction.Builder().instruction("pushl $1").build());
@@ -880,14 +882,38 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitExprCont_Null(ExprCont_NullContext ctx) {
 		//null is 0
 		emit(new TargetInstruction.Builder().instruction("pushl $0").build());
-		return super.visitExprCont_Null(ctx);
+		//return super.visitExprCont_Null(ctx);
+		return null;
 	}
 
 	@Override
 	public Void visitExprCont_ME(ExprCont_MEContext ctx) {
 		emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
-		return super.visitExprCont_ME(ctx);
+		return null;
+		//return super.visitExprCont_ME(ctx);
 	}
+
+	@Override
+	public Void visitExprCont_Strlit(ExprCont_StrlitContext ctx) {
+		String stringLitLabel = String.format("stringlit%s", symTable.stringLabelCounter); 
+		emit(new TargetInstruction.Builder().label(".data").build());
+		emit(new TargetInstruction.Builder().label(stringLitLabel + ":").build());
+		emit(new TargetInstruction.Builder().directive(String.format(".string %s", ctx.getText())).build());
+		println();
+		emit(new TargetInstruction.Builder().label(".text").build());
+		emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", stringLitLabel)).build());
+		emit(new TargetInstruction.Builder().instruction("call string_fromlit").build());
+		emit(new TargetInstruction.Builder().instruction("addl $4, %esp").build());
+		emit(new TargetInstruction.Builder().instruction("pushl %eax").build());
+		//System.out.println(ctx.getText() + "  " + symTable.stringLabelCounter);
+		symTable.stringLabelCounter++;
+		return null;
+		//return super.visitExprCont_Strlit(ctx);
+	}
+	
+	
+	
+	
 	
 	
 	

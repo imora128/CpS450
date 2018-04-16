@@ -14,12 +14,14 @@ public class SymbolTable {
     private static SymbolTable instance = null;
     int scope = 0;
     List<Symbol> symbolTable = new ArrayList<Symbol>();
+    int stringLabelCounter = 0;
    // HashMap<String, Type> types = new HashMap<String,Type>();
 
     private SymbolTable () {;}
     public static SymbolTable getInstance() {
         if (instance == null) {
             instance = new SymbolTable();
+            
         }
         return instance;
     }
