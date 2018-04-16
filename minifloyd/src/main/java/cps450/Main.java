@@ -5,6 +5,7 @@ Filename: Main.java
 Description: Contains the main body of the program
 */
 package cps450;
+import java.io.File;
 import java.io.IOException;
 
 import org.antlr.v4.gui.Trees;
@@ -24,6 +25,11 @@ public class Main
             System.exit(1);
         }
         //LIBRARY READING IN BROSITO
+        if (!new File("stdlib.floyd").isFile()) {
+        	System.out.println("ERROR: Floyd standard library is not in the cwd.");
+        	return;
+        }
+        
         CharStream library = CharStreams.fromFileName("stdlib.floyd");
         Option libraryArgs = new Option();
         libraryArgs.s = false;
@@ -43,6 +49,10 @@ public class Main
         parsedArgs.semanticErrors = libraryArgs.semanticErrors;
         //Parses the cmdline arguments so I can use it down bellow
         parsedArgs.getCommandLineArguments(arguments);
+        if (!new File(parsedArgs.fileName.get(0)).isFile()) {
+        	System.out.println("ERROR: Floyd standard library is not in the cwd.");
+        	return;
+        }
         CharStream input = CharStreams.fromFileName(parsedArgs.fileName.get(0));
         MyFloydLexer lexer = new MyFloydLexer(input, parsedArgs.ds, parsedArgs);
 
