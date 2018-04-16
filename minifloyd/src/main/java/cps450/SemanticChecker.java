@@ -125,10 +125,12 @@ public class SemanticChecker extends FloydBaseListener {
 		symTable.push("Reader", reader);
 		
 		symTable.push("in", new VarDeclaration(myType, "in"));
-		//io_write
-		MethodDeclaration io_write = new MethodDeclaration(Type.VOID);
+		//necessary for the semantic checker to run
+		MethodDeclaration io_write = new MethodDeclaration(Type.INT);
+		MethodDeclaration io_read = new MethodDeclaration(Type.VOID);
 		io_write.appendParameter(Type.INT, "ch");
 		symTable.push("io_write", io_write);
+		symTable.push("io_read", io_read);
 		
 		
 	}
