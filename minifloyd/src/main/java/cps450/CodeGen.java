@@ -55,7 +55,6 @@ import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
-//FIXME(It is illegal to invoke a method on a null reference. NEED TO MAKE SURE THIS IS CHECKED)
 /*FIXME(TO DO FOR SUNDAY)
  * NEXT:
  * Work on concat the library file and the given file. Make sure they do not lose their own line num.
@@ -67,6 +66,7 @@ import cps450.FloydParser.Var_declContext;
  *
  * Do when library is being added:
  * null reference checks
+ * Fix tree precedence issue between relational operators and or/and
  */
 public class CodeGen extends FloydBaseVisitor<Void> {
 	List<TargetInstruction> instructions = new ArrayList<TargetInstruction>();
