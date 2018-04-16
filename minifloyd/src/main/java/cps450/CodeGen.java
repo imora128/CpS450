@@ -76,12 +76,13 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	static int LOCAL_SCOPE = 2;
 	MyError PRINT = new MyError(true);
 	
-	CodeGen(Option opt) {
+	CodeGen(Option opt, int labelCounterValue) {
+		labelCounter = labelCounterValue;
+		System.out.println("Label counter isnide codegen is : " + labelCounter);
 		registers.push("%edx");
 		registers.push("%ecx");
 		registers.push("%ebx");
 		registers.push("%eax");
-		labelCounter = 0;
 		this.opt = opt;
 	}
 
@@ -478,6 +479,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			for (int i = 0; i < ctx.class_().size(); i++) {
 				visit(ctx.class_(i));
 			}
+			PRINT.DEBUG("label cunter" + labelCounter);
+			opt.labelCounter = labelCounter;
 			return null;
 		}
 		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());

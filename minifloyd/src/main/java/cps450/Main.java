@@ -56,9 +56,10 @@ public class Main
         ParseTreeWalker.DEFAULT.walk(new SemanticChecker(parsedArgs), tree);
         if (parsedArgs.semanticErrors == 0) {
         //if (false) {
-        	CodeGen boo = new CodeGen(libraryArgs);
+        	CodeGen boo = new CodeGen(libraryArgs, 0);
         	boo.visit(libTree);
-        	CodeGen foo = new CodeGen(parsedArgs);
+        	System.out.println("libargs counter: + " + libraryArgs.labelCounter);
+        	CodeGen foo = new CodeGen(parsedArgs, libraryArgs.labelCounter);
         	foo.visit(tree);
         	//appending the exit instructions to the end of the file
         	foo.instructions.addAll(boo.instructions);

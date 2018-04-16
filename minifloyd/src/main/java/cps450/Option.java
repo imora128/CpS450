@@ -21,6 +21,7 @@ public class Option {
      boolean dp;
      boolean s;
      boolean g;
+     int labelCounter = 0;
      int semanticErrors = 0;
      List<Symbol> symbolTable = new ArrayList<Symbol>();
      List<String> fileName = new ArrayList<String>();

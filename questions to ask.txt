@@ -1,1 +1,1 @@
-Can me be used with non class types?
+Can me be used: foo := me.getY()

@@ -2,12 +2,14 @@
 	 .file "test.floyd" 
 	# Main method. Creates obj instance of the last class and calls its start method 
 main: 
-	 pushl $8 
+	 pushl $12 
 	 pushl $1 
 	 call calloc 
 	 addl $8, %esp 
+	# Initializing 1 instance vars to 0 
+	 movl $0, 8(%eax) 
 	 pushl %eax 
-	 call Bobjbasics_start 
+	 call Test_start 
 	# Calling exit because the program is finished 
 	 pushl $0 
 	 call exit 
@@ -150,33 +152,7 @@ Point_setXY:
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 33: out.writeint(newX) 
-	# pushl newX 
-	 pushl 12(%ebp) 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_writeint 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 34: out.writeint(newY) 
-	# pushl newY 
-	 pushl 16(%ebp) 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_writeint 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 35: x:=newX 
+	# Line 33: x:=newX 
 	# pushl newX 
 	 pushl 12(%ebp) 
 	# put param value into eax 
@@ -187,7 +163,7 @@ Point_setXY:
 	 movl %eax, 8(%ebx) 
 	 
  
-	# Line 36: y:=newY 
+	# Line 34: y:=newY 
 	# pushl newY 
 	 pushl 16(%ebp) 
 	# put param value into eax 
@@ -201,15 +177,15 @@ Point_setXY:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 38: end setXY 
-	# Line 39: setX() is 
+	# Line 36: end setXY 
+	# Line 37: setX() is 
 Point_setX: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 41: setXY(newX,y) 
+	# Line 39: setXY(newX,y) 
 	# get reference to me 
 	 movl 8(%ebp), %ebx 
 	# push value inside of the reference 
@@ -226,15 +202,15 @@ Point_setX:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 43: end setX 
-	# Line 44: setY() is 
+	# Line 41: end setX 
+	# Line 42: setY() is 
 Point_setY: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 46: y:=newY 
+	# Line 44: y:=newY 
 	# pushl newY 
 	 pushl 12(%ebp) 
 	# put param value into eax 
@@ -248,20 +224,15 @@ Point_setY:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 48: end setY 
-	# CLASS BEGINNIGN HERE 
-	# Line 54: start() is 
-Bobjbasics_start: 
+	# Line 46: end setY 
+	# Line 47: start() is 
+Point_start: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# Line 58: out.writeint(5) 
+	# Line 49: out.writeint(5) 
 	 pushl $5 
 	# reference to the object 
 	# pushl out 
@@ -276,7 +247,134 @@ Bobjbasics_start:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 61: end start 
+	# Line 51: end start 
+	# CLASS BEGINNIGN HERE 
+	# Line 55: kkkk:Point
+ 
+	 movl $0, 8(%ebp) 
+	# Line 56: start() is 
+Test_start: 
+	# Function preamble 
+	 pushl %ebp 
+	 movl %esp, %ebp 
+	# Making space for return value 
+	 pushl $0 
+	# making space for 2 locals 
+	 pushl $0 
+	# making space for 2 locals 
+	 pushl $0 
+	# Line 60: z:=5 
+	 pushl $5 
+	# popl z 
+	 popl -12(%ebp) 
+	 
+ 
+	# Line 61: p:=newPoint 
+	 pushl $16 
+	 pushl $1 
+	 call calloc 
+	 addl $8, %esp 
+	# Initializing 2 instance vars to 0 
+	 movl $0, 8(%eax) 
+	 movl $0, 12(%eax) 
+	 pushl %eax 
+	# popl p 
+	 popl -8(%ebp) 
+	 
+ 
+	# Line 62: p.setXY(5,3) 
+	 pushl $3 
+	 pushl $5 
+	# reference to the object 
+	# pushl p 
+	 pushl -8(%ebp) 
+	 call Point_setXY 
+	# Clean up parameters: 2 * 4 
+	 addl $8, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 63: p.print() 
+	# reference to the object 
+	# pushl p 
+	 pushl -8(%ebp) 
+	 call Point_print 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 65: if kkkk=null then 
+	 pushl $0 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call eqTo 
+	 addl $8, %esp 
+	 pushl %eax 
+	 popl %eax 
+	 movl $1, %edx 
+	 cmpl %eax, %edx 
+	 jne .L7 
+	# Line 67: out.writeint(1000) 
+	 pushl $1000 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	 jmp .L8 
+	 .L7: 
+	# Line 68: Else 
+	# Line 69: out.writeint(2000) 
+	 pushl $2000 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	 .L8: 
+	# Line 70: end if 
+	# Line 72: out.writeint(9999) 
+	 pushl $9999 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 73: out.writeint(z) 
+	# pushl z 
+	 pushl -12(%ebp) 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_writeint 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# cleaning up the stack and returnig 
+	 leave 
+	 ret 
+	# Line 74: end start 
 	# CLASS BEGINNIGN HERE 
 	# Line 12: writechar() is 
 Writer_writechar: 
