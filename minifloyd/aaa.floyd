@@ -47,19 +47,19 @@ class Writer is
   end writeint
     
   ~ writes <str> to stdout
-  ~write(str: String): Writer is
-    ~i: int
-   ~ len: int
-  ~begin
-    ~len := str.length()
-    ~i := 0
-    ~loop while not (i >= len) 
-      ~io_write(str.charAt(i))
-     ~ i := i + 1
-    ~end loop
+  write(str: String): Writer is
+    i: int
+    len: int
+  begin
+    len := str.length()
+    i := 0
+    loop while not (i >= len) 
+      io_write(str.charAt(i))
+      i := i + 1
+    end loop
     
-   ~ write := me
-  ~end write
+    write := me
+  end write
   
   ~ writes <str> to stdout, followed by newline
   ~writeln(str: String): Writer is
@@ -71,67 +71,3 @@ class Writer is
   ~end writeln    
 
 end Writer
-
-
-~ Bobjbasics.floyd
-~ - Simple object tests
-
-class Point is
-  x: int
-  y: int
-  
-  init(initX: int; initY: int): Point is
-  begin
-    x := initX
-    y := initY
-    init := me  ~ return this object's reference
-  end init
-    
-  getX(): int is
-  begin
-    getX := x
-  end getX
-  
-  getY(): int is
-  begin
-    getY := y
-  end getY
-  
-  print() is
-  begin
-    out.writeint(x)
-    out.writeint(y)
-  end print
-
-  setXY(newX: int; newY: int) is
-  begin
-  out.writeint(newX) ~-5 
-  out.writeint(newY) ~10
-    x := newX
-    y := newY
-  end setXY
-
-  setX(newX: int) is
-  begin
-    setXY(newX, y)
-  end setX
-  
-  setY(newY: int) is
-  begin
-    y := newY
-  end setY
-  
-end Point
-
-~ main class
-class Bobjbasics is
-
-  start() is
-    p1: Point
-    p2: Point
-  begin
-    out.writeint(5)
-
-  end start
-  
-end Bobjbasics

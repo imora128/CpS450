@@ -1,6 +1,24 @@
 #include <syscall.h>
 #include <stdlib.h>
 #include "stdlib.h"
+
+
+//writes <ch> to standard output (<out> is the predefined Floyd Writer object)
+void Writer_io_write(void *out, int ch) {
+  char c = ch;
+  
+  write(1, &c, 1);  
+}
+
+// // // reads a character from stdin and returns it (<in> is the predefined Floyd Reader object)
+int Reader_io_read(void *in) {
+  char c;
+
+  read(0, &c, 1);
+
+  return c;
+}
+
 int andOp(int x, int y) {
   return x && y;
 }
@@ -41,11 +59,33 @@ int unaryNot(int x) {
   return !x;
 }
 
-void hi() {
-  printf("HI\n");
-}
 
-int readint() {
+// ----------------------------------------------------------------------
+// String Management Functions
+// ----------------------------------------------------------------------
+
+// Constructs and returns an Floyd String using chars in <lit>, which must be null terminated
+// struct String *string_fromlit(char *lit)
+// {
+//   struct String *newstr = (struct String *)calloc(sizeof(struct String), 1);
+//   struct CharNode *cur = NULL;
+//   while (*lit) {
+//     struct CharNode *node = (struct CharNode *)calloc(sizeof(struct CharNode), 1);
+//     node->ch = *lit;
+//     if (cur == NULL) {
+//       newstr->list = node;
+//     } else {
+//       cur->next = node;
+//     }
+//     cur = node;
+//     lit++;
+//   }
+//   return newstr; 
+// }
+
+
+
+/*int readint() {
   char buffer[11];
   read(0, buffer, 11);
   int convertedNum = 0;
@@ -109,3 +149,4 @@ void writeint(int num) {
   write(1, result, (writeptr - result) - 1);
   
 }
+*/

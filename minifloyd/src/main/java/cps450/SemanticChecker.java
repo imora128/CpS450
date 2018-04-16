@@ -98,30 +98,33 @@ public class SemanticChecker extends FloydBaseListener {
 		 */
 		
 		//creating writer class
-		writer = new ClassDeclaration("writer");
+		writer = new ClassDeclaration("Writer");
 		//writeint function
 		MethodDeclaration writeint = new MethodDeclaration(Type.VOID);
 		writeint.appendParameter(Type.INT, "num");
 		writer.appendMethod("writeint", writeint);
+		
+
 		//writer.type = Type.WRITER;
 		Type myType = Type.createType(writer);
 		writer.type = myType;
-		symTable.push("writer", writer);
+		symTable.push("Writer", writer);
 		symTable.push("out", new VarDeclaration(myType, "out"));
 		//creating reader class
-		reader = new ClassDeclaration("reader");
+		reader = new ClassDeclaration("Reader");
 		//readint function
 		MethodDeclaration readint = new MethodDeclaration(Type.INT);
 		reader.appendMethod("readint", readint);
-		//reader.type = Type.READER;
 		myType = Type.createType(reader);
 		reader.type = myType;
 		
-		symTable.push("reader", reader);
-//		symTable.types.get("reader").setClassDecl(reader);
-//		symTable.types.get("writer").setClassDecl(writer);
+		symTable.push("Reader", reader);
 		
 		symTable.push("in", new VarDeclaration(myType, "in"));
+		//io_write
+		MethodDeclaration io_write = new MethodDeclaration(Type.VOID);
+		io_write.appendParameter(Type.INT, "ch");
+		symTable.push("io_write", io_write);
 		
 		
 	}
@@ -738,10 +741,18 @@ public class SemanticChecker extends FloydBaseListener {
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
+					if (info.get(i).type == null) {
+						//mDecl.changeType(i, symTable.lookup(info.get(i).name).getDecl().type);
+						VarDeclaration moo = info.get(i);
+						moo.type = symTable.lookup(info.get(i).name).getDecl().type;
+						info.set(i, moo);
+					}
 					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
 						//print.DEBUG("MATCHED Type: " + info.get(i).type);
 					}
 					else {
+						//here bro
+						System.out.println(ctx.getText() + " info" + info.get(i));
 						print.err(String.format(print.errMsgs.get("ParameterMismatch"), 
 								info.get(i).type.toString(), 
 								ctx.expression_list().expression().get(i).myType.toString()),ctx);
@@ -836,8 +847,6 @@ public class SemanticChecker extends FloydBaseListener {
 					 * 
 					 * recursion case
 					 */
-//					Symbol jaja = symTable.lookup(info.get(i).name);
-//					System.out.println("Look up: " + info.get(i).name + " got: " + jaja.getDecl().type);
 					if (info.get(i).type == null) {
 						//mDecl.changeType(i, symTable.lookup(info.get(i).name).getDecl().type);
 						VarDeclaration moo = info.get(i);

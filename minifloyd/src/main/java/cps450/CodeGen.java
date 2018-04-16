@@ -221,9 +221,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//System.out.println(String.format("Name from ctx: %s, name from sym:%s, scope:%s", name, sym.getName(), sym.getScope()));
 		//temporary bandaid until invoking class methods is set in stone
 		//otherwise the linker will say: "HEY, WHERE'S IN AND OUT DEFINED, BRO? I CANT PUSH THAT
-		if(ctx.IDENTIFIER().getText().equals("out") || ctx.IDENTIFIER().getText().equals("in")) {
-			return null;
-		}
+//		if(ctx.IDENTIFIER().getText().equals("out") || ctx.IDENTIFIER().getText().equals("in")) {
+//			return null;
+//		}
 		if (sym.getDecl() instanceof VarDeclaration) {
 		if (sym.getScope() == LOCAL_SCOPE) {
 			VarDeclaration variable = (VarDeclaration)sym.getDecl();
@@ -643,10 +643,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//pushing "this"
 		emit(new TargetInstruction.Builder().comment("reference to the object").build());
 		//FIX(MAKE SURE THIS OUT STUFF IS SORTED OUT)
-		if (!test.name.equals("out")) {
+//		if (!test.name.equals("out")) {
 		emit(new TargetInstruction.Builder().comment(String.format("pushl %s", test.name)).build());
 		emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", test.getOffset())).build());
-		}
+//		}
 		//derp, i also need to pass "this" even if it doesnt have
 		} else {
 			emit(new TargetInstruction.Builder().comment("reference to the object (this)").build());
@@ -662,11 +662,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//getting the right fnuctino name (with the class name prefix
 			
 			//FIXME(Temporary ducttape until I get the library functions in here)
-			if (ctx.t1.myType.name.equals("writer") || ctx.t1.myType.name.equals("reader")) {
-				functionName = ctx.IDENTIFIER().getText();
-			} else {
+//			if (ctx.t1.myType.name.equals("writer") || ctx.t1.myType.name.equals("reader")) {
+//				functionName = ctx.IDENTIFIER().getText();
+//			} else {
 			functionName = String.format("%s_%s", ctx.t1.myType.name, ctx.IDENTIFIER().getText());
-			}
+//			}
 		} else {
 			functionName = String.format("%s_%s", ctx.className, ctx.IDENTIFIER().getText());
 		}
@@ -678,7 +678,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 		//FIXME(another writer duct tape to test basic objs)
 		//if func doesnt have t1, it has no obj that we need to pass "me" for
-		if(ctx.t1 != null && !(ctx.t1.myType.name.equals("writer")) ) {
+		if(ctx.t1 != null) {
 		emit(new TargetInstruction.Builder().comment("Clean up this reference pushed on last: 4").build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,",4)).operand2("%esp").build());
 		}
