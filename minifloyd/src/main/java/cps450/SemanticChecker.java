@@ -86,6 +86,10 @@ public class SemanticChecker extends FloydBaseListener {
 	ClassDeclaration writer;
 	int instanceVarOffset = 8;
 	SemanticChecker(Option opt) {
+		//TODO(In cse i need this)
+//		if (!opt.fileName.equals("stdlib.floyd")) {
+//			System.out.println("setting symTable to the previous value");
+//		}
 		this.opt = opt;
 		print.opt = opt;
 		symTable = SymbolTable.getInstance();
@@ -1060,6 +1064,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitStart(StartContext ctx) {
+		//TODO(IN CASE I NEED THIS 2)
+//		if (opt.fileName.get(0).equals("stdlib.floyd")) {
+//			System.out.println("So this is stdlib file... setting the symtable ");
+//			opt.symbolTable = symTable.symbolTable;
+//		}
 		super.exitStart(ctx);
 	}
 

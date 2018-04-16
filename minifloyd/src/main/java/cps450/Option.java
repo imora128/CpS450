@@ -22,6 +22,7 @@ public class Option {
      boolean s;
      boolean g;
      int semanticErrors = 0;
+     List<Symbol> symbolTable = new ArrayList<Symbol>();
      List<String> fileName = new ArrayList<String>();
 
     Option() {

@@ -160,6 +160,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		invokeGCC(buildObject, fileName + " object file");
 		ProcessBuilder buildExecutable = new ProcessBuilder("gcc", fileName + ".o", "stdlib.o", "-o", fileName);
 		invokeGCC(buildExecutable, fileName + " executable");
+		System.out.println("so i built" + fileName);
 		}
 	}
 	
@@ -175,7 +176,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			proc.waitFor();
 			exitCode = proc.exitValue();
 			if (exitCode == 0) {
-				//System.out.println(String.format("Successfully built %s", jobName));
+				System.out.println(String.format("Successfully built %s", jobName));
 			} else {
 				 BufferedReader buf = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 				 String out;
@@ -473,6 +474,12 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitStart(StartContext ctx) {
 		//necessary for the program to run
+		if (opt.fileName.get(0).equals("stdlib.floyd")) {
+			for (int i = 0; i < ctx.class_().size(); i++) {
+				visit(ctx.class_(i));
+			}
+			return null;
+		}
 		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
 		emit(new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build());
 		

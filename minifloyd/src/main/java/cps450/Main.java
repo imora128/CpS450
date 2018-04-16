@@ -23,14 +23,30 @@ public class Main
             System.out.println("usage: minifloyd [-ds] [-dp] [-S] [-g] <filename>");
             System.exit(1);
         }
+        //LIBRARY READING IN BROSITO
+        CharStream library = CharStreams.fromFileName("stdlib.floyd");
+        Option libraryArgs = new Option();
+        libraryArgs.s = false;
+        libraryArgs.dp = false;
+        libraryArgs.ds = false;
+        libraryArgs.g = false;
+        libraryArgs.fileName.add("stdlib.floyd");
+        MyFloydLexer libLexer = new MyFloydLexer(library, false, libraryArgs); 
+        CommonTokenStream libTokens = new CommonTokenStream(libLexer);
+        FloydParser libParser = new FloydParser(libTokens);
+        libParser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+        libParser.addErrorListener(new MyFloydErrorListener(libraryArgs));
+        ParseTree libTree = libParser.start();
+        ParseTreeWalker.DEFAULT.walk(new SemanticChecker(libraryArgs), libTree);
         //Creating an Option argument. Defined in opition.java.
         Option parsedArgs = new Option();
+        parsedArgs.semanticErrors = libraryArgs.semanticErrors;
         //Parses the cmdline arguments so I can use it down bellow
         parsedArgs.getCommandLineArguments(arguments);
-        //System.out.println("DS: " + parsedArgs.ds + " DP: " + parsedArgs.dp + " filenames: 1: " + parsedArgs.fileName.get(0) + " 2:"+  parsedArgs.fileName.get(1));
-        //will worry about exception handling later
         CharStream input = CharStreams.fromFileName(parsedArgs.fileName.get(0));
         MyFloydLexer lexer = new MyFloydLexer(input, parsedArgs.ds, parsedArgs);
+
+
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         FloydParser parser = new FloydParser(tokens);
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
@@ -39,13 +55,13 @@ public class Main
         ParseTree tree = parser.start();
         ParseTreeWalker.DEFAULT.walk(new SemanticChecker(parsedArgs), tree);
         if (parsedArgs.semanticErrors == 0) {
+        //if (false) {
+        	CodeGen boo = new CodeGen(libraryArgs);
+        	boo.visit(libTree);
         	CodeGen foo = new CodeGen(parsedArgs);
         	foo.visit(tree);
         	//appending the exit instructions to the end of the file
-        	//foo.emitExit();
-        	//debugging
-        	//foo.printInstructions();
-        	//writing instructions to file
+        	foo.instructions.addAll(boo.instructions);
         	foo.writeToFile(parsedArgs.s);
         	
         	

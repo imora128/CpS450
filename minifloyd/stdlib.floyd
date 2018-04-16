@@ -47,19 +47,19 @@ class Writer is
   end writeint
     
   ~ writes <str> to stdout
-  write(str: String): Writer is
-    i: int
-    len: int
-  begin
-    len := str.length()
-    i := 0
-    loop while not (i >= len) 
-      io_write(str.charAt(i))
-      i := i + 1
-    end loop
+  ~write(str: String): Writer is
+    ~i: int
+   ~ len: int
+  ~begin
+    ~len := str.length()
+    ~i := 0
+    ~loop while not (i >= len) 
+      ~io_write(str.charAt(i))
+     ~ i := i + 1
+    ~end loop
     
-    write := me
-  end write
+   ~ write := me
+  ~end write
   
   ~ writes <str> to stdout, followed by newline
   ~writeln(str: String): Writer is
