@@ -2,63 +2,46 @@
 	 .file "test.floyd" 
 	# Main method. Creates obj instance of the last class and calls its start method 
 main: 
-	 pushl $12 
+	 pushl $24 
 	 pushl $1 
 	 call calloc 
 	 addl $8, %esp 
-	# Initializing 1 instance vars to 0 
+	# Initializing 4 instance vars to 0 
 	 movl $0, 8(%eax) 
+	 movl $0, 12(%eax) 
+	 movl $0, 16(%eax) 
+	 movl $0, 20(%eax) 
 	 pushl %eax 
-	 call Bstrbasics_start 
+	 call BChange_start 
 	# Calling exit because the program is finished 
 	 pushl $0 
 	 call exit 
 	# CLASS BEGINNIGN HERE 
-	# Line 6: s:String
+	# Line 6: Amt:int
+ 
+	# Line 7: Quarters:int
+ 
+	# Line 8: Dimes:int
+ 
+	# Line 9: Nickels:int
 
  
-	 movl $0, 8(%ebp) 
-	# Line 8: print() is 
-Bstrbasics_print: 
+	# Line 11: ComputeChange() is 
+BChange_ComputeChange: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 10: print:="q = ".cat(q).cat("\n") 
-.data 
-stringlit1: 
-	 .string "\n" 
-	 
- 
-.text 
-	 pushl $stringlit1 
-	 call string_fromlit 
-	 addl $4, %esp 
-	 pushl %eax 
-	# pushl q 
+	# Line 13: ComputeChange:=amt/denom 
+	# pushl denom 
+	 pushl 16(%ebp) 
+	# pushl amt 
 	 pushl 12(%ebp) 
-.data 
-stringlit2: 
-	 .string "q = " 
-	 
- 
-.text 
-	 pushl $stringlit2 
-	 call string_fromlit 
-	 addl $4, %esp 
-	 pushl %eax 
-	 call String_cat 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 call division 
 	 addl $8, %esp 
-	# Pushing the result from the called function 
 	 pushl %eax 
-	 call String_cat 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl print 
+	# popl ComputeChange 
 	 popl -4(%ebp) 
 	 
  
@@ -67,26 +50,52 @@ stringlit2:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 12: end print 
-	# Line 13: start() is 
-Bstrbasics_start: 
+	# Line 15: end ComputeChange 
+	# Line 16: ComputeRemain() is 
+BChange_ComputeRemain: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# making space for 2 locals 
+	# Line 18: ComputeRemain:=amt-denom*qtydenom 
+	# pushl denom 
+	 pushl 16(%ebp) 
+	# pushl qtydenom 
+	 pushl 20(%ebp) 
+	 call times 
+	 addl $8, %esp 
+	 pushl %eax 
+	# pushl amt 
+	 pushl 12(%ebp) 
+	 call minus 
+	 addl $8, %esp 
+	 pushl %eax 
+	# popl ComputeRemain 
+	 popl -4(%ebp) 
+	 
+ 
+	# Moving the value inside the return value section of the stack into eax 
+	 movl -4(%ebp), %eax 
+	# cleaning up the stack and returnig 
+	 leave 
+	 ret 
+	# Line 20: end ComputeRemain 
+	# Line 21: start() is 
+BChange_start: 
+	# Function preamble 
+	 pushl %ebp 
+	 movl %esp, %ebp 
+	# Making space for return value 
 	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# Line 17: out.write("Enter a string of characters:") 
+	# Line 23: out.write("Enter the amount of the purchase in cents: ") 
 .data 
-stringlit3: 
-	 .string "Enter a string of characters:" 
+stringlit1: 
+	 .string "Enter the amount of the purchase in cents: " 
 	 
  
 .text 
-	 pushl $stringlit3 
+	 pushl $stringlit1 
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
@@ -100,12 +109,12 @@ stringlit3:
 	 addl $4, %esp 
 	 
  
-	# Line 18: s:=in.readline() 
+	# Line 24: Amt:=in.readint() 
 	# get reference to me 
 	 movl 8(%ebp), %ebx 
 	# push value inside of the reference 
 	 pushl 0(%ebx) 
-	 call Reader_readline 
+	 call Reader_readint 
 	# Clean up THIS obj reference param 
 	 addl $4, %esp 
 	# Pushing the result from the called function 
@@ -118,39 +127,125 @@ stringlit3:
 	 movl %eax, 8(%ebx) 
 	 
  
-	# Line 19: len:=s.length() 
+	# Line 28: Quarters:=ComputeChange(Amt,25) 
+	 pushl $25 
 	# get reference to me 
 	 movl 8(%ebp), %ebx 
 	# push value inside of the reference 
 	 pushl 8(%ebx) 
-	 call String_length 
-	# Clean up THIS obj reference param 
+	 pushl 8(%ebp) 
+	 call BChange_ComputeChange 
+	 addl $8, %esp 
+	# cleaning up the obj ref 
 	 addl $4, %esp 
-	# Pushing the result from the called function 
 	 pushl %eax 
-	# popl len 
-	 popl -8(%ebp) 
 	 
  
-	# Line 20: firstCh:=s.charAt(0) 
-	 pushl $0 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 12(%ebx) 
+	 
+ 
+	# Line 29: out.write("Quarters: ".catInt(Quarters).cat("\n")) 
+.data 
+stringlit2: 
+	 .string "\n" 
+	 
+ 
+.text 
+	 pushl $stringlit2 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
 	# get reference to me 
 	 movl 8(%ebp), %ebx 
 	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	 call String_charAt 
+	 pushl 12(%ebx) 
+.data 
+stringlit3: 
+	 .string "Quarters: " 
+	 
+ 
+.text 
+	 pushl $stringlit3 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 call String_catInt 
 	# Clean up parameters: (1 * 4) + 4 (this ptr) 
 	 addl $8, %esp 
 	# Pushing the result from the called function 
 	 pushl %eax 
-	# popl firstCh 
-	 popl -12(%ebp) 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
 	 
  
-	# Line 22: out.write("s has ".catInt(len).cat(" characters.\n")) 
+	# Line 30: Amt:=ComputeRemain(Amt,25,Quarters) 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 12(%ebx) 
+	 pushl $25 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 pushl 8(%ebp) 
+	 call BChange_ComputeRemain 
+	 addl $12, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
+	 pushl %eax 
+	 
+ 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 8(%ebx) 
+	 
+ 
+	# Line 33: Dimes:=ComputeChange(Amt,10) 
+	 pushl $10 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 pushl 8(%ebp) 
+	 call BChange_ComputeChange 
+	 addl $8, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
+	 pushl %eax 
+	 
+ 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 16(%ebx) 
+	 
+ 
+	# Line 34: out.write("Dimes: ".catInt(Dimes).cat("\n")) 
 .data 
 stringlit4: 
-	 .string " characters.\n" 
+	 .string "\n" 
 	 
  
 .text 
@@ -158,11 +253,13 @@ stringlit4:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# pushl len 
-	 pushl -8(%ebp) 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 16(%ebx) 
 .data 
 stringlit5: 
-	 .string "s has " 
+	 .string "Dimes: " 
 	 
  
 .text 
@@ -190,10 +287,58 @@ stringlit5:
 	 addl $4, %esp 
 	 
  
-	# Line 23: out.write("charAt(0) = '".catChar(firstCh).cat("'\n")) 
+	# Line 35: Amt:=ComputeRemain(Amt,10,Dimes) 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 16(%ebx) 
+	 pushl $10 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 pushl 8(%ebp) 
+	 call BChange_ComputeRemain 
+	 addl $12, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
+	 pushl %eax 
+	 
+ 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 8(%ebx) 
+	 
+ 
+	# Line 37: Nickels:=ComputeChange(Amt,5) 
+	 pushl $5 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 pushl 8(%ebp) 
+	 call BChange_ComputeChange 
+	 addl $8, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
+	 pushl %eax 
+	 
+ 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 20(%ebx) 
+	 
+ 
+	# Line 38: out.write("Nickels: ".catInt(Nickels).cat("\n")) 
 .data 
 stringlit6: 
-	 .string "'\n" 
+	 .string "\n" 
 	 
  
 .text 
@@ -201,11 +346,13 @@ stringlit6:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# pushl firstCh 
-	 pushl -12(%ebp) 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 20(%ebx) 
 .data 
 stringlit7: 
-	 .string "charAt(0) = '" 
+	 .string "Nickels: " 
 	 
  
 .text 
@@ -213,7 +360,7 @@ stringlit7:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	 call String_catChar 
+	 call String_catInt 
 	# Clean up parameters: (1 * 4) + 4 (this ptr) 
 	 addl $8, %esp 
 	# Pushing the result from the called function 
@@ -233,10 +380,36 @@ stringlit7:
 	 addl $4, %esp 
 	 
  
-	# Line 25: if s.gt(" ") then 
+	# Line 40: Amt:=ComputeRemain(Amt,5,Nickels) 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 20(%ebx) 
+	 pushl $5 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 pushl 8(%ebp) 
+	 call BChange_ComputeRemain 
+	 addl $12, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
+	 pushl %eax 
+	 
+ 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 8(%ebx) 
+	 
+ 
+	# Line 42: out.write("Pennies: ".catInt(Amt).cat("\n")) 
 .data 
 stringlit8: 
-	 .string " " 
+	 .string "\n" 
 	 
  
 .text 
@@ -248,19 +421,9 @@ stringlit8:
 	 movl 8(%ebp), %ebx 
 	# push value inside of the reference 
 	 pushl 8(%ebx) 
-	 call String_gt 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L47 
-	# Line 26: out.write("s > ' '\n") 
 .data 
 stringlit9: 
-	 .string "s > ' '\n" 
+	 .string "Pennies: " 
 	 
  
 .text 
@@ -268,130 +431,16 @@ stringlit9:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_write 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	 jmp .L48 
-	 .L47: 
-	# Line 27: Else 
-	# Line 28: out.write("! s > ' '\n") 
-.data 
-stringlit10: 
-	 .string "! s > ' '\n" 
-	 
- 
-.text 
-	 pushl $stringlit10 
-	 call string_fromlit 
-	 addl $4, %esp 
-	 pushl %eax 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_write 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	 .L48: 
-	# Line 29: end if 
-	# Line 31: if s.gteq(" ") then 
-.data 
-stringlit11: 
-	 .string " " 
-	 
- 
-.text 
-	 pushl $stringlit11 
-	 call string_fromlit 
-	 addl $4, %esp 
-	 pushl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	 call String_gteq 
+	 call String_catInt 
 	# Clean up parameters: (1 * 4) + 4 (this ptr) 
 	 addl $8, %esp 
 	# Pushing the result from the called function 
 	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L49 
-	# Line 32: out.write("s >= ' '\n") 
-.data 
-stringlit12: 
-	 .string "s >= ' '\n" 
-	 
- 
-.text 
-	 pushl $stringlit12 
-	 call string_fromlit 
-	 addl $4, %esp 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
 	 pushl %eax 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_write 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	 jmp .L50 
-	 .L49: 
-	# Line 33: Else 
-	# Line 34: out.write("! s >= ' '\n") 
-.data 
-stringlit13: 
-	 .string "! s >= ' '\n" 
-	 
- 
-.text 
-	 pushl $stringlit13 
-	 call string_fromlit 
-	 addl $4, %esp 
-	 pushl %eax 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_write 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	 .L50: 
-	# Line 35: end if 
-	# Line 37: out.write(print("wowsers!")) 
-.data 
-stringlit14: 
-	 .string "wowsers!" 
-	 
- 
-.text 
-	 pushl $stringlit14 
-	 call string_fromlit 
-	 addl $4, %esp 
-	 pushl %eax 
-	 pushl 8(%ebp) 
-	 call Bstrbasics_print 
-	 addl $4, %esp 
-	 pushl %eax 
-	 
- 
 	# reference to the object 
 	# pushl out 
 	 pushl 0(%ebp) 
@@ -405,7 +454,7 @@ stringlit14:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 40: end start 
+	# Line 44: end start 
 	# CLASS BEGINNIGN HERE 
 	# Line 8: toString() is 
 floyd_toString: 
@@ -899,6 +948,8 @@ String_cat:
 	# Line 120: newstr:=copy() 
 	 pushl 8(%ebp) 
 	 call String_copy 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -990,6 +1041,8 @@ String_catChar:
 	# Line 137: newstr:=copy() 
 	 pushl 8(%ebp) 
 	 call String_copy 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -1137,6 +1190,8 @@ String_catInt:
 	 pushl -8(%ebp) 
 	 pushl 8(%ebp) 
 	 call String_cat 
+	 addl $4, %esp 
+	# cleaning up the obj ref 
 	 addl $4, %esp 
 	 pushl %eax 
 	 
@@ -1355,6 +1410,8 @@ String_eq:
 	# Line 205: len:=length() 
 	 pushl 8(%ebp) 
 	 call String_length 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -1427,6 +1484,8 @@ String_eq:
 	 pushl 8(%ebp) 
 	 call String_charAt 
 	 addl $4, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -1484,6 +1543,8 @@ String_gt:
 	# Line 221: len:=length() 
 	 pushl 8(%ebp) 
 	 call String_length 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -1526,6 +1587,8 @@ String_gt:
 	 pushl -8(%ebp) 
 	 pushl 8(%ebp) 
 	 call String_charAt 
+	 addl $4, %esp 
+	# cleaning up the obj ref 
 	 addl $4, %esp 
 	 pushl %eax 
 	 
@@ -1630,6 +1693,8 @@ String_gt:
 	 pushl 8(%ebp) 
 	 call String_charAt 
 	 addl $4, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -1661,6 +1726,8 @@ String_gteq:
 	 pushl 8(%ebp) 
 	 call String_eq 
 	 addl $4, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -1668,6 +1735,8 @@ String_gteq:
 	 pushl 12(%ebp) 
 	 pushl 8(%ebp) 
 	 call String_gt 
+	 addl $4, %esp 
+	# cleaning up the obj ref 
 	 addl $4, %esp 
 	 pushl %eax 
 	 
@@ -1731,6 +1800,8 @@ Reader_readline:
 	# Line 266: char:=io_read() 
 	 pushl 8(%ebp) 
 	 call Reader_io_read 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -1774,6 +1845,8 @@ Reader_readline:
 	# Line 271: char:=io_read() 
 	 pushl 8(%ebp) 
 	 call Reader_io_read 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  
@@ -1829,6 +1902,8 @@ Reader_readint:
 	# Line 288: s:=readline() 
 	 pushl 8(%ebp) 
 	 call Reader_readline 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
 	 pushl %eax 
 	 
  

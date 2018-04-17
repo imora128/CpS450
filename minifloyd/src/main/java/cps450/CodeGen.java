@@ -710,6 +710,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
+		emit(new TargetInstruction.Builder().comment("cleaning up the obj ref").build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", 4)).operand2("%esp").build());
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		println();
 		return null;
