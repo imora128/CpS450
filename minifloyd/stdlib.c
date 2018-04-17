@@ -1,7 +1,6 @@
 #include <syscall.h>
 #include <stdlib.h>
 #include "stdlib.h"
-#include <stdio.h>
 
 
 //writes <ch> to standard output (<out> is the predefined Floyd Writer object)
@@ -59,10 +58,6 @@ int unaryPlus(int x) {
 int unaryNot(int x) {
   return !x;
 }
-void String_leprint() {
-printf("test\n");
-}
-
 
 // ----------------------------------------------------------------------
 // String Management Functions
@@ -87,35 +82,6 @@ struct String *string_fromlit(char *lit)
   return newstr; 
 }
 
-
-
-/*int readint() {
-  char buffer[11];
-  read(0, buffer, 11);
-  int convertedNum = 0;
-  int isNegative = 0;
-  int i = 0;
-  //if the number is negative, skip the first index and multiply the integer by -1 later
-  if (buffer[0] == '-') {
-    i = 1;
-    isNegative = 1;
-  }
-  for (;i < 11; i++) {
-    //if the ascii is not between 0 and 9 (inclusive) then stop
-    if (buffer[i] >= '0' && buffer[i] <= '9') {
-      //ascii of buffer[i] - ascii '0' should give the decimal form of the number
-      convertedNum = convertedNum * 10 + buffer[i] - '0';
-    } else {
-      break;
-    }
-  }
-  if (isNegative == 1) {
-    convertedNum *= -1;
-  }
-  //printf("Converted num test: %i\n", convertedNum);
-
-  return convertedNum;
-}
 void writeint(int num) {
   char buf[20];
   char result[20] = "0\n";
@@ -153,4 +119,14 @@ void writeint(int num) {
   write(1, result, (writeptr - result) - 1);
   
 }
-*/
+
+void nullpointertest(int lineno, void* ptr) {
+  const char msg[] = "Null pointer exception on line ";
+  if (ptr == NULL ) {
+    write(1, msg, sizeof(msg)-1);
+    //Who am I to waste a perfectly good writeint function? jajaja
+    writeint(lineno);
+    exit(1);
+  }
+}
+

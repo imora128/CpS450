@@ -56,11 +56,11 @@ import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
-/*FIXME(TO DO FOR SUNDAY)
- *
- * Do when library is being added:
- * null reference checks
- * Fix tree precedence issue between relational operators and or/and
+/*FIXME(LAST ISSUES TO FIX)
+ * **********Fix tree precedence issue between relational operators and or/and***************
+ * nullpointercheck is printing the line number where it crashes, so if its inside a func, it'll print
+ * inside the func as opposed to outside where the obj is. seems to work fine, tho
+ * 
  */
 public class CodeGen extends FloydBaseVisitor<Void> {
 	List<TargetInstruction> instructions = new ArrayList<TargetInstruction>();
@@ -200,6 +200,15 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				ctx.start.getLine())).build());
 		}
 		//===============DEBUGGING============================
+	}
+	
+	void nullPointerCheck(ParserRuleContext ctx) {
+		emit(new TargetInstruction.Builder().comment("Checking if the object above is null").build());
+		emit(new TargetInstruction.Builder().comment("pushing line number").build());
+		emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", ctx.start.getLine())).build());
+		emit(new TargetInstruction.Builder().instruction("call nullpointertest").build());
+		emit(new TargetInstruction.Builder().comment("Removing the line number from the top of the stack, leaving the obj reference there").build());
+		emit(new TargetInstruction.Builder().instruction("addl $4, %esp").build());
 	}
 	
 	@Override
@@ -672,18 +681,26 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		if (ctx.t1 != null) {
 			if (ctx.t1.getText().equals("out")) {
 				emit(new TargetInstruction.Builder().instruction("pushl _out").build());
+				//need to check if its null
+				nullPointerCheck(ctx);
 			} else if (ctx.t1.getText().equals("in")) {
 				emit(new TargetInstruction.Builder().instruction("pushl _in").build());
+				//need to check if its null
+				nullPointerCheck(ctx);
 			} else {
 				VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
 				//pushing "this"
 				emit(new TargetInstruction.Builder().comment("reference to the object").build());
 				emit(new TargetInstruction.Builder().comment(String.format("pushl %s", test.name)).build());
 				emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", test.getOffset())).build());
+				//need to check if its null
+				nullPointerCheck(ctx);
 			}
 		} else {
 			emit(new TargetInstruction.Builder().comment("reference to the object (this)").build());
 			emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
+			//need to check if its null
+			nullPointerCheck(ctx);
 		}
 		
 		String functionName = "FunctionNameFailed";
@@ -699,7 +716,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().comment(String.format("Clean up parameters: %s * 4", paramNum)).build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
-		PRINT.DEBUG("call_stmt: " + functionName);
 		//FIXME(another writer duct tape to test basic objs)
 		//if func doesnt have t1, it has no obj that we need to pass "me" for
 		if(ctx.t1 != null) {
@@ -725,8 +741,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		String functionName = String.format("%s_%s", ctx.classType.name, ctx.IDENTIFIER().getText());
 //		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
 		//I PRAY, PLEASE WORK!
-		PRINT.DEBUG( "exprCont_IDExpr: " + functionName);
 		emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
+		nullPointerCheck(ctx);
+		//need to check if its null
 		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
@@ -754,17 +771,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				}
 			}
 			
-			//pushing reference to "this"
-			//this should always run because this visit only ever happens when theres an object on the LHS
-//			if (ctx.e1. instanceof ExprCont_NewContext) {
-//				PRINT.DEBUG("JAJAJAJJAJAJA");
-//			}
 			visit(ctx.e1);
-			//VarDeclaration lhsVar = (VarDeclaration)ctx.sym.getDecl();
-//			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", lhsVar.name)).build());
-//			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", lhsVar.getOffset())).build());
+			//visit above pushes the obj, i need to check if its null
+			nullPointerCheck(ctx);
+			
 			String functionName = String.format("%s_%s", ctx.e1.myType, foo.IDENTIFIER().getText());
-			PRINT.DEBUG( "methodDotEXP: " + functionName);
 			emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 			if (paramNum > 0) {
 				emit(new TargetInstruction.Builder().comment(String.format("Clean up parameters: (%s * 4) + 4 (this ptr)", paramNum)).build());

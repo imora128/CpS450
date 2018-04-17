@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="bstrbasics"
+fileName="bstrlits"
 rm *.o
 rm *.s
 rm $fileName
