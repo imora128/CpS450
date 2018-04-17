@@ -88,6 +88,7 @@ or_exp returns [Type myType]
 and_exp returns [Type myType]
 : e1=and_exp AND e2=concat_exp #AndX_Exp
 | concat_exp #AndConcat_Exp
+//relational or concat
 ;
 
 relational_exp returns [Type myType]
@@ -95,6 +96,7 @@ relational_exp returns [Type myType]
 | e1=or_exp GT e2=or_exp	#RelationalGT_Exp
 | e1=or_exp EQ e2=or_exp	#RelationalEQ_Exp
 | or_exp	#RelationalOr_Exp
+//off to concat or just relational
 ;
 
 concat_exp returns [Type myType]

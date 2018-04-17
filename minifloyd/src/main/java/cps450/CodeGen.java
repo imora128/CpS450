@@ -57,13 +57,6 @@ import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
 /*FIXME(TO DO FOR SUNDAY)
- * NEXT:
- * Work on concat the library file and the given file. Make sure they do not lose their own line num.
- * (Note: Collisn said something about putting them together and returning a stream?)
- * Remove the writeint ducttape code for stuff like writeint that was used for testing
- * Test library stuff to make sure it works.
- * 
- * LAST:
  *
  * Do when library is being added:
  * null reference checks
@@ -478,6 +471,15 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
 		emit(new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build());
+		/*
+		 * need to create reader/writer objects at the beginning of the program otherwise it'll fail the null pointer
+		 * when calling in/out
+		 */
+		//making them globals
+		emit(new TargetInstruction.Builder().comment("Making in & out globals").build());
+		emit(new TargetInstruction.Builder().directive(".comm\t _in,4,4").build());
+		emit(new TargetInstruction.Builder().directive(".comm\t _out,4,4").build());
+		
 		
 		//going to use this to make sure the class defined class has defined a start method
 		Class_Context lastClass = ctx.class_().get(ctx.class_().size()-1);
@@ -493,8 +495,27 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			int instanceVars = lastClass.var_decl().size();
 			emit(new TargetInstruction.Builder().comment("Main method. Creates obj instance of the last class and calls its start method").build());
 			emit(new TargetInstruction.Builder().label(String.format("main:")).build());
+			
+			//instantiating in & out objects
+			//creating their objects. 8 bytes b/c they don't have any instance vars
+			//in obj
+			emit(new TargetInstruction.Builder().comment("instantiating _in object").build());
+			emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", 8)).build());
+			emit(new TargetInstruction.Builder().instruction("pushl $1").build());
+			emit(new TargetInstruction.Builder().instruction("call").operand1("calloc").build());
+			emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
+			emit(new TargetInstruction.Builder().instruction("movl %eax, _in").build());
+			//out obj
+			emit(new TargetInstruction.Builder().comment("instantiating _out object").build());
+			emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", 8)).build());
+			emit(new TargetInstruction.Builder().instruction("pushl $1").build());
+			emit(new TargetInstruction.Builder().instruction("call").operand1("calloc").build());
+			emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
+			emit(new TargetInstruction.Builder().instruction("movl %eax, _out").build());
+			
+			//Need to create the last class object and call its start method
+			emit(new TargetInstruction.Builder().comment("Creating last class object & calling its start method").build());
 			//Number of instance vars * 4 (because each var is 4 bytes) + 8 (8 extra bytes for every object instanc)
-			//calling calloc to make the object
 			emit(new TargetInstruction.Builder().instruction(String.format("pushl $%s", (instanceVars * 4) + 8)).build());
 			emit(new TargetInstruction.Builder().instruction("pushl $1").build());
 			emit(new TargetInstruction.Builder().instruction("call").operand1("calloc").build());
@@ -642,34 +663,26 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//offset for LHS to pass in "this"
 		//only if sym is not null, meaning there's an object there
 		if (ctx.t1 != null) {
-		VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
-		//pushing "this"
-		emit(new TargetInstruction.Builder().comment("reference to the object").build());
-		//FIX(MAKE SURE THIS OUT STUFF IS SORTED OUT)
-//		if (!test.name.equals("out")) {
-		emit(new TargetInstruction.Builder().comment(String.format("pushl %s", test.name)).build());
-		emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", test.getOffset())).build());
-//		}
-		//derp, i also need to pass "this" even if it doesnt have
+			if (ctx.t1.getText().equals("out")) {
+				emit(new TargetInstruction.Builder().instruction("pushl _out").build());
+			} else if (ctx.t1.getText().equals("in")) {
+				emit(new TargetInstruction.Builder().instruction("pushl _in").build());
+			} else {
+				VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
+				//pushing "this"
+				emit(new TargetInstruction.Builder().comment("reference to the object").build());
+				emit(new TargetInstruction.Builder().comment(String.format("pushl %s", test.name)).build());
+				emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", test.getOffset())).build());
+			}
 		} else {
 			emit(new TargetInstruction.Builder().comment("reference to the object (this)").build());
 			emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
 		}
 		
-//		int paramNum = 0;
-//		if (ctx.expression_list() != null) {
-//		paramNum = ctx.expression_list().expression().size();
-//		}
 		String functionName = "FunctionNameFailed";
 		if (ctx.t1 != null ) {
-		//getting the right fnuctino name (with the class name prefix
 			
-			//FIXME(Temporary ducttape until I get the library functions in here)
-//			if (ctx.t1.myType.name.equals("writer") || ctx.t1.myType.name.equals("reader")) {
-//				functionName = ctx.IDENTIFIER().getText();
-//			} else {
 			functionName = String.format("%s_%s", ctx.t1.myType.name, ctx.IDENTIFIER().getText());
-//			}
 		} else {
 			functionName = String.format("%s_%s", ctx.className, ctx.IDENTIFIER().getText());
 			//print location
@@ -679,7 +692,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().comment(String.format("Clean up parameters: %s * 4", paramNum)).build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
-	
+		PRINT.DEBUG("call_stmt: " + functionName);
 		//FIXME(another writer duct tape to test basic objs)
 		//if func doesnt have t1, it has no obj that we need to pass "me" for
 		if(ctx.t1 != null) {
@@ -705,6 +718,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		String functionName = String.format("%s_%s", ctx.classType.name, ctx.IDENTIFIER().getText());
 //		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
 		//I PRAY, PLEASE WORK!
+		PRINT.DEBUG( "exprCont_IDExpr: " + functionName);
 		emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
 		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 		if (paramNum > 0) {
@@ -743,6 +757,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 //			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", lhsVar.name)).build());
 //			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebp)", lhsVar.getOffset())).build());
 			String functionName = String.format("%s_%s", ctx.e1.myType, foo.IDENTIFIER().getText());
+			PRINT.DEBUG( "methodDotEXP: " + functionName);
 			emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 			if (paramNum > 0) {
 				emit(new TargetInstruction.Builder().comment(String.format("Clean up parameters: (%s * 4) + 4 (this ptr)", paramNum)).build());

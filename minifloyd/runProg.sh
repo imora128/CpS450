@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="test"
+fileName="blist"
 rm *.o
 rm *.s
 rm $fileName
