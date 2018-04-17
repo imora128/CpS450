@@ -228,10 +228,17 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 //			.instruction("pushl")
 //			.operand1(String.format("%s", name)).build();		
 //			emit(foo);
+			if (name.equals("in")) {
+				emit(new TargetInstruction.Builder().instruction("pushl _in").build());
+			}
+			else if (name.equals("out")) {
+				emit(new TargetInstruction.Builder().instruction("pushl _in").build());
+			} else {
 			emit(new TargetInstruction.Builder().comment("get reference to me").build());
 			emit(new TargetInstruction.Builder().instruction("movl 8(%ebp), %ebx").build());
 			emit(new TargetInstruction.Builder().comment("push value inside of the reference").build());
 			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebx)", lhs.getOffset())).build());
+			}
 			
 		}
 		} else {

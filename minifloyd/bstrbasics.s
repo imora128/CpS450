@@ -1,5 +1,5 @@
 .global main 
-	 .file "blist.floyd" 
+	 .file "bstrbasics.floyd" 
 	# Making in & out globals 
 	 .comm	 _in,4,4 
 	 .comm	 _out,4,4 
@@ -25,751 +25,26 @@ main:
 	# Initializing 1 instance vars to 0 
 	 movl $0, 8(%eax) 
 	 pushl %eax 
-	 call List_start 
+	 call Bstrbasics_start 
 	# Calling exit because the program is finished 
 	 pushl $0 
 	 call exit 
 	# CLASS BEGINNIGN HERE 
-	# Line 12: data:int
- 
-	# Line 13: next:ListNode
-
- 
-	 movl $0, 12(%ebp) 
-	# Line 15: init() is 
-ListNode_init: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 17: data:=initData 
-	# pushl initData 
-	 pushl 12(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 8(%ebx) 
-	 
- 
-	# Line 18: next:=null 
-	 pushl $0 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 12(%ebx) 
-	 
- 
-	# Line 19: init:=me 
-	 pushl 8(%ebp) 
-	# popl init 
-	 popl -4(%ebp) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 21: end init 
-	# Line 22: getData() is 
-ListNode_getData: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 24: getData:=data 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl getData 
-	 popl -4(%ebp) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 26: end getData 
-	# Line 27: setData() is 
-ListNode_setData: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 29: data:=newData 
-	# pushl newData 
-	 pushl 12(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 8(%ebx) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 31: end setData 
-	# Line 32: getNext() is 
-ListNode_getNext: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 34: getNext:=next 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 12(%ebx) 
-	# popl getNext 
-	 popl -4(%ebp) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 36: end getNext 
-	# Line 37: setNext() is 
-ListNode_setNext: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 39: next:=node 
-	# pushl node 
-	 pushl 12(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 12(%ebx) 
-	 
- 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 41: end setNext 
-	# CLASS BEGINNIGN HERE 
-	# Line 51: head:ListNode
-
+	# Line 6: s:String
 
  
 	 movl $0, 8(%ebp) 
-	# Line 54: add() is 
-List_add: 
+	# Line 8: print() is 
+Bstrbasics_print: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# Line 58: node:=(newListNode).init(item) 
-	# pushl item 
-	 pushl 12(%ebp) 
-	 pushl $16 
-	 pushl $1 
-	 call calloc 
-	 addl $8, %esp 
-	# Initializing 2 instance vars to 0 
-	 movl $0, 8(%eax) 
-	 movl $0, 12(%eax) 
-	 pushl %eax 
-	 call ListNode_init 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl node 
-	 popl -12(%ebp) 
-	 
- 
-	# Line 60: if head=null then 
-	 pushl $0 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L47 
-	# Line 61: head:=node 
-	# pushl node 
-	 pushl -12(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 8(%ebx) 
-	 
- 
-	 jmp .L48 
-	 .L47: 
-	# Line 62: Else 
-	# Line 63: curnode:=head 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl curnode 
-	 popl -8(%ebp) 
-	 
- 
-	 jmp .L49 
-	 .L50: 
-	# Line 65: curnode:=curnode.getNext() 
-	# pushl curnode 
-	 pushl -8(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl curnode 
-	 popl -8(%ebp) 
-	 
- 
-	 .L49: 
-	# Line 64: not(curnode.getNext()=null) 
-	 pushl $0 
-	# pushl curnode 
-	 pushl -8(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 pop %eax 
-	 cmpl $0, %eax 
-	 jne .L50 
-	# Line 66: end loop 
-	# Line 67: curnode.setNext(node) 
-	# pushl node 
-	 pushl -12(%ebp) 
-	# reference to the object 
-	# pushl curnode 
-	 pushl -8(%ebp) 
-	 call ListNode_setNext 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	 .L48: 
-	# Line 68: end if 
-	# Line 69: add:=me 
-	 pushl 8(%ebp) 
-	# popl add 
-	 popl -4(%ebp) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 72: end add 
-	# Line 73: get() is 
-List_get: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# making space for 1 locals 
-	 pushl $0 
-	# Line 76: curNode:=head 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl curNode 
-	 popl -8(%ebp) 
-	 
- 
-	 jmp .L51 
-	 .L52: 
-	# Line 78: index:=index-1 
-	 pushl $1 
-	# pushl index 
-	 pushl 12(%ebp) 
-	 call minus 
-	 addl $8, %esp 
-	 pushl %eax 
-	# popl index 
-	 popl 12(%ebp) 
-	 
- 
-	# Line 79: curNode:=curNode.getNext() 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl curNode 
-	 popl -8(%ebp) 
-	 
- 
-	 .L51: 
-	# Line 77: (index>0)andnot(curNode=null) 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 pushl $0 
-	# pushl index 
-	 pushl 12(%ebp) 
-	 call greaterThan 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call andOp 
-	 addl $8, %esp 
-	 pushl %eax 
-	 pop %eax 
-	 cmpl $0, %eax 
-	 jne .L52 
-	# Line 80: end loop 
-	# Line 82: if not(curNode=null) then 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L53 
-	# Line 83: get:=curNode.getData() 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_getData 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl get 
-	 popl -4(%ebp) 
-	 
- 
-	 jmp .L54 
-	 .L53: 
-	# Line 84: Else 
-	# Line 85: get:=-1 
-	 pushl $-1 
-	# popl get 
-	 popl -4(%ebp) 
-	 
- 
-	 .L54: 
-	# Line 86: end if 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 89: end get 
-	# Line 90: length() is 
-List_length: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# Line 94: curNode:=head 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl curNode 
-	 popl -12(%ebp) 
-	 
- 
-	# Line 95: i:=0 
-	 pushl $0 
-	# popl i 
-	 popl -8(%ebp) 
-	 
- 
-	 jmp .L55 
-	 .L56: 
-	# Line 97: i:=i+1 
-	# pushl i 
-	 pushl -8(%ebp) 
-	 pushl $1 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
-	# popl i 
-	 popl -8(%ebp) 
-	 
- 
-	# Line 98: curNode:=curNode.getNext() 
-	# pushl curNode 
-	 pushl -12(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl curNode 
-	 popl -12(%ebp) 
-	 
- 
-	 .L55: 
-	# Line 96: not(curNode=null) 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -12(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 pop %eax 
-	 cmpl $0, %eax 
-	 jne .L56 
-	# Line 99: end loop 
-	# Line 100: length:=i 
-	# pushl i 
-	 pushl -8(%ebp) 
-	# popl length 
-	 popl -4(%ebp) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 104: end length 
-	# Line 105: remove() is 
-List_remove: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# Line 109: prevNode:=null 
-	 pushl $0 
-	# popl prevNode 
-	 popl -12(%ebp) 
-	 
- 
-	# Line 110: curNode:=head 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl curNode 
-	 popl -8(%ebp) 
-	 
- 
-	 jmp .L57 
-	 .L58: 
-	# Line 112: index:=index-1 
-	 pushl $1 
-	# pushl index 
-	 pushl 12(%ebp) 
-	 call minus 
-	 addl $8, %esp 
-	 pushl %eax 
-	# popl index 
-	 popl 12(%ebp) 
-	 
- 
-	# Line 113: prevNode:=curNode 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	# popl prevNode 
-	 popl -12(%ebp) 
-	 
- 
-	# Line 114: curNode:=curNode.getNext() 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl curNode 
-	 popl -8(%ebp) 
-	 
- 
-	 .L57: 
-	# Line 111: (index>0)andnot(curNode=null) 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 pushl $0 
-	# pushl index 
-	 pushl 12(%ebp) 
-	 call greaterThan 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call andOp 
-	 addl $8, %esp 
-	 pushl %eax 
-	 pop %eax 
-	 cmpl $0, %eax 
-	 jne .L58 
-	# Line 115: end loop 
-	# Line 117: if not(curNode=null) then 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L59 
-	# Line 119: if prevNode=null then 
-	 pushl $0 
-	# pushl prevNode 
-	 pushl -12(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L61 
-	# Line 120: head:=curNode.getNext() 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 8(%ebx) 
-	 
- 
-	 jmp .L62 
-	 .L61: 
-	# Line 121: Else 
-	# Line 122: prevNode.setNext(curNode.getNext()) 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# reference to the object 
-	# pushl prevNode 
-	 pushl -12(%ebp) 
-	 call ListNode_setNext 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	 .L62: 
-	# Line 123: end if 
-	 jmp .L60 
-	 .L59: 
-	 .L60: 
-	# Line 124: end if 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 128: end remove 
-	# Line 129: set() is 
-List_set: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# making space for 1 locals 
-	 pushl $0 
-	# Line 132: curNode:=head 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl curNode 
-	 popl -8(%ebp) 
-	 
- 
-	 jmp .L63 
-	 .L64: 
-	# Line 134: index:=index-1 
-	 pushl $1 
-	# pushl index 
-	 pushl 12(%ebp) 
-	 call minus 
-	 addl $8, %esp 
-	 pushl %eax 
-	# popl index 
-	 popl 12(%ebp) 
-	 
- 
-	# Line 135: curNode:=curNode.getNext() 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl curNode 
-	 popl -8(%ebp) 
-	 
- 
-	 .L63: 
-	# Line 133: (index>0)andnot(curNode=null) 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 pushl $0 
-	# pushl index 
-	 pushl 12(%ebp) 
-	 call greaterThan 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call andOp 
-	 addl $8, %esp 
-	 pushl %eax 
-	 pop %eax 
-	 cmpl $0, %eax 
-	 jne .L64 
-	# Line 136: end loop 
-	# Line 138: if not(curNode=null) then 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L65 
-	# Line 139: curNode.setData(item) 
-	# pushl item 
-	 pushl 16(%ebp) 
-	# reference to the object 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_setData 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	 jmp .L66 
-	 .L65: 
-	 .L66: 
-	# Line 140: end if 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 143: end set 
-	# Line 144: toString() is 
-List_toString: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# making space for 2 locals 
-	 pushl $0 
-	# Line 148: curNode:=head 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl curNode 
-	 popl -12(%ebp) 
-	 
- 
-	# Line 149: str:="[" 
+	# Line 10: print:="q = ".cat(q).cat("\n") 
 .data 
 stringlit1: 
-	 .string "[" 
+	 .string "\n" 
 	 
  
 .text 
@@ -777,93 +52,11 @@ stringlit1:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# popl str 
-	 popl -8(%ebp) 
-	 
- 
-	 jmp .L67 
-	 .L68: 
-	# Line 151: str:=str.catInt(curNode.getData()) 
-	# pushl curNode 
-	 pushl -12(%ebp) 
-	 call ListNode_getData 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# pushl str 
-	 pushl -8(%ebp) 
-	 call String_catInt 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl str 
-	 popl -8(%ebp) 
-	 
- 
-	# Line 152: curNode:=curNode.getNext() 
-	# pushl curNode 
-	 pushl -12(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl curNode 
-	 popl -12(%ebp) 
-	 
- 
-	# Line 153: if not(curNode=null) then 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -12(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L69 
-	# Line 154: str:=str.catChar(44) 
-	 pushl $44 
-	# pushl str 
-	 pushl -8(%ebp) 
-	 call String_catChar 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl str 
-	 popl -8(%ebp) 
-	 
- 
-	 jmp .L70 
-	 .L69: 
-	 .L70: 
-	# Line 155: end if 
-	 .L67: 
-	# Line 150: not(curNode=null) 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -12(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 pop %eax 
-	 cmpl $0, %eax 
-	 jne .L68 
-	# Line 156: end loop 
-	# Line 157: toString:=str.cat("]") 
+	# pushl q 
+	 pushl 12(%ebp) 
 .data 
 stringlit2: 
-	 .string "]" 
+	 .string "q = " 
 	 
  
 .text 
@@ -871,14 +64,17 @@ stringlit2:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# pushl str 
-	 pushl -8(%ebp) 
 	 call String_cat 
 	# Clean up parameters: (1 * 4) + 4 (this ptr) 
 	 addl $8, %esp 
 	# Pushing the result from the called function 
 	 pushl %eax 
-	# popl toString 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# popl print 
 	 popl -4(%ebp) 
 	 
  
@@ -887,123 +83,9 @@ stringlit2:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 160: end toString 
-	# Line 161: print() is 
-List_print: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# making space for 1 locals 
-	 pushl $0 
-	# Line 164: curNode:=head 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl curNode 
-	 popl -8(%ebp) 
-	 
- 
-	 jmp .L71 
-	 .L72: 
-	# Line 167: out.writeint(curNode.getData()) 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_getData 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 pushl _out 
-	 call Writer_writeint 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 168: curNode:=curNode.getNext() 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call ListNode_getNext 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl curNode 
-	 popl -8(%ebp) 
-	 
- 
-	 .L71: 
-	# Line 166: not(curNode=null) 
-	 pushl $0 
-	# pushl curNode 
-	 pushl -8(%ebp) 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 pop %eax 
-	 cmpl $0, %eax 
-	 jne .L72 
-	# Line 169: end loop 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 172: end print 
-	# Line 173: assert() is 
-List_assert: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# making space for 1 locals 
-	 pushl $0 
-	# Line 176: if notcond then 
-	# pushl cond 
-	 pushl 12(%ebp) 
-	 call unaryNot 
-	 addl $4, %esp 
-	 pushl %eax 
-	 popl %eax 
-	 movl $1, %edx 
-	 cmpl %eax, %edx 
-	 jne .L73 
-	# Line 177: out.writeint(linenum) 
-	# pushl linenum 
-	 pushl 16(%ebp) 
-	 pushl _out 
-	 call Writer_writeint 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 178: s.length() 
-	# reference to the object 
-	# pushl s 
-	 pushl -8(%ebp) 
-	 call String_length 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	 jmp .L74 
-	 .L73: 
-	 .L74: 
-	# Line 179: end if 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 182: end assert 
-	# Line 183: start() is 
-List_start: 
+	# Line 12: end print 
+	# Line 13: start() is 
+Bstrbasics_start: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
@@ -1013,273 +95,10 @@ List_start:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 187: startLine:=187 
-	 pushl $187 
-	# popl startLine 
-	 popl -12(%ebp) 
-	 
- 
-	# Line 188: list:=(newList).add(10).add(20).add(30) 
-	 pushl $30 
-	 pushl $20 
-	 pushl $10 
-	 pushl $12 
-	 pushl $1 
-	 call calloc 
-	 addl $8, %esp 
-	# Initializing 1 instance vars to 0 
-	 movl $0, 8(%eax) 
-	 pushl %eax 
-	 call List_add 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call List_add 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call List_add 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	# popl list 
-	 popl -8(%ebp) 
-	 
- 
-	# Line 190: assert(list.get(0)=10,startLine+3) 
-	# pushl startLine 
-	 pushl -12(%ebp) 
-	 pushl $3 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
-	 pushl $10 
-	 pushl $0 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_get 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call List_assert 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
-	 
- 
-	# Line 191: assert(list.get(2)=30,startLine+4) 
-	# pushl startLine 
-	 pushl -12(%ebp) 
-	 pushl $4 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
-	 pushl $30 
-	 pushl $2 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_get 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call List_assert 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
-	 
- 
-	# Line 192: assert(list.get(3)=-1,startLine+5) 
-	# pushl startLine 
-	 pushl -12(%ebp) 
-	 pushl $5 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
-	 pushl $-1 
-	 pushl $3 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_get 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call List_assert 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
-	 
- 
-	# Line 194: list.add(40) 
-	 pushl $40 
-	# reference to the object 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_add 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 195: list.add(50) 
-	 pushl $50 
-	# reference to the object 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_add 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 196: assert(list.get(4)=50,startLine+9) 
-	# pushl startLine 
-	 pushl -12(%ebp) 
-	 pushl $9 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
-	 pushl $50 
-	 pushl $4 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_get 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call List_assert 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
-	 
- 
-	# Line 198: list.remove(2) 
-	 pushl $2 
-	# reference to the object 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_remove 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 199: list.set(2,5) 
-	 pushl $5 
-	 pushl $2 
-	# reference to the object 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_set 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 200: assert(list.get(2)=5,startLine+13) 
-	# pushl startLine 
-	 pushl -12(%ebp) 
-	 pushl $13 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
-	 pushl $5 
-	 pushl $2 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_get 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call List_assert 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
-	 
- 
-	# Line 201: assert(list.get(3)=50,startLine+14) 
-	# pushl startLine 
-	 pushl -12(%ebp) 
-	 pushl $14 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
-	 pushl $50 
-	 pushl $3 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_get 
-	# Clean up parameters: (1 * 4) + 4 (this ptr) 
-	 addl $8, %esp 
-	# Pushing the result from the called function 
-	 pushl %eax 
-	 call eqTo 
-	 addl $8, %esp 
-	 pushl %eax 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call List_assert 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
-	 
- 
-	# Line 203: list.print() 
-	# reference to the object 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_print 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 207: assert((newList).toString().eq("[]"),startLine+20) 
-	# pushl startLine 
-	 pushl -12(%ebp) 
-	 pushl $20 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
+	# Line 17: out.write("Enter a string of characters:") 
 .data 
 stringlit3: 
-	 .string "[]" 
+	 .string "Enter a string of characters:" 
 	 
  
 .text 
@@ -1287,41 +106,62 @@ stringlit3:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	 pushl $12 
-	 pushl $1 
-	 call calloc 
-	 addl $8, %esp 
-	# Initializing 1 instance vars to 0 
-	 movl $0, 8(%eax) 
-	 pushl %eax 
-	 call List_toString 
+	 pushl _out 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 18: s:=in.readline() 
+	 pushl _in 
+	 call Reader_readline 
 	# Clean up THIS obj reference param 
 	 addl $4, %esp 
 	# Pushing the result from the called function 
 	 pushl %eax 
-	 call String_eq 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 8(%ebx) 
+	 
+ 
+	# Line 19: len:=s.length() 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call String_length 
+	# Clean up THIS obj reference param 
+	 addl $4, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# popl len 
+	 popl -8(%ebp) 
+	 
+ 
+	# Line 20: firstCh:=s.charAt(0) 
+	 pushl $0 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call String_charAt 
 	# Clean up parameters: (1 * 4) + 4 (this ptr) 
 	 addl $8, %esp 
 	# Pushing the result from the called function 
 	 pushl %eax 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call List_assert 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
+	# popl firstCh 
+	 popl -12(%ebp) 
 	 
  
-	# Line 208: assert(list.toString().eq("[10,20,5,50]"),startLine+21) 
-	# pushl startLine 
-	 pushl -12(%ebp) 
-	 pushl $21 
-	 popl %eax 
-	 popl %ebx 
-	 addl  %eax, %ebx 
-	 pushl %ebx 
+	# Line 22: out.write("s has ".catInt(len).cat(" characters.\n")) 
 .data 
 stringlit4: 
-	 .string "[10,20,5,50]" 
+	 .string " characters.\n" 
 	 
  
 .text 
@@ -1329,56 +169,232 @@ stringlit4:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# pushl list 
+	# pushl len 
 	 pushl -8(%ebp) 
-	 call List_toString 
-	# Clean up THIS obj reference param 
+.data 
+stringlit5: 
+	 .string "s has " 
+	 
+ 
+.text 
+	 pushl $stringlit5 
+	 call string_fromlit 
 	 addl $4, %esp 
-	# Pushing the result from the called function 
 	 pushl %eax 
-	 call String_eq 
+	 call String_catInt 
 	# Clean up parameters: (1 * 4) + 4 (this ptr) 
 	 addl $8, %esp 
 	# Pushing the result from the called function 
 	 pushl %eax 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call List_assert 
-	# Clean up parameters: 2 * 4 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
 	 addl $8, %esp 
-	 
- 
-	# Line 209: out.writeln(list.toString()) 
-	# pushl list 
-	 pushl -8(%ebp) 
-	 call List_toString 
-	# Clean up THIS obj reference param 
-	 addl $4, %esp 
 	# Pushing the result from the called function 
 	 pushl %eax 
 	 pushl _out 
-	 call Writer_writeln 
+	 call Writer_write 
 	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	# Clean up this reference pushed on last: 4 
 	 addl $4, %esp 
 	 
  
-	# Line 210: out.writeln((newList).toString()) 
-	 pushl $12 
-	 pushl $1 
-	 call calloc 
-	 addl $8, %esp 
-	# Initializing 1 instance vars to 0 
-	 movl $0, 8(%eax) 
-	 pushl %eax 
-	 call List_toString 
-	# Clean up THIS obj reference param 
+	# Line 23: out.write("charAt(0) = '".catChar(firstCh).cat("'\n")) 
+.data 
+stringlit6: 
+	 .string "'\n" 
+	 
+ 
+.text 
+	 pushl $stringlit6 
+	 call string_fromlit 
 	 addl $4, %esp 
+	 pushl %eax 
+	# pushl firstCh 
+	 pushl -12(%ebp) 
+.data 
+stringlit7: 
+	 .string "charAt(0) = '" 
+	 
+ 
+.text 
+	 pushl $stringlit7 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 call String_catChar 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
 	# Pushing the result from the called function 
 	 pushl %eax 
 	 pushl _out 
-	 call Writer_writeln 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 25: if s.gt(" ") then 
+.data 
+stringlit8: 
+	 .string " " 
+	 
+ 
+.text 
+	 pushl $stringlit8 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call String_gt 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	 popl %eax 
+	 movl $1, %edx 
+	 cmpl %eax, %edx 
+	 jne .L47 
+	# Line 26: out.write("s > ' '\n") 
+.data 
+stringlit9: 
+	 .string "s > ' '\n" 
+	 
+ 
+.text 
+	 pushl $stringlit9 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 pushl _out 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	 jmp .L48 
+	 .L47: 
+	# Line 27: Else 
+	# Line 28: out.write("! s > ' '\n") 
+.data 
+stringlit10: 
+	 .string "! s > ' '\n" 
+	 
+ 
+.text 
+	 pushl $stringlit10 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 pushl _out 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	 .L48: 
+	# Line 29: end if 
+	# Line 31: if s.gteq(" ") then 
+.data 
+stringlit11: 
+	 .string " " 
+	 
+ 
+.text 
+	 pushl $stringlit11 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call String_gteq 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	 popl %eax 
+	 movl $1, %edx 
+	 cmpl %eax, %edx 
+	 jne .L49 
+	# Line 32: out.write("s >= ' '\n") 
+.data 
+stringlit12: 
+	 .string "s >= ' '\n" 
+	 
+ 
+.text 
+	 pushl $stringlit12 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 pushl _out 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	 jmp .L50 
+	 .L49: 
+	# Line 33: Else 
+	# Line 34: out.write("! s >= ' '\n") 
+.data 
+stringlit13: 
+	 .string "! s >= ' '\n" 
+	 
+ 
+.text 
+	 pushl $stringlit13 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 pushl _out 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	 .L50: 
+	# Line 35: end if 
+	# Line 37: out.write(print("wowsers!")) 
+.data 
+stringlit14: 
+	 .string "wowsers!" 
+	 
+ 
+.text 
+	 pushl $stringlit14 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 pushl 8(%ebp) 
+	 call Bstrbasics_print 
+	 addl $4, %esp 
+	# cleaning up the obj ref 
+	 addl $4, %esp 
+	 pushl %eax 
+	 
+ 
+	 pushl _out 
+	 call Writer_write 
 	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	# Clean up this reference pushed on last: 4 
@@ -1388,7 +404,7 @@ stringlit4:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 213: end start 
+	# Line 40: end start 
 	# CLASS BEGINNIGN HERE 
 	# Line 8: toString() is 
 floyd_toString: 

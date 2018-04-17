@@ -4,9 +4,10 @@
 class BChange is
 
   start() is
+  x : int
   begin
     out.writeln("hello")
-    in.readint()
+    x := in.readint()
   end start
   
 end BChange

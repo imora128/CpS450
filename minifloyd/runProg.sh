@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="blist"
+fileName="bstrbasics"
 rm *.o
 rm *.s
 rm $fileName
