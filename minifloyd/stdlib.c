@@ -1,6 +1,7 @@
 #include <syscall.h>
 #include <stdlib.h>
 #include "stdlib.h"
+#include <stdio.h>
 
 
 //writes <ch> to standard output (<out> is the predefined Floyd Writer object)
@@ -57,6 +58,9 @@ int unaryPlus(int x) {
 }
 int unaryNot(int x) {
   return !x;
+}
+void String_leprint() {
+printf("test\n");
 }
 
 

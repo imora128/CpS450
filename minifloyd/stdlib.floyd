@@ -115,6 +115,7 @@ class String is
     newstr: String
     curNode: CharNode
   begin
+  ~leprint()
     ~ first, make a copy of this String
     newstr := copy()    
         

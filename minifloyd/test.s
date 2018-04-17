@@ -9,266 +9,26 @@ main:
 	# Initializing 1 instance vars to 0 
 	 movl $0, 8(%eax) 
 	 pushl %eax 
-	 call Test_start 
+	 call Bstrbasics_start 
 	# Calling exit because the program is finished 
 	 pushl $0 
 	 call exit 
 	# CLASS BEGINNIGN HERE 
-	# Line 5: x:int
- 
-	# Line 6: y:int
+	# Line 6: s:String
 
  
-	# Line 8: init() is 
-Point_init: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 10: x:=initX 
-	# pushl initX 
-	 pushl 12(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 8(%ebx) 
-	 
- 
-	# Line 11: y:=initY 
-	# pushl initY 
-	 pushl 16(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 12(%ebx) 
-	 
- 
-	# Line 12: init:=me 
-	 pushl 8(%ebp) 
-	# popl init 
-	 popl -4(%ebp) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 14: end init 
-	# Line 15: getX() is 
-Point_getX: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 17: getX:=x 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# popl getX 
-	 popl -4(%ebp) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 19: end getX 
-	# Line 20: getY() is 
-Point_getY: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 22: getY:=y 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 12(%ebx) 
-	# popl getY 
-	 popl -4(%ebp) 
-	 
- 
-	# Moving the value inside the return value section of the stack into eax 
-	 movl -4(%ebp), %eax 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 24: end getY 
-	# Line 25: print() is 
-Point_print: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 27: out.writeint(x) 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 8(%ebx) 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_writeint 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# Line 28: out.writeint(y) 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 12(%ebx) 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_writeint 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 30: end print 
-	# Line 31: setXY() is 
-Point_setXY: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 33: x:=newX 
-	# pushl newX 
-	 pushl 12(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 8(%ebx) 
-	 
- 
-	# Line 34: y:=newY 
-	# pushl newY 
-	 pushl 16(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 12(%ebx) 
-	 
- 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 36: end setXY 
-	# Line 37: setX() is 
-Point_setX: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 39: setXY(newX,y) 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# push value inside of the reference 
-	 pushl 12(%ebx) 
-	# pushl newX 
-	 pushl 12(%ebp) 
-	# reference to the object (this) 
-	 pushl 8(%ebp) 
-	 call Point_setXY 
-	# Clean up parameters: 2 * 4 
-	 addl $8, %esp 
-	 
- 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 41: end setX 
-	# Line 42: setY() is 
-Point_setY: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 44: y:=newY 
-	# pushl newY 
-	 pushl 12(%ebp) 
-	# put param value into eax 
-	 popl %eax 
-	# get reference to me 
-	 movl 8(%ebp), %ebx 
-	# store new value in offset inside of me 
-	 movl %eax, 12(%ebx) 
-	 
- 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 46: end setY 
-	# Line 47: start() is 
-Point_start: 
-	# Function preamble 
-	 pushl %ebp 
-	 movl %esp, %ebp 
-	# Making space for return value 
-	 pushl $0 
-	# Line 49: out.writeint(5) 
-	 pushl $5 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_writeint 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
-	 
- 
-	# cleaning up the stack and returnig 
-	 leave 
-	 ret 
-	# Line 51: end start 
-	# CLASS BEGINNIGN HERE 
-	# Line 55: kkkk:Point
- 
 	 movl $0, 8(%ebp) 
-	# Line 56: start() is 
-Test_start: 
+	# Line 8: print() is 
+Bstrbasics_print: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# making space for 3 locals 
-	 pushl $0 
-	# making space for 3 locals 
-	 pushl $0 
-	# making space for 3 locals 
-	 pushl $0 
-	# Line 61: s:="test" 
+	# Line 10: print:="q = ".cat(q).cat("\n") 
 .data 
 stringlit1: 
-	 .string "test" 
+	 .string "\n" 
 	 
  
 .text 
@@ -276,14 +36,11 @@ stringlit1:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# popl s 
-	 popl -16(%ebp) 
-	 
- 
-	# Line 62: s:="foo" 
+	# pushl q 
+	 pushl 12(%ebp) 
 .data 
 stringlit2: 
-	 .string "foo" 
+	 .string "q = " 
 	 
  
 .text 
@@ -291,14 +48,41 @@ stringlit2:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# popl s 
-	 popl -16(%ebp) 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# popl print 
+	 popl -4(%ebp) 
 	 
  
-	# Line 63: s:="boo" 
+	# Moving the value inside the return value section of the stack into eax 
+	 movl -4(%ebp), %eax 
+	# cleaning up the stack and returnig 
+	 leave 
+	 ret 
+	# Line 12: end print 
+	# Line 13: start() is 
+Bstrbasics_start: 
+	# Function preamble 
+	 pushl %ebp 
+	 movl %esp, %ebp 
+	# Making space for return value 
+	 pushl $0 
+	# making space for 2 locals 
+	 pushl $0 
+	# making space for 2 locals 
+	 pushl $0 
+	# Line 17: out.write("Enter a string of characters:") 
 .data 
 stringlit3: 
-	 .string "boo" 
+	 .string "Enter a string of characters:" 
 	 
  
 .text 
@@ -306,27 +90,188 @@ stringlit3:
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
-	# popl s 
-	 popl -16(%ebp) 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
 	 
  
-	# Line 64: if s=null then 
+	# Line 18: s:=in.readline() 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 0(%ebx) 
+	 call Reader_readline 
+	# Clean up THIS obj reference param 
+	 addl $4, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# put param value into eax 
+	 popl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# store new value in offset inside of me 
+	 movl %eax, 8(%ebx) 
+	 
+ 
+	# Line 19: len:=s.length() 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call String_length 
+	# Clean up THIS obj reference param 
+	 addl $4, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# popl len 
+	 popl -8(%ebp) 
+	 
+ 
+	# Line 20: firstCh:=s.charAt(0) 
 	 pushl $0 
-	# pushl s 
-	 pushl -16(%ebp) 
-	 call eqTo 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call String_charAt 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
 	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# popl firstCh 
+	 popl -12(%ebp) 
+	 
+ 
+	# Line 22: out.write("s has ".catInt(len).cat(" characters.\n")) 
+.data 
+stringlit4: 
+	 .string " characters.\n" 
+	 
+ 
+.text 
+	 pushl $stringlit4 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	# pushl len 
+	 pushl -8(%ebp) 
+.data 
+stringlit5: 
+	 .string "s has " 
+	 
+ 
+.text 
+	 pushl $stringlit5 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 call String_catInt 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 23: out.write("charAt(0) = '".catChar(firstCh).cat("'\n")) 
+.data 
+stringlit6: 
+	 .string "'\n" 
+	 
+ 
+.text 
+	 pushl $stringlit6 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	# pushl firstCh 
+	 pushl -12(%ebp) 
+.data 
+stringlit7: 
+	 .string "charAt(0) = '" 
+	 
+ 
+.text 
+	 pushl $stringlit7 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 call String_catChar 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	 call String_cat 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	# Line 25: if s.gt(" ") then 
+.data 
+stringlit8: 
+	 .string " " 
+	 
+ 
+.text 
+	 pushl $stringlit8 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call String_gt 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
 	 pushl %eax 
 	 popl %eax 
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L47 
-	# Line 65: out.writeint(5) 
-	 pushl $5 
+	# Line 26: out.write("s > ' '\n") 
+.data 
+stringlit9: 
+	 .string "s > ' '\n" 
+	 
+ 
+.text 
+	 pushl $stringlit9 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
 	# reference to the object 
 	# pushl out 
 	 pushl 0(%ebp) 
-	 call Writer_writeint 
+	 call Writer_write 
 	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	# Clean up this reference pushed on last: 4 
@@ -335,26 +280,22 @@ stringlit3:
  
 	 jmp .L48 
 	 .L47: 
-	# Line 66: Else 
-	# Line 67: out.writeint(10) 
-	 pushl $10 
-	# reference to the object 
-	# pushl out 
-	 pushl 0(%ebp) 
-	 call Writer_writeint 
-	# Clean up parameters: 1 * 4 
-	 addl $4, %esp 
-	# Clean up this reference pushed on last: 4 
-	 addl $4, %esp 
+	# Line 27: Else 
+	# Line 28: out.write("! s > ' '\n") 
+.data 
+stringlit10: 
+	 .string "! s > ' '\n" 
 	 
  
-	# Line 68: out.writeln(s) 
-	# pushl s 
-	 pushl -16(%ebp) 
+.text 
+	 pushl $stringlit10 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
 	# reference to the object 
 	# pushl out 
 	 pushl 0(%ebp) 
-	 call Writer_writeln 
+	 call Writer_write 
 	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	# Clean up this reference pushed on last: 4 
@@ -362,22 +303,99 @@ stringlit3:
 	 
  
 	 .L48: 
-	# Line 69: end if 
-	# Line 70: out.writeln("jajajaj") 
+	# Line 29: end if 
+	# Line 31: if s.gteq(" ") then 
 .data 
-stringlit4: 
-	 .string "jajajaj" 
+stringlit11: 
+	 .string " " 
 	 
  
 .text 
-	 pushl $stringlit4 
+	 pushl $stringlit11 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	# get reference to me 
+	 movl 8(%ebp), %ebx 
+	# push value inside of the reference 
+	 pushl 8(%ebx) 
+	 call String_gteq 
+	# Clean up parameters: (1 * 4) + 4 (this ptr) 
+	 addl $8, %esp 
+	# Pushing the result from the called function 
+	 pushl %eax 
+	 popl %eax 
+	 movl $1, %edx 
+	 cmpl %eax, %edx 
+	 jne .L49 
+	# Line 32: out.write("s >= ' '\n") 
+.data 
+stringlit12: 
+	 .string "s >= ' '\n" 
+	 
+ 
+.text 
+	 pushl $stringlit12 
 	 call string_fromlit 
 	 addl $4, %esp 
 	 pushl %eax 
 	# reference to the object 
 	# pushl out 
 	 pushl 0(%ebp) 
-	 call Writer_writeln 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	 jmp .L50 
+	 .L49: 
+	# Line 33: Else 
+	# Line 34: out.write("! s >= ' '\n") 
+.data 
+stringlit13: 
+	 .string "! s >= ' '\n" 
+	 
+ 
+.text 
+	 pushl $stringlit13 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_write 
+	# Clean up parameters: 1 * 4 
+	 addl $4, %esp 
+	# Clean up this reference pushed on last: 4 
+	 addl $4, %esp 
+	 
+ 
+	 .L50: 
+	# Line 35: end if 
+	# Line 37: out.write(print("wowsers!")) 
+.data 
+stringlit14: 
+	 .string "wowsers!" 
+	 
+ 
+.text 
+	 pushl $stringlit14 
+	 call string_fromlit 
+	 addl $4, %esp 
+	 pushl %eax 
+	 pushl 8(%ebp) 
+	 call Bstrbasics_print 
+	 addl $4, %esp 
+	 pushl %eax 
+	 
+ 
+	# reference to the object 
+	# pushl out 
+	 pushl 0(%ebp) 
+	 call Writer_write 
 	# Clean up parameters: 1 * 4 
 	 addl $4, %esp 
 	# Clean up this reference pushed on last: 4 
@@ -387,7 +405,7 @@ stringlit4:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 71: end start 
+	# Line 40: end start 
 	# CLASS BEGINNIGN HERE 
 	# Line 8: toString() is 
 floyd_toString: 
@@ -878,7 +896,8 @@ String_cat:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 119: newstr:=copy() 
+	# Line 120: newstr:=copy() 
+	 pushl 8(%ebp) 
 	 call String_copy 
 	 pushl %eax 
 	 
@@ -887,7 +906,7 @@ String_cat:
 	 popl -8(%ebp) 
 	 
  
-	# Line 122: curNode:=str.getCharlist() 
+	# Line 123: curNode:=str.getCharlist() 
 	# pushl str 
 	 pushl 12(%ebp) 
 	 call String_getCharlist 
@@ -901,7 +920,7 @@ String_cat:
  
 	 jmp .L9 
 	 .L10: 
-	# Line 124: newstr.appendChar(curNode.getChar()) 
+	# Line 125: newstr.appendChar(curNode.getChar()) 
 	# pushl curNode 
 	 pushl -12(%ebp) 
 	 call CharNode_getChar 
@@ -919,7 +938,7 @@ String_cat:
 	 addl $4, %esp 
 	 
  
-	# Line 125: curNode:=curNode.getNext() 
+	# Line 126: curNode:=curNode.getNext() 
 	# pushl curNode 
 	 pushl -12(%ebp) 
 	 call CharNode_getNext 
@@ -932,7 +951,7 @@ String_cat:
 	 
  
 	 .L9: 
-	# Line 123: not(curNode=null) 
+	# Line 124: not(curNode=null) 
 	 pushl $0 
 	# pushl curNode 
 	 pushl -12(%ebp) 
@@ -945,8 +964,8 @@ String_cat:
 	 pop %eax 
 	 cmpl $0, %eax 
 	 jne .L10 
-	# Line 126: end loop 
-	# Line 128: cat:=newstr 
+	# Line 127: end loop 
+	# Line 129: cat:=newstr 
 	# pushl newstr 
 	 pushl -8(%ebp) 
 	# popl cat 
@@ -958,8 +977,8 @@ String_cat:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 132: end cat 
-	# Line 133: catChar() is 
+	# Line 133: end cat 
+	# Line 134: catChar() is 
 String_catChar: 
 	# Function preamble 
 	 pushl %ebp 
@@ -968,7 +987,8 @@ String_catChar:
 	 pushl $0 
 	# making space for 1 locals 
 	 pushl $0 
-	# Line 136: newstr:=copy() 
+	# Line 137: newstr:=copy() 
+	 pushl 8(%ebp) 
 	 call String_copy 
 	 pushl %eax 
 	 
@@ -977,7 +997,7 @@ String_catChar:
 	 popl -8(%ebp) 
 	 
  
-	# Line 138: newstr.appendChar(ch) 
+	# Line 139: newstr.appendChar(ch) 
 	# pushl ch 
 	 pushl 12(%ebp) 
 	# reference to the object 
@@ -990,7 +1010,7 @@ String_catChar:
 	 addl $4, %esp 
 	 
  
-	# Line 140: catChar:=newstr 
+	# Line 141: catChar:=newstr 
 	# pushl newstr 
 	 pushl -8(%ebp) 
 	# popl catChar 
@@ -1002,8 +1022,8 @@ String_catChar:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 143: end catChar 
-	# Line 144: catInt() is 
+	# Line 144: end catChar 
+	# Line 145: catInt() is 
 String_catInt: 
 	# Function preamble 
 	 pushl %ebp 
@@ -1014,7 +1034,7 @@ String_catInt:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 149: if not(num=0) then 
+	# Line 150: if not(num=0) then 
 	 pushl $0 
 	# pushl num 
 	 pushl 12(%ebp) 
@@ -1028,7 +1048,7 @@ String_catInt:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L11 
-	# Line 150: result:=newString 
+	# Line 151: result:=newString 
 	 pushl $12 
 	 pushl $1 
 	 call calloc 
@@ -1040,7 +1060,7 @@ String_catInt:
 	 popl -8(%ebp) 
 	 
  
-	# Line 152: if (0>num) then 
+	# Line 153: if (0>num) then 
 	# pushl num 
 	 pushl 12(%ebp) 
 	 pushl $0 
@@ -1051,7 +1071,7 @@ String_catInt:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L13 
-	# Line 153: result.catChar(45) 
+	# Line 154: result.catChar(45) 
 	 pushl $45 
 	# reference to the object 
 	# pushl result 
@@ -1063,7 +1083,7 @@ String_catInt:
 	 addl $4, %esp 
 	 
  
-	# Line 154: num:=-num 
+	# Line 155: num:=-num 
 	# pushl num 
 	 pushl 12(%ebp) 
 	 call unaryMinus 
@@ -1076,8 +1096,8 @@ String_catInt:
 	 jmp .L14 
 	 .L13: 
 	 .L14: 
-	# Line 155: end if 
-	# Line 158: catIntHelper(num,result) 
+	# Line 156: end if 
+	# Line 159: catIntHelper(num,result) 
 	# pushl result 
 	 pushl -8(%ebp) 
 	# pushl num 
@@ -1091,8 +1111,8 @@ String_catInt:
  
 	 jmp .L12 
 	 .L11: 
-	# Line 160: Else 
-	# Line 161: result:=(newString).catChar(48) 
+	# Line 161: Else 
+	# Line 162: result:=(newString).catChar(48) 
 	 pushl $48 
 	 pushl $12 
 	 pushl $1 
@@ -1111,10 +1131,11 @@ String_catInt:
 	 
  
 	 .L12: 
-	# Line 162: end if 
-	# Line 164: catInt:=cat(result) 
+	# Line 163: end if 
+	# Line 165: catInt:=cat(result) 
 	# pushl result 
 	 pushl -8(%ebp) 
+	 pushl 8(%ebp) 
 	 call String_cat 
 	 addl $4, %esp 
 	 pushl %eax 
@@ -1129,8 +1150,8 @@ String_catInt:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 168: end catInt 
-	# Line 169: charAt() is 
+	# Line 169: end catInt 
+	# Line 170: charAt() is 
 String_charAt: 
 	# Function preamble 
 	 pushl %ebp 
@@ -1139,7 +1160,7 @@ String_charAt:
 	 pushl $0 
 	# making space for 1 locals 
 	 pushl $0 
-	# Line 172: curNode:=charlist 
+	# Line 173: curNode:=charlist 
 	# get reference to me 
 	 movl 8(%ebp), %ebx 
 	# push value inside of the reference 
@@ -1150,7 +1171,7 @@ String_charAt:
  
 	 jmp .L15 
 	 .L16: 
-	# Line 174: index:=index-1 
+	# Line 175: index:=index-1 
 	 pushl $1 
 	# pushl index 
 	 pushl 12(%ebp) 
@@ -1161,7 +1182,7 @@ String_charAt:
 	 popl 12(%ebp) 
 	 
  
-	# Line 175: curNode:=curNode.getNext() 
+	# Line 176: curNode:=curNode.getNext() 
 	# pushl curNode 
 	 pushl -8(%ebp) 
 	 call CharNode_getNext 
@@ -1174,7 +1195,7 @@ String_charAt:
 	 
  
 	 .L15: 
-	# Line 173: (index>0)andnot(curNode=null) 
+	# Line 174: (index>0)andnot(curNode=null) 
 	 pushl $0 
 	# pushl curNode 
 	 pushl -8(%ebp) 
@@ -1196,8 +1217,8 @@ String_charAt:
 	 pop %eax 
 	 cmpl $0, %eax 
 	 jne .L16 
-	# Line 176: end loop 
-	# Line 178: if not(curNode=null) then 
+	# Line 177: end loop 
+	# Line 179: if not(curNode=null) then 
 	 pushl $0 
 	# pushl curNode 
 	 pushl -8(%ebp) 
@@ -1211,7 +1232,7 @@ String_charAt:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L17 
-	# Line 179: charAt:=curNode.getChar() 
+	# Line 180: charAt:=curNode.getChar() 
 	# pushl curNode 
 	 pushl -8(%ebp) 
 	 call CharNode_getChar 
@@ -1225,22 +1246,22 @@ String_charAt:
  
 	 jmp .L18 
 	 .L17: 
-	# Line 180: Else 
-	# Line 181: charAt:=-1 
+	# Line 181: Else 
+	# Line 182: charAt:=-1 
 	 pushl $-1 
 	# popl charAt 
 	 popl -4(%ebp) 
 	 
  
 	 .L18: 
-	# Line 182: end if 
+	# Line 183: end if 
 	# Moving the value inside the return value section of the stack into eax 
 	 movl -4(%ebp), %eax 
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 185: end charAt 
-	# Line 186: length() is 
+	# Line 186: end charAt 
+	# Line 187: length() is 
 String_length: 
 	# Function preamble 
 	 pushl %ebp 
@@ -1251,7 +1272,7 @@ String_length:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 190: curNode:=charlist 
+	# Line 191: curNode:=charlist 
 	# get reference to me 
 	 movl 8(%ebp), %ebx 
 	# push value inside of the reference 
@@ -1260,7 +1281,7 @@ String_length:
 	 popl -12(%ebp) 
 	 
  
-	# Line 191: i:=0 
+	# Line 192: i:=0 
 	 pushl $0 
 	# popl i 
 	 popl -8(%ebp) 
@@ -1268,7 +1289,7 @@ String_length:
  
 	 jmp .L19 
 	 .L20: 
-	# Line 193: i:=i+1 
+	# Line 194: i:=i+1 
 	# pushl i 
 	 pushl -8(%ebp) 
 	 pushl $1 
@@ -1280,7 +1301,7 @@ String_length:
 	 popl -8(%ebp) 
 	 
  
-	# Line 194: curNode:=curNode.getNext() 
+	# Line 195: curNode:=curNode.getNext() 
 	# pushl curNode 
 	 pushl -12(%ebp) 
 	 call CharNode_getNext 
@@ -1293,7 +1314,7 @@ String_length:
 	 
  
 	 .L19: 
-	# Line 192: not(curNode=null) 
+	# Line 193: not(curNode=null) 
 	 pushl $0 
 	# pushl curNode 
 	 pushl -12(%ebp) 
@@ -1306,8 +1327,8 @@ String_length:
 	 pop %eax 
 	 cmpl $0, %eax 
 	 jne .L20 
-	# Line 195: end loop 
-	# Line 196: length:=i 
+	# Line 196: end loop 
+	# Line 197: length:=i 
 	# pushl i 
 	 pushl -8(%ebp) 
 	# popl length 
@@ -1319,8 +1340,8 @@ String_length:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 199: end length 
-	# Line 200: eq() is 
+	# Line 200: end length 
+	# Line 201: eq() is 
 String_eq: 
 	# Function preamble 
 	 pushl %ebp 
@@ -1331,7 +1352,8 @@ String_eq:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 204: len:=length() 
+	# Line 205: len:=length() 
+	 pushl 8(%ebp) 
 	 call String_length 
 	 pushl %eax 
 	 
@@ -1340,7 +1362,7 @@ String_eq:
 	 popl -12(%ebp) 
 	 
  
-	# Line 205: if not(len=str.length()) then 
+	# Line 206: if not(len=str.length()) then 
 	# pushl str 
 	 pushl 12(%ebp) 
 	 call String_length 
@@ -1360,7 +1382,7 @@ String_eq:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L21 
-	# Line 206: eq:=false 
+	# Line 207: eq:=false 
 	 pushl $0 
 	# popl eq 
 	 popl -4(%ebp) 
@@ -1368,8 +1390,8 @@ String_eq:
  
 	 jmp .L22 
 	 .L21: 
-	# Line 207: Else 
-	# Line 208: i:=0 
+	# Line 208: Else 
+	# Line 209: i:=0 
 	 pushl $0 
 	# popl i 
 	 popl -8(%ebp) 
@@ -1377,7 +1399,7 @@ String_eq:
  
 	 jmp .L23 
 	 .L24: 
-	# Line 210: i:=i+1 
+	# Line 211: i:=i+1 
 	# pushl i 
 	 pushl -8(%ebp) 
 	 pushl $1 
@@ -1390,7 +1412,7 @@ String_eq:
 	 
  
 	 .L23: 
-	# Line 209: not(i>=len)and(charAt(i)=str.charAt(i)) 
+	# Line 210: not(i>=len)and(charAt(i)=str.charAt(i)) 
 	# pushl i 
 	 pushl -8(%ebp) 
 	# pushl str 
@@ -1402,6 +1424,7 @@ String_eq:
 	 pushl %eax 
 	# pushl i 
 	 pushl -8(%ebp) 
+	 pushl 8(%ebp) 
 	 call String_charAt 
 	 addl $4, %esp 
 	 pushl %eax 
@@ -1426,8 +1449,8 @@ String_eq:
 	 pop %eax 
 	 cmpl $0, %eax 
 	 jne .L24 
-	# Line 211: end loop 
-	# Line 212: eq:=(i=len) 
+	# Line 212: end loop 
+	# Line 213: eq:=(i=len) 
 	# pushl len 
 	 pushl -12(%ebp) 
 	# pushl i 
@@ -1440,14 +1463,14 @@ String_eq:
 	 
  
 	 .L22: 
-	# Line 213: end if 
+	# Line 214: end if 
 	# Moving the value inside the return value section of the stack into eax 
 	 movl -4(%ebp), %eax 
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 215: end eq 
-	# Line 216: gt() is 
+	# Line 216: end eq 
+	# Line 217: gt() is 
 String_gt: 
 	# Function preamble 
 	 pushl %ebp 
@@ -1458,7 +1481,8 @@ String_gt:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 220: len:=length() 
+	# Line 221: len:=length() 
+	 pushl 8(%ebp) 
 	 call String_length 
 	 pushl %eax 
 	 
@@ -1467,7 +1491,7 @@ String_gt:
 	 popl -12(%ebp) 
 	 
  
-	# Line 221: i:=0 
+	# Line 222: i:=0 
 	 pushl $0 
 	# popl i 
 	 popl -8(%ebp) 
@@ -1475,7 +1499,7 @@ String_gt:
  
 	 jmp .L25 
 	 .L26: 
-	# Line 223: i:=i+1 
+	# Line 224: i:=i+1 
 	# pushl i 
 	 pushl -8(%ebp) 
 	 pushl $1 
@@ -1488,7 +1512,7 @@ String_gt:
 	 
  
 	 .L25: 
-	# Line 222: not(i>=len)andnot(i>=str.length())and(charAt(i)=str.charAt(i)) 
+	# Line 223: not(i>=len)andnot(i>=str.length())and(charAt(i)=str.charAt(i)) 
 	# pushl i 
 	 pushl -8(%ebp) 
 	# pushl str 
@@ -1500,6 +1524,7 @@ String_gt:
 	 pushl %eax 
 	# pushl i 
 	 pushl -8(%ebp) 
+	 pushl 8(%ebp) 
 	 call String_charAt 
 	 addl $4, %esp 
 	 pushl %eax 
@@ -1542,8 +1567,8 @@ String_gt:
 	 pop %eax 
 	 cmpl $0, %eax 
 	 jne .L26 
-	# Line 224: end loop 
-	# Line 225: if (i>=len)or(i>=str.length()) then 
+	# Line 225: end loop 
+	# Line 226: if (i>=len)or(i>=str.length()) then 
 	# pushl str 
 	 pushl 12(%ebp) 
 	 call String_length 
@@ -1570,7 +1595,7 @@ String_gt:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L27 
-	# Line 226: gt:=len>str.length() 
+	# Line 227: gt:=len>str.length() 
 	# pushl str 
 	 pushl 12(%ebp) 
 	 call String_length 
@@ -1589,8 +1614,8 @@ String_gt:
  
 	 jmp .L28 
 	 .L27: 
-	# Line 227: Else 
-	# Line 228: gt:=(charAt(i)>str.charAt(i)) 
+	# Line 228: Else 
+	# Line 229: gt:=(charAt(i)>str.charAt(i)) 
 	# pushl i 
 	 pushl -8(%ebp) 
 	# pushl str 
@@ -1602,6 +1627,7 @@ String_gt:
 	 pushl %eax 
 	# pushl i 
 	 pushl -8(%ebp) 
+	 pushl 8(%ebp) 
 	 call String_charAt 
 	 addl $4, %esp 
 	 pushl %eax 
@@ -1615,23 +1641,24 @@ String_gt:
 	 
  
 	 .L28: 
-	# Line 229: end if 
+	# Line 230: end if 
 	# Moving the value inside the return value section of the stack into eax 
 	 movl -4(%ebp), %eax 
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 232: end gt 
-	# Line 233: gteq() is 
+	# Line 233: end gt 
+	# Line 234: gteq() is 
 String_gteq: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 235: gteq:=gt(str)oreq(str) 
+	# Line 236: gteq:=gt(str)oreq(str) 
 	# pushl str 
 	 pushl 12(%ebp) 
+	 pushl 8(%ebp) 
 	 call String_eq 
 	 addl $4, %esp 
 	 pushl %eax 
@@ -1639,6 +1666,7 @@ String_gteq:
  
 	# pushl str 
 	 pushl 12(%ebp) 
+	 pushl 8(%ebp) 
 	 call String_gt 
 	 addl $4, %esp 
 	 pushl %eax 
@@ -1656,15 +1684,15 @@ String_gteq:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 238: end gteq 
-	# Line 239: toString() is 
+	# Line 239: end gteq 
+	# Line 240: toString() is 
 String_toString: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 241: toString:=me 
+	# Line 242: toString:=me 
 	 pushl 8(%ebp) 
 	# popl toString 
 	 popl -4(%ebp) 
@@ -1675,9 +1703,9 @@ String_toString:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 244: end toString 
+	# Line 245: end toString 
 	# CLASS BEGINNIGN HERE 
-	# Line 259: readline() is 
+	# Line 260: readline() is 
 Reader_readline: 
 	# Function preamble 
 	 pushl %ebp 
@@ -1688,7 +1716,7 @@ Reader_readline:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 263: s:=newString 
+	# Line 264: s:=newString 
 	 pushl $12 
 	 pushl $1 
 	 call calloc 
@@ -1700,7 +1728,8 @@ Reader_readline:
 	 popl -12(%ebp) 
 	 
  
-	# Line 265: char:=io_read() 
+	# Line 266: char:=io_read() 
+	 pushl 8(%ebp) 
 	 call Reader_io_read 
 	 pushl %eax 
 	 
@@ -1711,7 +1740,7 @@ Reader_readline:
  
 	 jmp .L29 
 	 .L30: 
-	# Line 267: if not(char=13) then 
+	# Line 268: if not(char=13) then 
 	 pushl $13 
 	# pushl char 
 	 pushl -8(%ebp) 
@@ -1725,7 +1754,7 @@ Reader_readline:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L31 
-	# Line 268: s.appendChar(char) 
+	# Line 269: s.appendChar(char) 
 	# pushl char 
 	 pushl -8(%ebp) 
 	# reference to the object 
@@ -1741,8 +1770,9 @@ Reader_readline:
 	 jmp .L32 
 	 .L31: 
 	 .L32: 
-	# Line 269: end if 
-	# Line 270: char:=io_read() 
+	# Line 270: end if 
+	# Line 271: char:=io_read() 
+	 pushl 8(%ebp) 
 	 call Reader_io_read 
 	 pushl %eax 
 	 
@@ -1752,7 +1782,7 @@ Reader_readline:
 	 
  
 	 .L29: 
-	# Line 266: not(char=10) 
+	# Line 267: not(char=10) 
 	 pushl $10 
 	# pushl char 
 	 pushl -8(%ebp) 
@@ -1765,8 +1795,8 @@ Reader_readline:
 	 pop %eax 
 	 cmpl $0, %eax 
 	 jne .L30 
-	# Line 271: end loop 
-	# Line 273: readline:=s 
+	# Line 272: end loop 
+	# Line 274: readline:=s 
 	# pushl s 
 	 pushl -12(%ebp) 
 	# popl readline 
@@ -1778,8 +1808,8 @@ Reader_readline:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 279: end readline 
-	# Line 280: readint() is 
+	# Line 280: end readline 
+	# Line 281: readint() is 
 Reader_readint: 
 	# Function preamble 
 	 pushl %ebp 
@@ -1796,7 +1826,8 @@ Reader_readint:
 	 pushl $0 
 	# making space for 5 locals 
 	 pushl $0 
-	# Line 287: s:=readline() 
+	# Line 288: s:=readline() 
+	 pushl 8(%ebp) 
 	 call Reader_readline 
 	 pushl %eax 
 	 
@@ -1805,7 +1836,7 @@ Reader_readint:
 	 popl -8(%ebp) 
 	 
  
-	# Line 288: if s.length()>0 then 
+	# Line 289: if s.length()>0 then 
 	 pushl $0 
 	# pushl s 
 	 pushl -8(%ebp) 
@@ -1821,7 +1852,7 @@ Reader_readint:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L33 
-	# Line 289: if s.charAt(0)=45 then 
+	# Line 290: if s.charAt(0)=45 then 
 	 pushl $45 
 	 pushl $0 
 	# pushl s 
@@ -1838,13 +1869,13 @@ Reader_readint:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L35 
-	# Line 290: mult:=-1 
+	# Line 291: mult:=-1 
 	 pushl $-1 
 	# popl mult 
 	 popl -24(%ebp) 
 	 
  
-	# Line 291: i:=1 
+	# Line 292: i:=1 
 	 pushl $1 
 	# popl i 
 	 popl -12(%ebp) 
@@ -1852,28 +1883,28 @@ Reader_readint:
  
 	 jmp .L36 
 	 .L35: 
-	# Line 292: Else 
-	# Line 293: mult:=1 
+	# Line 293: Else 
+	# Line 294: mult:=1 
 	 pushl $1 
 	# popl mult 
 	 popl -24(%ebp) 
 	 
  
-	# Line 294: i:=0 
+	# Line 295: i:=0 
 	 pushl $0 
 	# popl i 
 	 popl -12(%ebp) 
 	 
  
 	 .L36: 
-	# Line 295: end if 
-	# Line 297: num:=0 
+	# Line 296: end if 
+	# Line 298: num:=0 
 	 pushl $0 
 	# popl num 
 	 popl -16(%ebp) 
 	 
  
-	# Line 298: len:=s.length() 
+	# Line 299: len:=s.length() 
 	# pushl s 
 	 pushl -8(%ebp) 
 	 call String_length 
@@ -1887,7 +1918,7 @@ Reader_readint:
  
 	 jmp .L37 
 	 .L38: 
-	# Line 300: num:=num*10+(s.charAt(i)-48) 
+	# Line 301: num:=num*10+(s.charAt(i)-48) 
 	# pushl num 
 	 pushl -16(%ebp) 
 	 pushl $10 
@@ -1915,7 +1946,7 @@ Reader_readint:
 	 popl -16(%ebp) 
 	 
  
-	# Line 301: i:=i+1 
+	# Line 302: i:=i+1 
 	# pushl i 
 	 pushl -12(%ebp) 
 	 pushl $1 
@@ -1928,7 +1959,7 @@ Reader_readint:
 	 
  
 	 .L37: 
-	# Line 299: not(i>=len) 
+	# Line 300: not(i>=len) 
 	# pushl len 
 	 pushl -20(%ebp) 
 	# pushl i 
@@ -1942,8 +1973,8 @@ Reader_readint:
 	 pop %eax 
 	 cmpl $0, %eax 
 	 jne .L38 
-	# Line 302: end loop 
-	# Line 304: readint:=num*mult 
+	# Line 303: end loop 
+	# Line 305: readint:=num*mult 
 	# pushl num 
 	 pushl -16(%ebp) 
 	# pushl mult 
@@ -1957,30 +1988,30 @@ Reader_readint:
  
 	 jmp .L34 
 	 .L33: 
-	# Line 305: Else 
-	# Line 306: readint:=-1 
+	# Line 306: Else 
+	# Line 307: readint:=-1 
 	 pushl $-1 
 	# popl readint 
 	 popl -4(%ebp) 
 	 
  
 	 .L34: 
-	# Line 307: end if 
+	# Line 308: end if 
 	# Moving the value inside the return value section of the stack into eax 
 	 movl -4(%ebp), %eax 
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 309: end readint 
+	# Line 310: end readint 
 	# CLASS BEGINNIGN HERE 
-	# Line 324: writechar() is 
+	# Line 325: writechar() is 
 Writer_writechar: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 326: io_write(char) 
+	# Line 327: io_write(char) 
 	# pushl char 
 	 pushl 12(%ebp) 
 	# reference to the object (this) 
@@ -1990,7 +2021,7 @@ Writer_writechar:
 	 addl $4, %esp 
 	 
  
-	# Line 327: writechar:=me 
+	# Line 328: writechar:=me 
 	 pushl 8(%ebp) 
 	# popl writechar 
 	 popl -4(%ebp) 
@@ -2001,8 +2032,8 @@ Writer_writechar:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 331: end writechar 
-	# Line 332: writeintHelper() is 
+	# Line 332: end writechar 
+	# Line 333: writeintHelper() is 
 Writer_writeintHelper: 
 	# Function preamble 
 	 pushl %ebp 
@@ -2011,7 +2042,7 @@ Writer_writeintHelper:
 	 pushl $0 
 	# making space for 1 locals 
 	 pushl $0 
-	# Line 335: digit:=num-(num/10)*10 
+	# Line 336: digit:=num-(num/10)*10 
 	 pushl $10 
 	# pushl num 
 	 pushl 12(%ebp) 
@@ -2031,7 +2062,7 @@ Writer_writeintHelper:
 	 popl -8(%ebp) 
 	 
  
-	# Line 336: if num/10>0 then 
+	# Line 337: if num/10>0 then 
 	 pushl $0 
 	 pushl $10 
 	# pushl num 
@@ -2046,7 +2077,7 @@ Writer_writeintHelper:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L39 
-	# Line 337: writeintHelper(num/10) 
+	# Line 338: writeintHelper(num/10) 
 	 pushl $10 
 	# pushl num 
 	 pushl 12(%ebp) 
@@ -2063,8 +2094,8 @@ Writer_writeintHelper:
 	 jmp .L40 
 	 .L39: 
 	 .L40: 
-	# Line 338: end if 
-	# Line 339: io_write(digit+48) 
+	# Line 339: end if 
+	# Line 340: io_write(digit+48) 
 	# pushl digit 
 	 pushl -8(%ebp) 
 	 pushl $48 
@@ -2082,15 +2113,15 @@ Writer_writeintHelper:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 342: end writeintHelper 
-	# Line 343: writeint() is 
+	# Line 343: end writeintHelper 
+	# Line 344: writeint() is 
 Writer_writeint: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 345: if (num=0) then 
+	# Line 346: if (num=0) then 
 	 pushl $0 
 	# pushl num 
 	 pushl 12(%ebp) 
@@ -2101,7 +2132,7 @@ Writer_writeint:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L41 
-	# Line 346: io_write(48) 
+	# Line 347: io_write(48) 
 	 pushl $48 
 	# reference to the object (this) 
 	 pushl 8(%ebp) 
@@ -2112,8 +2143,8 @@ Writer_writeint:
  
 	 jmp .L42 
 	 .L41: 
-	# Line 347: Else 
-	# Line 348: if not(num>=0) then 
+	# Line 348: Else 
+	# Line 349: if not(num>=0) then 
 	 pushl $0 
 	# pushl num 
 	 pushl 12(%ebp) 
@@ -2127,7 +2158,7 @@ Writer_writeint:
 	 movl $1, %edx 
 	 cmpl %eax, %edx 
 	 jne .L43 
-	# Line 349: io_write(45) 
+	# Line 350: io_write(45) 
 	 pushl $45 
 	# reference to the object (this) 
 	 pushl 8(%ebp) 
@@ -2136,7 +2167,7 @@ Writer_writeint:
 	 addl $4, %esp 
 	 
  
-	# Line 350: num:=-num 
+	# Line 351: num:=-num 
 	# pushl num 
 	 pushl 12(%ebp) 
 	 call unaryMinus 
@@ -2149,8 +2180,8 @@ Writer_writeint:
 	 jmp .L44 
 	 .L43: 
 	 .L44: 
-	# Line 351: end if 
-	# Line 352: writeintHelper(num) 
+	# Line 352: end if 
+	# Line 353: writeintHelper(num) 
 	# pushl num 
 	 pushl 12(%ebp) 
 	# reference to the object (this) 
@@ -2161,8 +2192,8 @@ Writer_writeint:
 	 
  
 	 .L42: 
-	# Line 353: end if 
-	# Line 355: io_write(13) 
+	# Line 354: end if 
+	# Line 356: io_write(13) 
 	 pushl $13 
 	# reference to the object (this) 
 	 pushl 8(%ebp) 
@@ -2171,7 +2202,7 @@ Writer_writeint:
 	 addl $4, %esp 
 	 
  
-	# Line 356: io_write(10) 
+	# Line 357: io_write(10) 
 	 pushl $10 
 	# reference to the object (this) 
 	 pushl 8(%ebp) 
@@ -2180,7 +2211,7 @@ Writer_writeint:
 	 addl $4, %esp 
 	 
  
-	# Line 358: writeint:=me 
+	# Line 359: writeint:=me 
 	 pushl 8(%ebp) 
 	# popl writeint 
 	 popl -4(%ebp) 
@@ -2191,8 +2222,8 @@ Writer_writeint:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 361: end writeint 
-	# Line 362: write() is 
+	# Line 362: end writeint 
+	# Line 363: write() is 
 Writer_write: 
 	# Function preamble 
 	 pushl %ebp 
@@ -2203,7 +2234,7 @@ Writer_write:
 	 pushl $0 
 	# making space for 2 locals 
 	 pushl $0 
-	# Line 366: len:=str.length() 
+	# Line 367: len:=str.length() 
 	# pushl str 
 	 pushl 12(%ebp) 
 	 call String_length 
@@ -2215,7 +2246,7 @@ Writer_write:
 	 popl -12(%ebp) 
 	 
  
-	# Line 367: i:=0 
+	# Line 368: i:=0 
 	 pushl $0 
 	# popl i 
 	 popl -8(%ebp) 
@@ -2223,7 +2254,7 @@ Writer_write:
  
 	 jmp .L45 
 	 .L46: 
-	# Line 369: io_write(str.charAt(i)) 
+	# Line 370: io_write(str.charAt(i)) 
 	# pushl i 
 	 pushl -8(%ebp) 
 	# pushl str 
@@ -2240,7 +2271,7 @@ Writer_write:
 	 addl $4, %esp 
 	 
  
-	# Line 370: i:=i+1 
+	# Line 371: i:=i+1 
 	# pushl i 
 	 pushl -8(%ebp) 
 	 pushl $1 
@@ -2253,7 +2284,7 @@ Writer_write:
 	 
  
 	 .L45: 
-	# Line 368: not(i>=len) 
+	# Line 369: not(i>=len) 
 	# pushl len 
 	 pushl -12(%ebp) 
 	# pushl i 
@@ -2267,8 +2298,8 @@ Writer_write:
 	 pop %eax 
 	 cmpl $0, %eax 
 	 jne .L46 
-	# Line 371: end loop 
-	# Line 373: write:=me 
+	# Line 372: end loop 
+	# Line 374: write:=me 
 	 pushl 8(%ebp) 
 	# popl write 
 	 popl -4(%ebp) 
@@ -2279,15 +2310,15 @@ Writer_write:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 376: end write 
-	# Line 377: writeln() is 
+	# Line 377: end write 
+	# Line 378: writeln() is 
 Writer_writeln: 
 	# Function preamble 
 	 pushl %ebp 
 	 movl %esp, %ebp 
 	# Making space for return value 
 	 pushl $0 
-	# Line 379: write(str) 
+	# Line 380: write(str) 
 	# pushl str 
 	 pushl 12(%ebp) 
 	# reference to the object (this) 
@@ -2297,7 +2328,7 @@ Writer_writeln:
 	 addl $4, %esp 
 	 
  
-	# Line 380: io_write(13) 
+	# Line 381: io_write(13) 
 	 pushl $13 
 	# reference to the object (this) 
 	 pushl 8(%ebp) 
@@ -2306,7 +2337,7 @@ Writer_writeln:
 	 addl $4, %esp 
 	 
  
-	# Line 381: io_write(10) 
+	# Line 382: io_write(10) 
 	 pushl $10 
 	# reference to the object (this) 
 	 pushl 8(%ebp) 
@@ -2315,7 +2346,7 @@ Writer_writeln:
 	 addl $4, %esp 
 	 
  
-	# Line 382: writeln:=me 
+	# Line 383: writeln:=me 
 	 pushl 8(%ebp) 
 	# popl writeln 
 	 popl -4(%ebp) 
@@ -2326,4 +2357,4 @@ Writer_writeln:
 	# cleaning up the stack and returnig 
 	 leave 
 	 ret 
-	# Line 384: end writeln 
+	# Line 385: end writeln 

@@ -220,16 +220,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitExprCont_ID(ExprCont_IDContext ctx) {
 		String name = ctx.IDENTIFIER().getText();
 		Symbol sym = ctx.sym;
-		//System.out.println(String.format("Name from ctx: %s, name from sym:%s, scope:%s", name, sym.getName(), sym.getScope()));
-		//temporary bandaid until invoking class methods is set in stone
-		//otherwise the linker will say: "HEY, WHERE'S IN AND OUT DEFINED, BRO? I CANT PUSH THAT
-//		if(ctx.IDENTIFIER().getText().equals("out") || ctx.IDENTIFIER().getText().equals("in")) {
-//			return null;
-//		}
 		if (sym.getDecl() instanceof VarDeclaration) {
-			if (sym.getName().equals("in") || sym.getName().equals("out")) {
-				System.out.println("IT'S IN OR OUT BRO");
-			}
 		if (sym.getScope() == LOCAL_SCOPE) {
 			VarDeclaration variable = (VarDeclaration)sym.getDecl();
 			int offset = variable.getOffset();
@@ -651,8 +642,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//offset for LHS to pass in "this"
 		//only if sym is not null, meaning there's an object there
 		if (ctx.t1 != null) {
-			System.out.println(ctx.sym.getName());
-			System.out.println(ctx.getText());
 		VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
 		//pushing "this"
 		emit(new TargetInstruction.Builder().comment("reference to the object").build());
@@ -683,6 +672,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 //			}
 		} else {
 			functionName = String.format("%s_%s", ctx.className, ctx.IDENTIFIER().getText());
+			//print location
 		}
 		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 		if (paramNum > 0) {
@@ -709,12 +699,13 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 			for (int i = ctx.expression_list().expression().size() - 1; i > -1; i--) {
-				//System.out.println( ctx.expression_list().expression().get(i).getText());
 				visit(ctx.expression_list().expression().get(i));
 			}
 		}
 		String functionName = String.format("%s_%s", ctx.classType.name, ctx.IDENTIFIER().getText());
 //		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
+		//I PRAY, PLEASE WORK!
+		emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
 		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
@@ -905,10 +896,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().instruction("call string_fromlit").build());
 		emit(new TargetInstruction.Builder().instruction("addl $4, %esp").build());
 		emit(new TargetInstruction.Builder().instruction("pushl %eax").build());
-		//System.out.println(ctx.getText() + "  " + symTable.stringLabelCounter);
 		symTable.stringLabelCounter++;
 		return null;
-		//return super.visitExprCont_Strlit(ctx);
 	}
 	
 	

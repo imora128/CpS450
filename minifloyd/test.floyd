@@ -1,72 +1,41 @@
-~ Bnulltest.floyd
-~ - Checks to see if null pointer exception checking is being performed
+~ Bstrbasics.floyd
+~ - Simple String concatenation and other method tests
 
-class Point is
-  x: int
-  y: int
-  
-  init(initX: int; initY: int): Point is
+class Bstrbasics is
+
+  s: String
+
+  print(q: String): String is
   begin
-    x := initX
-    y := initY
-    init := me  ~ return this object's reference
-  end init
-    
-  getX(): int is
-  begin
-    getX := x
-  end getX
-  
-  getY(): int is
-  begin
-    getY := y
-  end getY
-  
-  print() is
-  begin
-    out.writeint(x)
-    out.writeint(y)
+    print := "q = ".cat(q).cat("\n")
   end print
 
-  setXY(newX: int; newY: int) is
-  begin
-    x := newX
-    y := newY
-  end setXY
-
-  setX(newX: int) is
-  begin
-    setXY(newX, y)
-  end setX
-  
-  setY(newY: int) is
-  begin
-    y := newY
-  end setY
-
   start() is
+    len: int
+    firstCh : int
   begin
-  out.writeint(5)
+    out.write("Enter a string of characters:")
+    s := in.readline()
+    len := s.length()
+    firstCh := s.charAt(0)
+    
+    out.write("s has ".catInt(len).cat(" characters.\n"))
+    out.write("charAt(0) = '".catChar(firstCh).cat("'\n"))
+
+    if s.gt(" ") then
+       out.write("s > ' '\n")
+    else
+       out.write("! s > ' '\n")
+    end if
+  
+    if s.gteq(" ") then
+      out.write("s >= ' '\n")
+    else
+       out.write("! s >= ' '\n")
+    end if
+        
+    out.write(print("wowsers!"))
+
   end start
   
-end Point
-
-class Test is
-kkkk : Point
-start() is
-p : Point
-z : int
-s : string
-begin
-s := "test"
-s := "foo"
-s := "boo"
-if s = null then
-  out.writeint(5)
-  else
-  out.writeint(10)
-  out.writeln(s)
-  end if
-  out.writeln("jajajaj")
-end start
-end Test
+end Bstrbasics

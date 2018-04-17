@@ -86,57 +86,21 @@ public class SemanticChecker extends FloydBaseListener {
 	ClassDeclaration writer;
 	int instanceVarOffset = 8;
 	SemanticChecker(Option opt) {
-		//TODO(In cse i need this)
-//		if (!opt.fileName.equals("stdlib.floyd")) {
-//			System.out.println("setting symTable to the previous value");
-//		}
 		this.opt = opt;
 		print.opt = opt;
 		symTable = SymbolTable.getInstance();
 
-		//symTable.populatePredefinedTypes();
-		/*
-		 * 
-		 * 		Type classType = Type.createType(myClass);
-		myClass.type = classType;
-		 */
-		
-		//creating writer class
-//		writer = new ClassDeclaration("Writer");
-//		//writeint function
-////		MethodDeclaration writeint = new MethodDeclaration(Type.VOID);
-////		writeint.appendParameter(Type.INT, "num");
-////		writer.appendMethod("writeint", writeint);
-//		
-//
-//		//writer.type = Type.WRITER;
-//		Type myType = Type.createType(writer);
-//		writer.type = myType;
-//		symTable.push("Writer", writer);
-//		symTable.push("out", new VarDeclaration(myType, "out"));
-//		//creating reader class
-//		reader = new ClassDeclaration("Reader");
-//		//readint function
-////		MethodDeclaration readint = new MethodDeclaration(Type.INT);
-////		reader.appendMethod("readint", readint);
-//		myType = Type.createType(reader);
-//		reader.type = myType;
-//		
-//		symTable.push("Reader", reader);
-//		
-//		symTable.push("in", new VarDeclaration(myType, "in"));
-//		//necessary for the semantic checker to run
 		MethodDeclaration io_write = new MethodDeclaration(Type.VOID);
 		MethodDeclaration io_read = new MethodDeclaration(Type.INT);
 		io_write.appendParameter(Type.INT, "ch");
 		symTable.push("io_write", io_write);
 		symTable.push("io_read", io_read);
+		symTable.push("leprint", new MethodDeclaration(Type.VOID));
 		
 		
 	}
 	
 	boolean doesTypeExist(Type t) {
-		//if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING || t ==Type.READER || t == Type.WRITER) {
 		if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING || Type.getTypeForName(t.name) != null) {
 			return true;
 		}
@@ -366,7 +330,6 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			//print.DEBUG("exitRelationalOr_Exp: shows previous func is null");
 		}
 		super.exitRelationalOr_Exp(ctx);
 	}
@@ -670,8 +633,6 @@ public class SemanticChecker extends FloydBaseListener {
 	
 	@Override
 	public void exitExprCont_Strlit(ExprCont_StrlitContext ctx) {
-//		print.err(String.format(print.errMsgs.get("Unsupported"), 
-//				"string literal"),ctx);
 		ctx.myType = Type.STRING;
 		super.enterExprCont_Strlit(ctx);
 	}
@@ -680,7 +641,6 @@ public class SemanticChecker extends FloydBaseListener {
 	public void exitCall_stmt(Call_stmtContext ctx) {
 
 		//class name for codegen
-		//FIXME(May not work if its just an expression, cuz i can tlook up the method info in the symTable)
 		ctx.className = currentClass;
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
 		int paramNum = 0;
@@ -690,24 +650,11 @@ public class SemanticChecker extends FloydBaseListener {
 		if (ctx.t1 != null && !(symTable.lookup(ctx.t1.getText()).getDecl().type.getClassDecl().name.equals(currentClass))) {
 			Symbol foo = symTable.lookup(ctx.t1.getText());
 			ctx.sym = foo;
-//			VarDeclaration test = (VarDeclaration)ctx.sym.getDecl();
-//			System.out.println(test.name + " offset: " + test.getOffset());
-			//continue work here.
-//			/*
-//			 * 
-//			 * testing to make sure the class info is in there
-//			 */
 			if (foo == null) {
 				print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
 						ctx.IDENTIFIER().getText()),ctx);
 				return;
 			}
-			ClassDeclaration classInfo = foo.getDecl().type.getClassDecl();
-//			HashMap<String, MethodDeclaration> boo = classInfo.methods;
-//			for (String key : boo.keySet()) {
-//				System.out.println("Function name for " + classInfo.name + " is: " + key);
-//				
-//			}
 				
 
 				if (foo.getDecl().type.getClassDecl().methods.containsKey(ctx.IDENTIFIER().getText())) {
@@ -721,7 +668,6 @@ public class SemanticChecker extends FloydBaseListener {
 						for (int i = 0; i < meth.parameters.size(); i++) {
 							if (meth.parameters.get(i).type == ctx.expression_list().expression().get(i).myType) {
 							} else {
-								System.out.println("AIODJAOISJDA");
 								print.err(String.format(print.errMsgs.get("TypeMismatch"), 
 										ctx.t1.getText(), meth.parameters.get(i).type, ctx.expression_list().expression().get(i).myType),ctx);
 								return;
@@ -731,10 +677,6 @@ public class SemanticChecker extends FloydBaseListener {
 					}
 				}
 				else {
-					System.out.println("AIOJSDJIOASDIOJOIAJSIOJA");
-					for (String name : foo.getDecl().type.getClassDecl().methods.keySet()) {
-						System.out.println(name);
-					}
 					print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
 							ctx.IDENTIFIER().getText()),ctx);
 					return;
@@ -759,17 +701,13 @@ public class SemanticChecker extends FloydBaseListener {
 			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
 					if (info.get(i).type == null) {
-						//mDecl.changeType(i, symTable.lookup(info.get(i).name).getDecl().type);
 						VarDeclaration moo = info.get(i);
 						moo.type = symTable.lookup(info.get(i).name).getDecl().type;
 						info.set(i, moo);
 					}
 					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
-						//print.DEBUG("MATCHED Type: " + info.get(i).type);
 					}
 					else {
-						//here bro
-						System.out.println(ctx.getText() + " info" + info.get(i));
 						print.err(String.format(print.errMsgs.get("ParameterMismatch"), 
 								info.get(i).type.toString(), 
 								ctx.expression_list().expression().get(i).myType.toString()),ctx);
@@ -857,7 +795,6 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 	
 			info = mDecl.getParameters();
-		//if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 			if (info.size() == paramNum) {
 				for (int i = 0; i < info.size(); i++) {
 					/*
@@ -865,13 +802,11 @@ public class SemanticChecker extends FloydBaseListener {
 					 * recursion case
 					 */
 					if (info.get(i).type == null) {
-						//mDecl.changeType(i, symTable.lookup(info.get(i).name).getDecl().type);
 						VarDeclaration moo = info.get(i);
 						moo.type = symTable.lookup(info.get(i).name).getDecl().type;
 						info.set(i, moo);
 					}
 					if ( info.get(i).type == ctx.expression_list().expression().get(i).myType) {
-						//print.DEBUG("MATCHED Type: " + info.get(i).type);
 					}
 					else {
 						print.err(String.format(print.errMsgs.get("ParameterMismatch"), 
@@ -888,14 +823,6 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 			}
 			
-		/*} else {
-			print.err(String.format(print.errMsgs.get("UndefinedFunction"), 
-					ctx.IDENTIFIER().getText()),ctx);
-			ctx.myType = Type.ERROR;
-			return;
-		}*/
-		//Symbol foo = symTable.lookup(ctx.IDENTIFIER().getText());
-		//ctx.myType = foo.getDecl().type;
 		super.exitExprCont_IDExpr(ctx);
 	}
 
@@ -947,8 +874,6 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitTypeString(TypeStringContext ctx) {
 		ctx.myType = Type.STRING;
-//		print.err(String.format(print.errMsgs.get("Unsupported"), 
-//				"string variable definition"),ctx);
 		super.enterTypeString(ctx);
 	}
 	@Override
@@ -974,7 +899,6 @@ public class SemanticChecker extends FloydBaseListener {
 		if (doesTypeExist(ctx.type().myType)) {
 		}
 		else {
-			//System.err.println("exitArgument_decl type does not exist. implement error.");
 			print.err(String.format("Type %s does not exist", ctx.type().myType), ctx);
 		}
 		super.exitArgument_decl(ctx);
@@ -1010,20 +934,6 @@ public class SemanticChecker extends FloydBaseListener {
 			}
 		}
 		ctx.params = ctx.var_decl().size();
-		//giving offsets to all locals (NEGATIVE)
-//		if (ctx.var_decl().size() > 0) {
-//			
-//			for (int i = 0; i < ctx.var_decl().size(); i++) {
-//				mDecl.appendVariable(ctx.var_decl(i).type().myType, ctx.var_decl(i).IDENTIFIER().getText(), localOffset);
-//				localOffset = localOffset - 4;
-//			}
-//		}
-//		MethodDeclaration mDecl1 = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
-//		for (int i = 0; i < mDecl1.getParameters().size(); i++) {
-//		}
-//		for (int i = 0; i < mDecl1.getVariables().size(); i++) {
-//			System.out.println(mDecl1.getVariables().get(i).name + " offset: " +  mDecl1.getVariables().get(i).getOffset());
-//		}
 		
 	
 		
@@ -1073,27 +983,11 @@ public class SemanticChecker extends FloydBaseListener {
 
 	@Override
 	public void exitStart(StartContext ctx) {
-		//TODO(IN CASE I NEED THIS 2)
-//		if (opt.fileName.get(0).equals("stdlib.floyd")) {
-//			System.out.println("So this is stdlib file... setting the symtable ");
-//			opt.symbolTable = symTable.symbolTable;
-//		ClassDeclaration test = (ClassDeclaration)Type.getTypeForName("String").getClassDecl();
-//		
-//		System.out.println("AJIADJIOASIJODAJIOSDOIJASIJODAIOJ: Looping through string type");
-//		for (String key : test.methods.keySet()) {
-//			System.out.println(key);
-//		}
-//		}
 		super.exitStart(ctx);
 	}
 
 	@Override
 	public void enterClass_(Class_Context ctx) {
-		/*//Create type needs to be done for the type class
-		symTable.createType(ctx.IDENTIFIER(0).getText());
-		symTable.push(ctx.IDENTIFIER(0).getText(), 
-				new ClassDeclaration(symTable.types.get(ctx.IDENTIFIER(0).getText())));
-		mainClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();*/
 		//instance variable offset set to 8;
 		instanceVarOffset = 8;
 		//keeping track of current class
@@ -1104,6 +998,7 @@ public class SemanticChecker extends FloydBaseListener {
 		myClass.type = classType;
 		if (currentClass.equals("Reader")) {
 			symTable.push("in", new VarDeclaration(classType, "in"));
+
 		}
 		if (currentClass.equals("Writer")) {
 			symTable.push("out", new VarDeclaration(classType, "out"));
@@ -1131,31 +1026,6 @@ public class SemanticChecker extends FloydBaseListener {
 				print.err("Class doesn't seem to be in the symbol table",ctx);
 			}
 		}
-		/*
-		 *Seeing if method declarations are working 
-		 * 
-		 */
-//		ClassDeclaration testing = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
-//		HashMap<String, MethodDeclaration> foo = testing.methods;
-//		for (String key : foo.keySet()) {
-//			System.out.println("class Name:" + ctx.IDENTIFIER(0).getText() + " Method name: " + key );
-//			
-//		}
-//		
-		//INSTANCE VARIABLES
-//		for (FloydParser.Var_declContext variable : ctx.var_decl()) {
-//			VarDeclaration classVariable = (VarDeclaration)symTable.lookup(variable.IDENTIFIER().getText()).getDecl();
-//			myClass.appendVar(classVariable);
-//		}
-		/*
-		 *Seeing if method declarations are working 
-		 * 
-		 */
-//		testing = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
-//		for (int i = 0; i < testing.vars.size(); i++ ) {
-//			System.out.println("Class: " + ctx.IDENTIFIER(0).getText() + " vars: " + testing.vars.get(i).name);
-//		}
-		
 		
 		//SymbolTable.EndScope( ) to remove the instance variable and method declarations from the symbol table
 		symTable.endScope();
@@ -1173,18 +1043,8 @@ public class SemanticChecker extends FloydBaseListener {
 		if (sym != null) {
 			ctx.sym = sym;
 		}
-//		Symbol sym = symTable.lookup(ctx.e1.getText());
-//		if (sym != null) {
-//			
-			ctx.myType = ctx.e2.myType;
-//		}
-//		else {
-//			System.out.println("AOISDIAOSDIOJASOIJDAOIJSDOJIAOIDJIAS");
-//			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
-//					ctx.e1.getText()),ctx);
-//			ctx.myType = Type.ERROR;
-//			
-//		}
+
+		ctx.myType = ctx.e2.myType;
 		
 		super.exitMethodDot_Exp(ctx);
 	}
