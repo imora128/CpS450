@@ -1,5 +1,5 @@
 #!/bin/bash
-fileName="aarrlist"
+fileName="citerfact"
 rm *.o
 rm *.s
 rm $fileName

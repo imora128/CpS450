@@ -1,1 +1,0 @@
-Can me be used: foo := me.getY()
