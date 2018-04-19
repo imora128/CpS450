@@ -10,12 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/*
-Class Name: Option
-Instance vars: 
-        ds: (BOOL) True if the user provides the option. False by default.
-        fileName: (STRING) Filename provided by the user.
-*/
 public class Option {
      boolean ds;
      boolean dp;
@@ -55,7 +49,7 @@ public class Option {
                 fileName.add(args[i]);
                 return;
             	}
-            	System.out.println("usage: minifloyd [-ds] [-dp] [-S] [-g] <floyd_source_filename>");
+            	System.out.println("usage: minifloyd [-ds] [-dp] [-S] <floyd_source_filename>");
             	System.exit(0);
             }
             

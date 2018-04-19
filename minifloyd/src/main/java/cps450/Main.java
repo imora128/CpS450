@@ -21,7 +21,7 @@ public class Main
     public static void main(String[] arguments) throws IOException {
         // if the user doesn't pass in any arguments, print usage and exit
         if (arguments.length < 1) {
-            System.out.println("usage: minifloyd [-ds] [-dp] [-S] <filename>");
+            System.out.println("usage: floyd [-ds] [-dp] [-S] <floyd_source_filename>");
             System.exit(1);
         }
         //A standard library file is required and should be provided.
@@ -86,8 +86,7 @@ public class Main
         	
         	
         } else {
-        	System.out.println(String.format("ERROR: %s semantic error(s). Code generation will not execute" +
-        			" until those are fixed.", parsedArgs.semanticErrors));
+        	System.out.println("Error: You must fix your errors or the code will not be generated.");
         }
         
         //if the dp switch is set, then show the user the tree.

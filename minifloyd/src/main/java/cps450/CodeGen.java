@@ -302,16 +302,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitAssignment_stmt(Assignment_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
-		//===============DEBUGGING============================
-		//.stabn 68,0,%s,.line%s-main
-		//.line%s:
-		if (opt.g) {
-		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
-				ctx.start.getLine(), ctx.start.getLine())).build());
-		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
-				ctx.start.getLine())).build());
-		}
-		//===============DEBUGGING============================
 		visit(ctx.e1);
 		Symbol sym = ctx.sym;
 		//check if its a variable
@@ -634,17 +624,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
     */
 	@Override
 	public Void visitClass_(Class_Context ctx) {	
-		//TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
-		//===============DEBUGGING============================
-		//.stabs  "demo.floyd",100,0,0,.Ltext0
-		if (opt.g) {
-		emit(new TargetInstruction.Builder().directive(String.format(".stabs \"%s\",100,0,0,.Ltext0", opt.fileName.get(0))).build());
-		emit(new TargetInstruction.Builder().directive(".text").build());
-		emit(new TargetInstruction.Builder().directive(".Ltext0:").build());
-		emit(new TargetInstruction.Builder().directive(".stabs  \"int:t(0,1)=r(0,1);-2147483648;2147483647;\",128,0,0,0").build());
-		}
-		//===============DEBUGGING============================
-		//emit(fileName);
 		emit(new TargetInstruction.Builder().comment("CLASS BEGINNIGN HERE").build());
 		for (int i = 0; i < ctx.var_decl().size(); i++) {
 			visit(ctx.var_decl(i));
@@ -664,15 +643,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
     */
 	@Override
 	public Void visitMethod_decl(Method_declContext ctx) {
-		//only allowed method is main in minifloyd
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s() %s", ctx.start.getLine(), 
 				ctx.IDENTIFIER(0).getText(), ctx.IS().getText())).build());
-
-		//===============DEBUGGING============================
-		if (opt.g) {
-		emit (new TargetInstruction.Builder().directive(String.format(".stabs  \"%s\",36,0,0,%s", ctx.IDENTIFIER(0).getText(),ctx.IDENTIFIER(0).getText())).build());
-		}
-		//===============DEBUGGING============================
 		String funcName = String.format("%s_%s", ctx.className, ctx.IDENTIFIER(0).getText());
 		emit(new TargetInstruction.Builder().label(String.format(("%s:"), funcName)).build());
 		//}
@@ -712,16 +684,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	@Override
 	public Void visitCall_stmt(Call_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
-		//===============DEBUGGING============================
-		//.stabn 68,0,%s,.line%s-main
-		//.line%s:
-		if (opt.g) {
-		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
-				ctx.start.getLine(), ctx.start.getLine())).build());
-		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
-				ctx.start.getLine())).build());
-		}
-		//===============DEBUGGING============================
 		
 		//right to left
 		int paramNum = 0;
@@ -863,16 +825,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	public Void visitIf_stmt(If_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s %s %s",ctx.start.getLine(), ctx.IF().get(0).getText(),ctx.cond_expr.getText(),
 				ctx.THEN().getText())).build());
-		//===============DEBUGGING============================
-		//.stabn 68,0,%s,.line%s-main
-		//.line%s:
-		if (opt.g) {
-		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
-				ctx.start.getLine(), ctx.start.getLine())).build());
-		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
-				ctx.start.getLine())).build());
-		}
-		//===============DEBUGGING============================
 		visit(ctx.cond_expr);
 		labelCounter = labelCounter + 2;
 		int currentIf = labelCounter;
@@ -919,22 +871,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", currentWhile)).build());
 		visit(ctx.loop_body);
 		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", (currentWhile - 1))).build());
-		emitComment(ctx.exp);
 		visit(ctx.exp);
 		emit(new TargetInstruction.Builder().instruction("pop").operand1("%eax").build());
 		emit(new TargetInstruction.Builder().instruction("cmpl").operand1("$0,").operand2("%eax").build());
 		emit(new TargetInstruction.Builder().instruction("jne").operand1(String.format(".L%s", (currentWhile))).build());
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end loop")).build());
-//		//===============DEBUGGING============================
-//		//.stabn 68,0,%s,.line%s-main
-//		//.line%s:
-//		if (opt.g) {
-//		emit(new TargetInstruction.Builder().directive(String.format(".stabn 68,0,%s,.line%s-main", 
-//				ctx.stop.getLine(), ctx.stop.getLine())).build());
-//		emit(new TargetInstruction.Builder().directive(String.format(".line%s:", 
-//				ctx.stop.getLine())).build());
-//		}
-//		//===============DEBUGGING============================
 		
 		return null;
 	}
