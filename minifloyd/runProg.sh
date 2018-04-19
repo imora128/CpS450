@@ -1,8 +1,8 @@
 #!/bin/bash
-fileName="jaja"
+fileName="assign1"
 rm *.o
 rm *.s
 rm $fileName
 make
 ./gradlew clean install
-build/install/minifloyd/bin/minifloyd -dp $fileName.floyd
+build/install/minifloyd/bin/minifloyd $fileName.floyd

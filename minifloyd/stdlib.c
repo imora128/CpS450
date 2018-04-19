@@ -2,15 +2,16 @@
 #include <stdlib.h>
 #include "stdlib.h"
 
-
-//writes <ch> to standard output (<out> is the predefined Floyd Writer object)
+//Name: Writer_io_write
+//Desc: writes <ch> to standard output (<out> is the predefined Floyd Writer object)
 void Writer_io_write(void *out, int ch) {
   char c = ch;
   
   write(1, &c, 1);  
 }
 
-// // // reads a character from stdin and returns it (<in> is the predefined Floyd Reader object)
+//Name: Reader_io_read
+//Desc: reads a character from stdin and returns it (<in> is the predefined Floyd Reader object)
 int Reader_io_read(void *in) {
   char c;
 
@@ -19,50 +20,10 @@ int Reader_io_read(void *in) {
   return c;
 }
 
-int andOp(int x, int y) {
-  return x && y;
-}
-
-
-
-int orOp(int x, int y) {
-  return x || y;
-}
-
-int eqTo(int x, int y) {
-  return x == y;
-}
-int greaterEqual(int x, int y) {
-  return x >= y;
-}
-int greaterThan(int x, int y) {
-  return x > y;
-}
-int minus(int x, int y) {
-  return x - y;
-}
-
-int times(int x, int y) {
-  return x * y;
-}
-
-int division(int x, int y) {
-  return x / y;
-}
-int unaryMinus(int x) {
-  return -x;
-}
-int unaryPlus(int x) {
-  return +x;
-}
-int unaryNot(int x) {
-  return !x;
-}
-
 // ----------------------------------------------------------------------
 // String Management Functions
 // ----------------------------------------------------------------------
-
+//Name: string_fromlit
 //Constructs and returns an Floyd String using chars in <lit>, which must be null terminated
 struct String *string_fromlit(char *lit)
 {
@@ -82,6 +43,8 @@ struct String *string_fromlit(char *lit)
   return newstr; 
 }
 
+//Name; writeint
+//Desc: Prints an integer to standard out, used in nullpointertest
 void writeint(int num) {
   char buf[20];
   char result[20] = "0\n";
@@ -120,6 +83,8 @@ void writeint(int num) {
   
 }
 
+//Name: nullpointertest
+//Tests for a null pointer. Prints out an error and the line number if null, then exits.
 void nullpointertest(int lineno, void* ptr) {
   const char msg[] = "Null pointer exception on line ";
   if (ptr == NULL ) {
@@ -128,5 +93,48 @@ void nullpointertest(int lineno, void* ptr) {
     writeint(lineno);
     exit(1);
   }
+}
+
+
+
+
+//The functions from here on out are used to faciltate the code genereation process.
+//They are c functions that are called in the different CodeGen functions.
+int andOp(int x, int y) {
+  return x && y;
+}
+
+int orOp(int x, int y) {
+  return x || y;
+}
+
+int eqTo(int x, int y) {
+  return x == y;
+}
+int greaterEqual(int x, int y) {
+  return x >= y;
+}
+int greaterThan(int x, int y) {
+  return x > y;
+}
+int minus(int x, int y) {
+  return x - y;
+}
+
+int times(int x, int y) {
+  return x * y;
+}
+
+int division(int x, int y) {
+  return x / y;
+}
+int unaryMinus(int x) {
+  return -x;
+}
+int unaryPlus(int x) {
+  return +x;
+}
+int unaryNot(int x) {
+  return !x;
 }
 

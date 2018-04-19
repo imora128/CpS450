@@ -282,8 +282,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
     */
 	@Override
 	public Void visitVar_decl(Var_declContext ctx) {
-		
-		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
 		//checking if it's a class obj, if so, need to go ahead and make it null (which is 0)
 		VarDeclaration newVar = (VarDeclaration)ctx.sym.getDecl();
 		if (Type.getTypeForName(ctx.ty.getText()) != null) {
@@ -624,7 +622,9 @@ public class CodeGen extends FloydBaseVisitor<Void> {
     */
 	@Override
 	public Void visitClass_(Class_Context ctx) {	
-		emit(new TargetInstruction.Builder().comment("CLASS BEGINNIGN HERE").build());
+		println();
+		emit(new TargetInstruction.Builder().comment(String.format("******** Class Definition: %s ******** ", ctx.IDENTIFIER(0).getText())).build());
+		
 		for (int i = 0; i < ctx.var_decl().size(); i++) {
 			visit(ctx.var_decl(i));
 		}
@@ -657,7 +657,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().instruction("pushl $0").build());
 		//locals
 		for (int i =  0; i < ctx.params; i++) {
-			emit(new TargetInstruction.Builder().comment(String.format("making space for %s locals", ctx.params)).build());
+			emit(new TargetInstruction.Builder().comment(String.format("making space for %s local", ctx.params)).build());
 			emit(new TargetInstruction.Builder().instruction("pushl $0").build());
 		}
 		//folowed by visiting the statement list to print the instructions for the content of the function
