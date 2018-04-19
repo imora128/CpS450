@@ -940,6 +940,13 @@ public class SemanticChecker extends FloydBaseListener {
 				ctx.myType = Type.ERROR;
 				return;
 			}
+			//This needs to be checked so it doesn't crash during the inheritance tests.
+			//Basically, it's trying to call a function that exists in a parent class, so it'll 
+			//give a null exception if i don't leave here
+			if (objType.getClassDecl() == null) {
+				ctx.myType = Type.ERROR;
+				return;
+			}
 			//CHECKING if this function is in the current class, if so, then we look in symbol table
 			if (objType.getClassDecl().name.equals(currentClass) && symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
 				mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
@@ -1201,6 +1208,11 @@ public class SemanticChecker extends FloydBaseListener {
 	*/
 	@Override
 	public void enterClass_(Class_Context ctx) {
+		//Perform semantic processing on instance variable and method declarations (these symbols go in the new scope)
+		if (ctx.INHERITS() != null) {
+			print.err(String.format(print.errMsgs.get("Unsupported"), 
+					"Inheritance"),ctx);
+		}
 		//instance variable offset set to 8;
 		instanceVarOffset = 8;
 		//keeping track of current class
@@ -1229,11 +1241,6 @@ public class SemanticChecker extends FloydBaseListener {
 	*/
 	@Override
 	public void exitClass_(Class_Context ctx) {
-		//Perform semantic processing on instance variable and method declarations (these symbols go in the new scope)
-		if (ctx.INHERITS() != null) {
-			print.err(String.format(print.errMsgs.get("Unsupported"), 
-					"Inheritance"),ctx);
-		}
 		
 		ClassDeclaration myClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
 		//METHODS
