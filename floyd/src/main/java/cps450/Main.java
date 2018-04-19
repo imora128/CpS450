@@ -58,7 +58,7 @@ public class Main
         //Parses the cmdline arguments so I can use it down bellow
         parsedArgs.getCommandLineArguments(arguments);
         if (!new File(parsedArgs.fileName.get(0)).isFile()) {
-        	System.out.println("ERROR: Floyd standard library is not in the cwd.");
+        	System.out.println(String.format("ERROR: %s is not in the cwd.", parsedArgs.fileName.get(0)));
         	return;
         }
         CharStream input = CharStreams.fromFileName(parsedArgs.fileName.get(0));
