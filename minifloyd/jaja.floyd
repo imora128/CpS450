@@ -6,10 +6,10 @@ class Main is
   start() is
     begin
       x := 0
-    if (4 > x) and (5 > 2) and (2 > 1) then
-       out.writeint(5)
+    if 4 > x and (5 > 2) then
+       x := 5
     else
-       out.writeint(6)
+       x := 2
     end if
   end start
 end Main

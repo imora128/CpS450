@@ -37,10 +37,10 @@ import cps450.FloydParser.MultiUnary_ExpContext;
 import cps450.FloydParser.OrAnd_ExpContext;
 import cps450.FloydParser.OrX_ExpContext;
 import cps450.FloydParser.Or_expContext;
+import cps450.FloydParser.Relate_switch_expContext;
 import cps450.FloydParser.RelationalEQ_ExpContext;
 import cps450.FloydParser.RelationalGE_ExpContext;
 import cps450.FloydParser.RelationalGT_ExpContext;
-import cps450.FloydParser.RelationalOr_ExpContext;
 import cps450.FloydParser.Relational_expContext;
 import cps450.FloydParser.StartContext;
 import cps450.FloydParser.TypeBoolContext;
@@ -55,7 +55,6 @@ import cps450.FloydParser.Unary_expContext;
 import cps450.FloydParser.ExprCont_StrlitContext;
 import cps450.FloydParser.ExprCont_TrueContext;
 import cps450.FloydParser.ExprOr_ExprContext;
-import cps450.FloydParser.ExprRelational_ExprContext;
 import cps450.FloydParser.If_stmtContext;
 import cps450.FloydParser.Loop_stmtContext;
 import cps450.FloydParser.MethodDot_ExpContext;
@@ -293,20 +292,20 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitLoop_stmt(ctx);
 	}
 
-    /*
-    Function Name: exitExprRelationalExpr
-    Description: Just pushing up the type up the tree for the functions that need it.
-    */
-	@Override
-	public void exitExprRelational_Expr(ExprRelational_ExprContext ctx) {
-		if (ctx.relational_exp().myType != null) {
-			ctx.myType = ctx.relational_exp().myType;
-		} else {
-			ctx.myType = Type.ERROR;
-			print.err("exitExprRelational_Expr: No type to pass up the tree",ctx);
-		}
-		super.exitExprRelational_Expr(ctx);
-	}
+//    /*
+//    Function Name: exitExprRelationalExpr
+//    Description: Just pushing up the type up the tree for the functions that need it.
+//    */
+//	@Override
+//	public void exitExprRelational_Expr(ExprRelational_ExprContext ctx) {
+//		if (ctx.relational_exp().myType != null) {
+//			ctx.myType = ctx.relational_exp().myType;
+//		} else {
+//			ctx.myType = Type.ERROR;
+//			print.err("exitExprRelational_Expr: No type to pass up the tree",ctx);
+//		}
+//		super.exitExprRelational_Expr(ctx);
+//	}
 
     /*
     Function Name: exitExprOr_Expr
@@ -412,22 +411,22 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 	
 	
-    /*
-    Function Name: exitRelationalOr_Exp
-    Description: Pushing up the type for the functions that need it.
-    */
-	@Override
-	public void exitRelationalOr_Exp(RelationalOr_ExpContext ctx) {
-		if (ctx.or_exp().myType != null) {
-			ctx.myType = ctx.or_exp().myType;
-		}
-		else
-		{
-			ctx.myType = Type.ERROR;
-			print.err("exitRelationalOr_Exp: No type to pass up the tree",ctx);
-		}
-		super.exitRelationalOr_Exp(ctx);
-	}
+//    /*
+//    Function Name: exitRelationalOr_Exp
+//    Description: Pushing up the type for the functions that need it.
+//    */
+//	@Override
+//	public void exitRelationalOr_Exp(RelationalOr_ExpContext ctx) {
+//		if (ctx.or_exp().myType != null) {
+//			ctx.myType = ctx.or_exp().myType;
+//		}
+//		else
+//		{
+//			ctx.myType = Type.ERROR;
+//			print.err("exitRelationalOr_Exp: No type to pass up the tree",ctx);
+//		}
+//		super.exitRelationalOr_Exp(ctx);
+//	}
 
 
     /*
@@ -456,7 +455,19 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitOrAnd_Exp(ctx);
 	}
 
-    /*
+    @Override
+	public void exitRelate_switch_exp(Relate_switch_expContext ctx) {
+		if (ctx.concat_exp() != null) {
+			ctx.myType = ctx.concat_exp().myType;
+		} else if (ctx.relational_exp() != null) {
+			ctx.myType = ctx.relational_exp().myType;
+		} else {
+			ctx.myType = Type.ERROR;
+			print.err("exitRelate_switch_exp: No type to pass up the tree",ctx);
+		}
+		super.exitRelate_switch_exp(ctx);
+	}
+	/*
     Function Name: exitAndX_Exp
     Description: Type checking for Ands. Need to be booleans.
     */
@@ -467,14 +478,16 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitAndX_Exp(ctx);
 	}
 	
+	
+	
     /*
     Function Name: exitAndConcat_Exp
     Description: Pushing up the type for the functions that need it.
     */
 	@Override
 	public void exitAndConcat_Exp(AndConcat_ExpContext ctx) {
-		if (ctx.concat_exp().myType != null) {
-			ctx.myType = ctx.concat_exp().myType;
+		if (ctx.relate_switch_exp()  != null) {
+			ctx.myType = ctx.relate_switch_exp().myType;
 		}
 		else
 		{
@@ -1217,6 +1230,10 @@ public class SemanticChecker extends FloydBaseListener {
 	@Override
 	public void exitClass_(Class_Context ctx) {
 		//Perform semantic processing on instance variable and method declarations (these symbols go in the new scope)
+		if (ctx.INHERITS() != null) {
+			print.err(String.format(print.errMsgs.get("Unsupported"), 
+					"Inheritance"),ctx);
+		}
 		
 		ClassDeclaration myClass = (ClassDeclaration)symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
 		//METHODS

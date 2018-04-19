@@ -76,8 +76,7 @@ expression_list
 ;
 
 expression returns [Type myType]
-:relational_exp	#ExprRelational_Expr
-| or_exp	#ExprOr_Expr
+: or_exp	#ExprOr_Expr
 ;
 
 or_exp returns [Type myType]
@@ -86,17 +85,19 @@ or_exp returns [Type myType]
 ;
 
 and_exp returns [Type myType]
-: e1=and_exp AND e2=concat_exp #AndX_Exp
-| concat_exp #AndConcat_Exp
-//relational or concat
+: e1=and_exp AND e2=relate_switch_exp #AndX_Exp
+| relate_switch_exp #AndConcat_Exp
+;
+
+relate_switch_exp returns [Type myType]
+: relational_exp
+| concat_exp
 ;
 
 relational_exp returns [Type myType]
-: e1=or_exp GE e2=or_exp	#RelationalGE_Exp
-| e1=or_exp GT e2=or_exp	#RelationalGT_Exp
-| e1=or_exp EQ e2=or_exp	#RelationalEQ_Exp
-| or_exp	#RelationalOr_Exp
-//off to concat or just relational
+: e1=concat_exp GE e2=concat_exp 	#RelationalGE_Exp
+| e1=concat_exp GT e2=concat_exp	#RelationalGT_Exp
+| e1=concat_exp EQ e2=concat_exp	#RelationalEQ_Exp
 ;
 
 concat_exp returns [Type myType]
@@ -124,7 +125,6 @@ unary_exp returns [Type myType]
 ;
 
 method_exp returns [Type myType, Symbol sym]
-//: e1=method_exp NEW e2=expr_cont	#MethodNew_Exp
 : e1=method_exp PERIOD e2=expr_cont	#MethodDot_Exp
 | expr_cont							#MethodExpr_Cont
 ;
