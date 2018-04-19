@@ -8,7 +8,12 @@ package cps450;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: TargetInstruction.java
+Description: Used to help facilitate generating instructions.
+*/
 /*
  * http://javarevisited.blogspot.com/2012/06/builder-design-pattern-in-java-example.html
  */
@@ -64,11 +69,9 @@ class TargetInstruction {
 			}
 		}
 		return here;
-//		return String.format("TargetInstruction: Label: %s, Instruction: %s,  Operand1: %s, Operand2: %s, Comment: %s,"
-//				+ "Directive: %s", this.label, this.instruction, this.operand1, this.operand2, this.comment, this.directive);
-		//return String.format("%s %s %s %s %s %s", this.label, this.instruction, this.operand1, this.operand2, this.comment, this.directive);
 	}
 
+	//These are all getter and setter functions. I don't think I need to go through all of them..
 	public String getLabel() {
 		return label;
 	}

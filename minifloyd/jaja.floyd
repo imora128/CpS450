@@ -1,0 +1,15 @@
+~this program is incorrect
+
+class Main is
+  x: int
+
+  start() is
+    begin
+      x := 0
+    if (4 > x) and (5 > 2) and (2 > 1) then
+       out.writeint(5)
+    else
+       out.writeint(6)
+    end if
+  end start
+end Main

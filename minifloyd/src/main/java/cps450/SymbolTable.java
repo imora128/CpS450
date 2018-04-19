@@ -15,7 +15,6 @@ public class SymbolTable {
     int scope = 0;
     List<Symbol> symbolTable = new ArrayList<Symbol>();
     int stringLabelCounter = 0;
-   // HashMap<String, Type> types = new HashMap<String,Type>();
 
     private SymbolTable () {;}
     public static SymbolTable getInstance() {
@@ -25,14 +24,22 @@ public class SymbolTable {
         }
         return instance;
     }
-    
+	/*
+	Function Name: getLocalOffset
+	Description: Returns the local variable offset.
+	*/
     public int getLocalOffset() {
 		return localOffset;
 	}
+	/*
+	Function Name: setLocalOffset
+	Description: Sets the local variable offset.
+	*/
 	public void setLocalOffset(int localOffset) {
 		this.localOffset = localOffset;
 	}
 	/*
+	 * Function Name: push
     Desc: Pushes a new symbol entry onto the stack with the given name and decl information, 
     and the current scope level. It should return the new symbol entry
     */
@@ -43,21 +50,8 @@ public class SymbolTable {
         return sym;
     }
 
-//    void populatePredefinedTypes() {
-//    	types.put("<error>", Type.ERROR);
-//    	types.put("int", Type.INT);
-//    	types.put("boolean", Type.BOOLEAN);
-//    	types.put("string", Type.STRING);
-//    	types.put("reader", Type.READER);
-//    	types.put("void", Type.VOID);
-//    	types.put("writer", Type.WRITER);
-//    }
     
-//    void createType(String name) {
-//    	types.put(name, new Type(name));
-//    }
-    
-    /*
+    /* Name: lookup
      * Desc:Searches for a symbol entry with name, starting at the top of the stack and working to the bottom. 
      * Returns the first Symbol entry found, or null if none.
      */
@@ -70,14 +64,14 @@ public class SymbolTable {
     	 }
     	return null;
     }
-    /*
+    /*Name: beginScope()
      * Desc: Increments the current scope level. 
      */
     void beginScope() {
     	scope++;
     }
     
-    /*
+    /*Name: endScope
      * Desc: Returns the current scope level.
      */
     void endScope() {
@@ -95,14 +89,14 @@ public class SymbolTable {
     	}
     }
     
-    /*
+    /*Name: getScope
      * Desc: Returns the current scope
      */
     int getScope() {
     	return scope;
     }
     
-    /*
+    /*Name: printSymTable
      * Desc: For testing purposes
      */
     void printSymTable() {

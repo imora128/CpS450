@@ -5,27 +5,15 @@ Filename: CodeGen.java
 Description: Contains CodeGen class that generates all the code for the program
 */
 package cps450;
-import org.antlr.v4.runtime.atn.*;
-import org.antlr.v4.runtime.dfa.DFA;
-
-import java.util.HashMap;
-
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
-import org.antlr.v4.runtime.tree.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
-
 import org.antlr.v4.runtime.ParserRuleContext;
-
 import java.lang.ProcessBuilder;
-
 import cps450.FloydParser.AddMinus_ExpContext;
 import cps450.FloydParser.AddPlus_ExpContext;
 import cps450.FloydParser.AndX_ExpContext;
@@ -56,12 +44,7 @@ import cps450.FloydParser.UnaryMinus_ExpContext;
 import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.Var_declContext;
-/*FIXME(LAST ISSUES TO FIX)
- * **********Fix tree precedence issue between relational operators and or/and***************
- * nullpointercheck is printing the line number where it crashes, so if its inside a func, it'll print
- * inside the func as opposed to outside where the obj is. seems to work fine, tho
- * 
- */
+
 public class CodeGen extends FloydBaseVisitor<Void> {
 	List<TargetInstruction> instructions = new ArrayList<TargetInstruction>();
 	Stack<String> registers = new Stack<String>();
@@ -71,6 +54,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	MyError PRINT = new MyError(true);
 	SymbolTable symTable;
 	
+	//pushing the gp registers in case I want to use them
 	CodeGen(Option opt, int labelCounterValue) {
 		labelCounter = labelCounterValue;
 		registers.push("%edx");
@@ -80,7 +64,16 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		symTable = SymbolTable.getInstance();
 		this.opt = opt;
 	}
-
+    /*
+    Function Name: callFunction
+    Description: Used to facilitate the function calls needed for all the different operator expressions. They usually have
+    2 params, so always adding 8 to the stack
+    */
+	void callFunction(String functionName) {
+		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
+		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
+		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
+	}
     /*
     Function Name: println
     Parameters: 
@@ -99,17 +92,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		instructions.add(t);
 	}
 	
-    /*
-    Function Name: emitExit
-    Parameters:
-    Description: Pushes 0 and calls exit to end the prog
-    */
-	void emitExit() {
-		//emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", startEndLine, "end start()")).build());
-		emit(new TargetInstruction.Builder().comment("Calling exit because the program is finished").build());
-		emit(new TargetInstruction.Builder().instruction("pushl").operand1("$0").build());
-		emit(new TargetInstruction.Builder().instruction("call").operand1("exit").build());
-	}
 	
     /*
     Function Name: printInstructions
@@ -186,7 +168,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
     /*
     Function Name: emitComment
     Parameters: ParserRUleContext ctx
-    Description: prints a conmment using the given context
+    Description: prints a conmment using the given context, used mostly for debugging purposes.
     */
 	void emitComment(ParserRuleContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
@@ -201,7 +183,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		}
 		//===============DEBUGGING============================
 	}
-	
+
+    /*
+    Function Name: nullPointerCheck
+    Description: Calls a C function that checks for null pointers. Prints an error message if the pointer is null, then exits.
+    */
 	void nullPointerCheck(ParserRuleContext ctx) {
 		emit(new TargetInstruction.Builder().comment("Checking if the object above is null").build());
 		emit(new TargetInstruction.Builder().comment("pushing line number").build());
@@ -211,6 +197,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().instruction("addl $4, %esp").build());
 	}
 	
+	
+    /*
+    Function Name: visitExprCont_Intlit
+    Description: Pushes its integer value onto the stack
+    */
 	@Override
 	public Void visitExprCont_Intlit(ExprCont_IntlitContext ctx) {
 		TargetInstruction foo = new TargetInstruction.Builder().instruction("pushl").operand1(String.format("$%s", ctx.INTEGER_LITERAL().getText())).build();		
@@ -218,39 +209,41 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+    /*
+    Function Name: visitExprCont_Intlit
+    Description: Pushes the offset of the location relative to the base pointer depending on whether it's local or instance.
+    In and out are a special case (globals) so it simply pushes their variable name.
+    Methods are a special case, since they're used as a return in Floyd. So I push the offset
+    to the return value space inside the stack.
+    */
 	@Override
 	public Void visitExprCont_ID(ExprCont_IDContext ctx) {
 		String name = ctx.IDENTIFIER().getText();
 		Symbol sym = ctx.sym;
 		if (sym.getDecl() instanceof VarDeclaration) {
-		if (sym.getScope() == LOCAL_SCOPE) {
-			VarDeclaration variable = (VarDeclaration)sym.getDecl();
-			int offset = variable.getOffset();
-			//printing comment so i know which local is getting pushed
-			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
-			emit(new TargetInstruction.Builder().instruction("pushl").operand1(String.format("%s(%%ebp)", offset)).build());
-		} else {
-//			VarDeclaration variable = (VarDeclaration)sym.getDecl();
-//			int offset = variable.getOffset();
-			VarDeclaration lhs = (VarDeclaration)sym.getDecl();
-//			TargetInstruction foo = new TargetInstruction.Builder()
-//			.instruction("pushl")
-//			.operand1(String.format("%s", name)).build();		
-//			emit(foo);
-			if (name.equals("in")) {
-				emit(new TargetInstruction.Builder().instruction("pushl _in").build());
-			}
-			else if (name.equals("out")) {
-				emit(new TargetInstruction.Builder().instruction("pushl _in").build());
+			if (sym.getScope() == LOCAL_SCOPE) {
+				VarDeclaration variable = (VarDeclaration)sym.getDecl();
+				int offset = variable.getOffset();
+				//printing comment to explain which variable is being pushed
+				emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
+				emit(new TargetInstruction.Builder().instruction("pushl").operand1(String.format("%s(%%ebp)", offset)).build());
 			} else {
-			emit(new TargetInstruction.Builder().comment("get reference to me").build());
-			emit(new TargetInstruction.Builder().instruction("movl 8(%ebp), %ebx").build());
-			emit(new TargetInstruction.Builder().comment("push value inside of the reference").build());
-			emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebx)", lhs.getOffset())).build());
+				VarDeclaration lhs = (VarDeclaration)sym.getDecl();
+				if (name.equals("in")) {
+					emit(new TargetInstruction.Builder().instruction("pushl _in").build());
+				}
+				else if (name.equals("out")) {
+					emit(new TargetInstruction.Builder().instruction("pushl _out").build());
+				} else {
+				emit(new TargetInstruction.Builder().comment("get reference to me").build());
+				emit(new TargetInstruction.Builder().instruction("movl 8(%ebp), %ebx").build());
+				emit(new TargetInstruction.Builder().comment("push value inside of the reference").build());
+				emit(new TargetInstruction.Builder().instruction(String.format("pushl %s(%%ebx)", lhs.getOffset())).build());
+				}
+				
 			}
-			
-		}
 		} else {
+			//All method offsets are linked to the return value area of memory in the stack
 			MethodDeclaration variable = (MethodDeclaration)sym.getDecl();
 			int offset = variable.getOffset();
 			emit(new TargetInstruction.Builder().comment(String.format("pushl %s", sym.getName())).build());
@@ -260,6 +253,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+    /*
+    Function Name: visitExprCont_True
+    Description: True is 1 in floyd
+    */
 	@Override
 	public Void visitExprCont_True(ExprCont_TrueContext ctx) {
 		
@@ -268,6 +265,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+	/*
+    Function Name: visitExprCont_False
+    Description: false is 0 in floyd
+    */
 	@Override
 	public Void visitExprCont_False(ExprCont_FalseContext ctx) {
 		TargetInstruction instruction = new TargetInstruction.Builder().instruction("pushl").operand1("$0").build();		
@@ -275,6 +276,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+	/*
+    Function Name: visitVar_decl
+    Description: Used to set instance variables to 0 at declaration
+    */
 	@Override
 	public Void visitVar_decl(Var_declContext ctx) {
 		
@@ -289,7 +294,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 	
-	
+	/*
+    Function Name: visitAssignment_stmt
+    Description: Pops the value into the memory location offset that's given in the symbol that was decorated
+    onto the node at semantic checking.
+    */
 	@Override
 	public Void visitAssignment_stmt(Assignment_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
@@ -308,13 +317,12 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//check if its a variable
 		if (sym.getDecl() instanceof VarDeclaration) {
 			VarDeclaration lhs = (VarDeclaration)sym.getDecl();
-			//local variable
+			//local variables
 			if (sym.getScope() == LOCAL_SCOPE) {
 				emit(new TargetInstruction.Builder().comment(String.format("popl %s", sym.getName())).build());
-				//emit(new TargetInstruction.Builder().instruction("popl %edx").build());
-				//emit(new TargetInstruction.Builder().instruction(String.format("movl %%edx, %s(%%ebp)", lhs.getOffset())).build());
 				emit(new TargetInstruction.Builder().instruction(String.format("popl %s(%%ebp)", lhs.getOffset())).build());
 			} else {
+				//instance variables
 				emit(new TargetInstruction.Builder().comment("put param value into eax").build());
 				emit(new TargetInstruction.Builder().instruction("popl %eax").build());
 				
@@ -338,6 +346,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 	
 
+	/*
+    Function Name: visitAddPlus_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitAddPlus_Exp(AddPlus_ExpContext ctx) {
 		visit(ctx.e1);
@@ -361,6 +374,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+	/*
+    Function Name: visitAddMinus_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitAddMinus_Exp(AddMinus_ExpContext ctx) {
 		visit(ctx.e2);
@@ -370,7 +388,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 	
 	
-
+	/*
+    Function Name: visitMultiTimes_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
 		visit(ctx.e1);
@@ -379,8 +401,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 	
-	
-
+	/*
+    Function Name: visitMultiDIV_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
 		visit(ctx.e2);
@@ -390,7 +415,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 
 	
-	
+	/*
+    Function Name: visitRelationalGT_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
 		visit(ctx.e2);
@@ -400,7 +429,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 
 	
-	
+	/*
+    Function Name: visitUnaryMinus_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
 		visit(ctx.e1);
@@ -411,7 +444,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 	
-
+	/*
+    Function Name: visitRelationalGE_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
 		visit(ctx.e2);
@@ -419,7 +456,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		callFunction("greaterEqual");
 		return null;
 	}
-
+	/*
+    Function Name: visitRelationalEQ_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
 		visit(ctx.e2);
@@ -429,7 +470,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	}
 	
 	
-
+	/*
+    Function Name: visitAndX_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitAndX_Exp(AndX_ExpContext ctx) {
 		visit(ctx.e2);
@@ -440,7 +485,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	
 	
-
+	/*
+    Function Name: visitOrX_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitOrX_Exp(OrX_ExpContext ctx) {
 		visit(ctx.e2);
@@ -449,6 +498,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+	/*
+    Function Name: visitUnaryPlus_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
 		//needs only $4 because unary only uses 1 argument
@@ -459,6 +513,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+	/*
+    Function Name: visitUnaryNot_Exp
+    Description: Visits the operands so that it pushes them onto the stack, calls the
+    function and cleans up the stack by adding to it the number of parameters * 4
+    */
 	@Override
 	public Void visitUnaryNot_Exp(UnaryNot_ExpContext ctx) {
 		visit(ctx.e1);
@@ -468,13 +527,12 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		return null;
 	}
-
-	void callFunction(String functionName) {
-		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
-		emit(new TargetInstruction.Builder().instruction("addl").operand1("$8,").operand2("%esp").build());
-		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
-	}
 	
+	/*
+    Function Name: visitStart
+    Description: Very important. This is where I set up the program and visit all the classes. This spot also generates
+    code from a dummy main function into the start function of the last defined class.
+    */
 	@Override
 	public Void visitStart(StartContext ctx) {
 		//necessary for the program to run
@@ -567,12 +625,13 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			System.exit(1);
 		}
 				
-
-
-		
 		return null;
 	}
 
+	/*
+    Function Name: visitCLass
+    Description: Visits all the methods and variable declarations to generate their code.
+    */
 	@Override
 	public Void visitClass_(Class_Context ctx) {	
 		//TargetInstruction fileName = new TargetInstruction.Builder().directive(String.format(".file \"%s\"", opt.fileName.get(0))).build();
@@ -594,11 +653,15 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			visit(ctx.method_decl(i));
 		}
 		
-		
-		
 		return null;
 	}
 
+	
+	/*
+    Function Name: visitMethod_decl
+    Description: Prints out a function preamble (so we don't mess up the stack), makes space for the return value
+    and local variables.
+    */
 	@Override
 	public Void visitMethod_decl(Method_declContext ctx) {
 		//only allowed method is main in minifloyd
@@ -610,12 +673,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		emit (new TargetInstruction.Builder().directive(String.format(".stabs  \"%s\",36,0,0,%s", ctx.IDENTIFIER(0).getText(),ctx.IDENTIFIER(0).getText())).build());
 		}
 		//===============DEBUGGING============================
-		//printing out the function name
-		//if it's start, print the main directive to know where to start prog
-//		if (ctx.IDENTIFIER(0).getText().equals("start")) {
-//		emit(new TargetInstruction.Builder().label(String.format(".global %s", "main")).build());
-//		emit(new TargetInstruction.Builder().label(String.format("main:")).build());
-//		} else {
 		String funcName = String.format("%s_%s", ctx.className, ctx.IDENTIFIER(0).getText());
 		emit(new TargetInstruction.Builder().label(String.format(("%s:"), funcName)).build());
 		//}
@@ -648,6 +705,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+	/*
+    Function Name: visitCall_stmt
+    Description: Generates code for function call statements. Makes sure to use right to left calling parameter passing convention.
+    */
 	@Override
 	public Void visitCall_stmt(Call_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s",ctx.start.getLine(), ctx.getText())).build());
@@ -661,10 +722,8 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				ctx.start.getLine())).build());
 		}
 		//===============DEBUGGING============================
-//		if (ctx.t2 != null) {
-//		visit(ctx.t2);
-//		}
-		//righ tto left para passing
+		
+		//right to left
 		int paramNum = 0;
 		if (ctx.t2 != null) {
 			paramNum = ctx.expression_list().expression().size();
@@ -672,9 +731,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 				visit(ctx.expression_list().expression().get(i));
 			}
 		}
-		
-		
-		
 		
 		//offset for LHS to pass in "this"
 		//only if sym is not null, meaning there's an object there
@@ -702,7 +758,7 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			//need to check if its null
 			nullPointerCheck(ctx);
 		}
-		
+		//function name will be appended to the class name
 		String functionName = "FunctionNameFailed";
 		if (ctx.t1 != null ) {
 			
@@ -716,7 +772,6 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().comment(String.format("Clean up parameters: %s * 4", paramNum)).build());
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
 		}
-		//FIXME(another writer duct tape to test basic objs)
 		//if func doesnt have t1, it has no obj that we need to pass "me" for
 		if(ctx.t1 != null) {
 		emit(new TargetInstruction.Builder().comment("Clean up this reference pushed on last: 4").build());
@@ -729,21 +784,25 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 	
 	
 
+	/*
+    Function Name: visitExprCont_IDExpr
+    Description: Generates code for expression function calls
+    */
 	@Override
 	public Void visitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
+		//C style parameter passing convention
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 			for (int i = ctx.expression_list().expression().size() - 1; i > -1; i--) {
 				visit(ctx.expression_list().expression().get(i));
 			}
 		}
+		//appends function name to the class name.
 		String functionName = String.format("%s_%s", ctx.classType.name, ctx.IDENTIFIER().getText());
-//		emit(new TargetInstruction.Builder().instruction("call").operand1(ctx.IDENTIFIER().getText()).build());
-		//I PRAY, PLEASE WORK!
 		emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
-		nullPointerCheck(ctx);
 		//need to check if its null
+		nullPointerCheck(ctx);
 		emit(new TargetInstruction.Builder().instruction("call").operand1(functionName).build());
 		if (paramNum > 0) {
 		emit(new TargetInstruction.Builder().instruction("addl").operand1(String.format("$%s,", paramNum * 4)).operand2("%esp").build());
@@ -755,6 +814,10 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 	
+	/*
+    Function Name: visitMethodDot_Exp
+    Description: Generates code for expression function calls of the form: type/object.function
+    */
 	@Override
 	public Void visitMethodDot_Exp(MethodDot_ExpContext ctx) {
 		int paramNum = 0;
@@ -788,10 +851,14 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 			emit(new TargetInstruction.Builder().comment("Pushing the result from the called function").build());
 			emit(new TargetInstruction.Builder().instruction("pushl %eax").build());
 		}
-		//return super.visitMethodDot_Exp(ctx);
 		return null;
 	}
 
+	
+	/*
+    Function Name: visitIf_stmt
+    Description: Generates code for if statements.
+    */
 	@Override
 	public Void visitIf_stmt(If_stmtContext ctx) {
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s %s %s",ctx.start.getLine(), ctx.IF().get(0).getText(),ctx.cond_expr.getText(),
@@ -839,22 +906,23 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
+	
+	/*
+    Function Name: visitLoop_stmt
+    Description: Generates code for while statements.
+    */
 	@Override
 	public Void visitLoop_stmt(Loop_stmtContext ctx) {
 		labelCounter = labelCounter + 2;
 		int currentWhile = labelCounter;
-//		emit(new TargetInstruction.Builder().instruction("jmp").operand1(".L" + (currentWhile - 1)).build());
 		emit(new TargetInstruction.Builder().instruction("jmp").operand1(String.format(".L%s", (currentWhile - 1))).build());
-		//emit(new TargetInstruction.Builder().directive(".L" + (currentWhile) + ":").build());
 		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", currentWhile)).build());
 		visit(ctx.loop_body);
-		//emit(new TargetInstruction.Builder().directive(".L" + (currentWhile - 1) + ":").build());
 		emit(new TargetInstruction.Builder().directive(String.format(".L%s:", (currentWhile - 1))).build());
 		emitComment(ctx.exp);
 		visit(ctx.exp);
 		emit(new TargetInstruction.Builder().instruction("pop").operand1("%eax").build());
 		emit(new TargetInstruction.Builder().instruction("cmpl").operand1("$0,").operand2("%eax").build());
-		//emit(new TargetInstruction.Builder().instruction("jne").operand1(".L" + (currentWhile)).build());
 		emit(new TargetInstruction.Builder().instruction("jne").operand1(String.format(".L%s", (currentWhile))).build());
 		emit(new TargetInstruction.Builder().comment(String.format("Line %s: %s", ctx.stop.getLine(), "end loop")).build());
 //		//===============DEBUGGING============================
@@ -871,7 +939,11 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		return null;
 	}
 
-	
+	/*
+    Function Name: visitExprCont_New
+    Description: Generates code for new expression. Calls calloc and puts the return value (after initializing
+    the instance variables to 0) into the LHS variable.
+    */
 	@Override
 	public Void visitExprCont_New(ExprCont_NewContext ctx) {
 		//Allocate memory from the heap to hold the instance variables for Point
@@ -896,31 +968,38 @@ public class CodeGen extends FloydBaseVisitor<Void> {
 		//Leave a reference to the memory on the top of the stack
 		emit(new TargetInstruction.Builder().instruction("pushl").operand1("%eax").build());
 		
-		
-	
-	
-
-		//return super.visitExprCont_New(ctx);
 		return null;
 	}
 
+	/*
+    Function Name: visitExprCont_Null
+    Description: Null is 0 in floyd, so pushing onto the stack.
+    */
 	@Override
 	public Void visitExprCont_Null(ExprCont_NullContext ctx) {
 		//null is 0
 		emit(new TargetInstruction.Builder().instruction("pushl $0").build());
-		//return super.visitExprCont_Null(ctx);
 		return null;
 	}
-
+	/*
+    Function Name: visitExprCont_ME
+    Description: Me will always be the "this" section of the stack, so offset 8 from BP.
+    */
 	@Override
 	public Void visitExprCont_ME(ExprCont_MEContext ctx) {
 		emit(new TargetInstruction.Builder().instruction("pushl 8(%ebp)").build());
 		return null;
-		//return super.visitExprCont_ME(ctx);
 	}
 
+	/*
+    Function Name: visitExprCont_Strlit
+    Description: String literals will always create a label for the string and call string_fromlit
+    which is a C function in the stdlib.c file.
+    */
 	@Override
 	public Void visitExprCont_Strlit(ExprCont_StrlitContext ctx) {
+		//I stuck the string label counter in the SymbolTable class because it's a singleton
+		//and I'd be running through CodeGen twice.
 		String stringLitLabel = String.format("stringlit%s", symTable.stringLabelCounter); 
 		emit(new TargetInstruction.Builder().label(".data").build());
 		emit(new TargetInstruction.Builder().label(stringLitLabel + ":").build());

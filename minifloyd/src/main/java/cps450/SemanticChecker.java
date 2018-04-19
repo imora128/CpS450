@@ -4,22 +4,17 @@ Class: CpS 450
 Filename: SemanticChecker.java
 Description: Contains the class that checks for and prints semantic checks.
 */
-//FIXME(Issue with x and x without parentheses. Need to make equality operators above and/or)
 package cps450;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-
 import javax.lang.model.element.TypeElement;
-
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import cps450.FloydParser.AddMinus_ExpContext;
 import cps450.FloydParser.AddMulti_ExpContext;
 import cps450.FloydParser.AddPlus_ExpContext;
-import cps450.FloydParser.Add_expContext;
 import cps450.FloydParser.AndConcat_ExpContext;
 import cps450.FloydParser.AndX_ExpContext;
 import cps450.FloydParser.And_expContext;
@@ -74,17 +69,29 @@ import cps450.FloydParser.UnaryNot_ExpContext;
 import cps450.FloydParser.UnaryPlus_ExpContext;
 import cps450.FloydParser.MethodExpr_ContContext;
 import cps450.FloydParser.Method_declContext;
-//FIXME(Passing in a declared func as a parameter passes semantic checks. IE:out.writeint(meth1)
 
+/*
+Function Name: SemanticChecker
+Description: Performs semantic checks on the code the user provided.
+*/
 public class SemanticChecker extends FloydBaseListener {
+	//instance scope is always 1, local scope is always 2.
 	static int INSTANCE_SCOPE = 1;
+	//singleton symbol table
 	SymbolTable symTable;
 	MyError print = new MyError(false);
+	//needed for things like file name info.
 	Option opt;
+	//needed for code gen
 	String currentClass = "";
-	ClassDeclaration reader;
-	ClassDeclaration writer;
+	//necessary for calculating instance offsets 
 	int instanceVarOffset = 8;
+	
+    /*
+    Function Name: SemanticChecker (Constructor)
+    Description: io_write and io_read need to be pushed into the symbol table at this time to prevent issues with
+    in/out.
+    */
 	SemanticChecker(Option opt) {
 		this.opt = opt;
 		print.opt = opt;
@@ -95,11 +102,13 @@ public class SemanticChecker extends FloydBaseListener {
 		io_write.appendParameter(Type.INT, "ch");
 		symTable.push("io_write", io_write);
 		symTable.push("io_read", io_read);
-		symTable.push("leprint", new MethodDeclaration(Type.VOID));
 		
 		
 	}
-	
+    /*
+    Function Name: doesTypeExist
+    Description: Checks if the parameter type is either a predefined type or if it's an existing class type.
+    */
 	boolean doesTypeExist(Type t) {
 		if (t == Type.INT || t == Type.BOOLEAN || t == Type.STRING || Type.getTypeForName(t.name) != null) {
 			return true;
@@ -108,15 +117,53 @@ public class SemanticChecker extends FloydBaseListener {
 			return false;
 		}
 	}
-	
+    /*
+    Function Name: exprCompareTypes
+    Description: Created to make life easier on some expression type comparisons.
+    */
+	Type exprCompareTypes(Type expectedType, Type givenType1, Type givenType2,ParserRuleContext ctx, List<String> fields) {
+		if (givenType1 == Type.ERROR || givenType2 == Type.ERROR) {
+			return Type.ERROR;
+		}
+		if (expectedType == givenType1) {
+			if (expectedType == givenType2) {
+				return expectedType;
+			} else {
+				print.err(String.format(print.errMsgs.get(fields.get(0)), fields.get(1), expectedType, givenType2),ctx);
+				return Type.ERROR;
+			}
+		} else {
+			print.err(String.format(print.errMsgs.get(fields.get(0)), fields.get(1), expectedType, givenType1),ctx);
+			return Type.ERROR;
+		}
+	}
+    /*
+    Function Name: exprCompareTypes
+    Description: Created to make life easier on unary type comparisons.
+    */
+	Type exprCompareTypes(Type expectedType, Type givenType, String errMsg, ParserRuleContext ctx) {
+		if (expectedType == givenType && givenType != Type.ERROR) {
+			return expectedType;
+		} else {
+			print.err(errMsg, ctx);
+			return Type.ERROR;
+		}
+	}
+    /*
+    Function Name: exitVar_decl
+    Description: Checks all the typing related to variable declarations. The variable offsets for instance variables
+    and local variables are set here. 
+    */
 	@Override
 	public void exitVar_decl(Var_declContext ctx) {
-			if (ctx.children.contains(ctx.ASSIGNMENT_OPERATOR())) {
-				print.err(String.format(print.errMsgs.get("Unsupported"), 
-						"Attempting to initialize a variable in the declaration section."),ctx);
-				return;
-			}
+		//Assignment is not allowed within variable declaration.
+		if (ctx.children.contains(ctx.ASSIGNMENT_OPERATOR())) {
+			print.err(String.format(print.errMsgs.get("Unsupported"), 
+					"Attempting to initialize a variable in the declaration section."),ctx);
+			return;
+		}
 		
+		//Making sure a type is beign given and that it exists
 		if (ctx.ty != null && doesTypeExist(ctx.type().myType)) {
 			Symbol sym = symTable.lookup(ctx.IDENTIFIER().toString());
 			if (sym != null && sym.getScope() == symTable.getScope()) {
@@ -124,6 +171,8 @@ public class SemanticChecker extends FloydBaseListener {
 						ctx.IDENTIFIER().toString()),ctx);
 				return;
 			}
+			//If it's an instance variable, set its offset, put it into the class declaration and push it into the
+			//symbol table
 			if (symTable.getScope() == INSTANCE_SCOPE) {
 				VarDeclaration classVariable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
 				//setting offset of instance var
@@ -135,13 +184,12 @@ public class SemanticChecker extends FloydBaseListener {
 				ctx.sym = symTable.lookup(ctx.IDENTIFIER().toString());
 				return;
 			}
+			//Sets the offset for local variable and pushes them into the symbol table
 			VarDeclaration variable = new VarDeclaration(ctx.type().myType, ctx.IDENTIFIER().toString());
 			variable.setOffset(symTable.getLocalOffset());
 			symTable.setLocalOffset(symTable.getLocalOffset() - 4);
-			
 			symTable.push(ctx.IDENTIFIER().toString(), variable);
 			ctx.sym = symTable.lookup(ctx.IDENTIFIER().toString());
-			//symTable.printSymTable();
 			
 		}
 		else {
@@ -149,16 +197,19 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		
 		
-
-		
 		super.exitVar_decl(ctx);
 	}
 	
 	
+    /*
+    Function Name: exitAssignment_stmt
+    Description: Checks that the types match for assignment. 
+    */
 	@Override
 	public void exitAssignment_stmt(Assignment_stmtContext ctx) {
 		Type lhs = null;
 		Type rhs = null;
+		//LHS must be a variable that we're assigning to, so it needs to grab it from the symbol table.
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
 			for (int i = 0; i < ctx.expression().size(); i++) {
@@ -186,22 +237,33 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitAssignment_stmt(ctx);
 	}
 	
-	
-	
-
+    /*
+    Function Name: exitExprCont_ParExp
+    Description: Expression inside parentheses (exp). Sets the type to whatever its child was
+    and moves along. No checks needed here.
+    */
 	@Override
 	public void exitExprCont_ParExp(ExprCont_ParExpContext ctx) {
 		ctx.myType = ctx.expression().myType;
 		super.exitExprCont_ParExp(ctx);
 	}
 		
-
+    /*
+    Function Name: exitExprCont_Array
+    Description: Arrays are not supported at this time.
+    */
 	@Override
 	public void exitExprCont_Array(ExprCont_ArrayContext ctx) {
 		ctx.myType = Type.ERROR;
+		print.err(String.format(print.errMsgs.get("Unsupported"), "Array"),ctx);
 		super.exitExprCont_Array(ctx);
 	}
 
+	
+    /*
+    Function Name: exitIf_stmt
+    Description: If statement type check.. Just checking if the condition is a boolean.
+    */
 	@Override
 	public void exitIf_stmt(If_stmtContext ctx) {
 		if (ctx.expression().myType == Type.BOOLEAN) {
@@ -215,7 +277,10 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 	
 	
-
+    /*
+    Function Name: exitLoop_stmt
+    Description: Once again, just checking that the conditional is a boolean.
+    */
 	@Override
 	public void exitLoop_stmt(Loop_stmtContext ctx) {
 		if (ctx.expression().myType == Type.BOOLEAN) {
@@ -228,27 +293,42 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitLoop_stmt(ctx);
 	}
 
+    /*
+    Function Name: exitExprRelationalExpr
+    Description: Just pushing up the type up the tree for the functions that need it.
+    */
 	@Override
 	public void exitExprRelational_Expr(ExprRelational_ExprContext ctx) {
 		if (ctx.relational_exp().myType != null) {
 			ctx.myType = ctx.relational_exp().myType;
-		}
-		else {
+		} else {
+			ctx.myType = Type.ERROR;
+			print.err("exitExprRelational_Expr: No type to pass up the tree",ctx);
 		}
 		super.exitExprRelational_Expr(ctx);
 	}
 
+    /*
+    Function Name: exitExprOr_Expr
+    Description: Just pushing up the type up the tree for the functions that need it.
+    */
 	@Override
 	public void exitExprOr_Expr(ExprOr_ExprContext ctx) {
 		if (ctx.or_exp().myType != null) {
 			ctx.myType = ctx.or_exp().myType;
 		}
 		else {
-			print.DEBUG("exitExprOr_Exprr: Got null");
+			ctx.myType = Type.ERROR;
+			print.err("exitExprOr_Expr: No type to pass up the tree",ctx);
 		}
 		super.exitExprOr_Expr(ctx);
 	}
 
+    /*
+    Function Name: exitRelationalGE_Exp
+    Description: Type checking the operands used by >=. Only strings and ints are allowed, otherwise
+    an error is thrown. NOTE: All relational operators must push up a boolean type.
+    */
 	@Override
 	public void exitRelationalGE_Exp(RelationalGE_ExpContext ctx) {
 		if (ctx.e1.myType == Type.STRING) {
@@ -269,7 +349,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitRelationalGE_Exp(ctx);
 	}
 
-
+    /*
+    Function Name: exitRelationalGT_Exp
+    Description: Type checking the operands used by >. String and ints are the only types allowed.
+    */
 	@Override
 	public void exitRelationalGT_Exp(RelationalGT_ExpContext ctx) {
 
@@ -293,6 +376,11 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitRelationalGT_Exp(ctx);
 	}
 
+    /*
+    Function Name: exitRelationalEQ_Exp
+    Description: Type checking the operands used by =. 
+    All types are allowed, including class types, but obviously ,they must match.
+    */
 	@Override
 	public void exitRelationalEQ_Exp(RelationalEQ_ExpContext ctx) {
 		//making sure equality tests can be don
@@ -323,6 +411,11 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitRelationalEQ_Exp(ctx);
 	}
 	
+	
+    /*
+    Function Name: exitRelationalOr_Exp
+    Description: Pushing up the type for the functions that need it.
+    */
 	@Override
 	public void exitRelationalOr_Exp(RelationalOr_ExpContext ctx) {
 		if (ctx.or_exp().myType != null) {
@@ -330,30 +423,43 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
+			ctx.myType = Type.ERROR;
+			print.err("exitRelationalOr_Exp: No type to pass up the tree",ctx);
 		}
 		super.exitRelationalOr_Exp(ctx);
 	}
 
 
-
+    /*
+    Function Name: exitOrX_Exp
+    Description: Type checking for ors. Both operands need to be booleans.
+    */
 	@Override
 	public void exitOrX_Exp(OrX_ExpContext ctx) {
 		List<String> foo = Arrays.asList("TypeMismatch", ctx.OR().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
 		ctx.myType = exprCompareTypes(Type.BOOLEAN, ctx.e1.myType, ctx.e2.myType, ctx, foo);
 	}
 	
+    /*
+    Function Name: exitOrAnd_Exp
+    Description: Pushing up the type for the functions that need it.
+    */
 	@Override
 	public void exitOrAnd_Exp(OrAnd_ExpContext ctx) {
 		if (ctx.and_exp().myType != null) {
 			ctx.myType = ctx.and_exp().myType;
 		}
 		else{
-			print.DEBUG("exitOrAnd_Exp: shows previous func is null");
+			ctx.myType = Type.ERROR;
+			print.err("exitOrAnd_Exp: No type to pass up the tree",ctx);
 		}
 		super.exitOrAnd_Exp(ctx);
 	}
 
-
+    /*
+    Function Name: exitAndX_Exp
+    Description: Type checking for Ands. Need to be booleans.
+    */
 	@Override
 	public void exitAndX_Exp(AndX_ExpContext ctx) {
 		List<String> foo = Arrays.asList("TypeMismatch", ctx.AND().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
@@ -361,6 +467,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitAndX_Exp(ctx);
 	}
 	
+    /*
+    Function Name: exitAndConcat_Exp
+    Description: Pushing up the type for the functions that need it.
+    */
 	@Override
 	public void exitAndConcat_Exp(AndConcat_ExpContext ctx) {
 		if (ctx.concat_exp().myType != null) {
@@ -368,12 +478,17 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.DEBUG("exitAndConcat_Exp: shows previous func is null");
+			ctx.myType = Type.ERROR;
+			print.err("exitAndConcat_Exp: No type to pass up the tree",ctx);
 		}
 		super.exitAndConcat_Exp(ctx);
 	}
 
-
+    /*
+    Function Name: exitConcatX_Exp
+    Description: Type checking for the ampersand (concat) operator. The type is required to be a string. Not implemented
+    into the language, but you could always use the floyd concat function.
+    */
 	@Override
 	public void exitConcatX_Exp(ConcatX_ExpContext ctx) {
 		List<String> foo = Arrays.asList("TypeMismatch", ctx.AMPERSAND().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
@@ -381,6 +496,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitConcatX_Exp(ctx);
 	}
 	
+    /*
+    Function Name: exitConcatAdd_Exp
+    Description: Pushing up the type for the functions that need it.
+    */
 	@Override
 	public void exitConcatAdd_Exp(ConcatAdd_ExpContext ctx) {
 		if (ctx.add_exp().myType != null) {
@@ -388,12 +507,16 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.DEBUG("exitConcatAdd_Exp: shows previous func is: " + ctx.add_exp().myType);
+			ctx.myType = Type.ERROR;
+			print.err("exitConcatAdd_Exp: No type to pass up the tree",ctx);
 		}
 		super.exitConcatAdd_Exp(ctx);
 	}
 
-
+    /*
+    Function Name: exitAddPlus_Exp
+    Description: Type checking for the plus operator. The operands need to be integers.
+    */
 	@Override
 	public void exitAddPlus_Exp(AddPlus_ExpContext ctx) {
 		List<String> foo = Arrays.asList("TypeMismatch", ctx.PLUS().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
@@ -401,6 +524,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitAddPlus_Exp(ctx);
 	}
 	
+    /*
+    Function Name: exitAddMinus_Exp
+    Description: Type checking for the minus operator. The operands need to be integers.
+    */
 	@Override
 	public void exitAddMinus_Exp(AddMinus_ExpContext ctx) {
 		List<String> foo = Arrays.asList("TypeMismatch", ctx.MINUS().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
@@ -408,6 +535,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitAddMinus_Exp(ctx);
 	}
 
+    /*
+    Function Name: exitAddMulti_Exp
+    Description: Pushing up the type for the functions that need it.
+    */
 	@Override
 	public void exitAddMulti_Exp(AddMulti_ExpContext ctx) {
 		if (ctx.multi_exp().myType != null) {
@@ -415,11 +546,15 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.DEBUG("exitAddMulti_Exp: shows previous func is null");
+			ctx.myType = Type.ERROR;
+			print.err("exitAddMulti_Exp: No type to pass up the tree",ctx);
 		}
 		super.exitAddMulti_Exp(ctx);
 	}
-	
+    /*
+    Function Name: exitMultiTimes_Exp
+    Description: Type checking for the * operator. Both operands must be integers.
+    */
 	@Override
 	public void exitMultiTimes_Exp(MultiTimes_ExpContext ctx) {
 		List<String> foo = Arrays.asList("TypeMismatch", ctx.TIMES().toString(), ctx.e1.myType.toString(), ctx.e2.myType.toString());
@@ -427,6 +562,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitMultiTimes_Exp(ctx);
 	}
 
+    /*
+    Function Name: exitMultiDIV_Exp
+    Description: Type checking for the / operator. Both operands must be integers.
+    */
 	@Override
 	public void exitMultiDIV_Exp(MultiDIV_ExpContext ctx) {
 		List<String> foo = Arrays.asList("TypeMismatch", ctx.DIV().toString(),ctx.e1.myType.toString(), ctx.e2.myType.toString());
@@ -434,7 +573,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitMultiDIV_Exp(ctx);
 	}
 
-
+    /*
+    Function Name: exitMultiUnary_Exp
+    Description: Pushing up the type for the functions that need it.
+    */
 	@Override
 	public void exitMultiUnary_Exp(MultiUnary_ExpContext ctx) {
 		if (ctx.unary_exp().myType != null) {
@@ -442,12 +584,16 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.DEBUG("exitMultiUnary_Exp shows previous func is null");
+			ctx.myType = Type.ERROR;
+			print.err("exitMultiUnary_Exp: No type to pass up the tree",ctx);
 		}
 		super.exitMultiUnary_Exp(ctx);
 	}
 
-
+    /*
+    Function Name: exitUnaryPlus_Exp
+    Description: Checking the unary + operand. It needs to be an integer.
+    */
 	@Override
 	public void exitUnaryPlus_Exp(UnaryPlus_ExpContext ctx) {
 		String errorMsg = String.format(print.errMsgs.get("TypeMismatch"), 
@@ -456,7 +602,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitUnaryPlus_Exp(ctx);
 	}
 
-
+    /*
+    Function Name: exitUnaryMinus_Exp
+    Description: Checking the unary - operand. It needs to be an integer.
+    */
 	@Override
 	public void exitUnaryMinus_Exp(UnaryMinus_ExpContext ctx) {
 		String errorMsg = String.format(print.errMsgs.get("TypeMismatch"), 
@@ -464,7 +613,10 @@ public class SemanticChecker extends FloydBaseListener {
 		ctx.myType = exprCompareTypes(Type.INT, ctx.unary_exp().myType, errorMsg, ctx);
 	}
 
-
+    /*
+    Function Name: exitUnaryNot_Exp
+    Description: Checking the unary not operand. It needs to be a bool
+    */
 	@Override
 	public void exitUnaryNot_Exp(UnaryNot_ExpContext ctx) {
 		String errorMsg = String.format(print.errMsgs.get("TypeMismatch"), 
@@ -472,33 +624,11 @@ public class SemanticChecker extends FloydBaseListener {
 		ctx.myType = exprCompareTypes(Type.BOOLEAN, ctx.unary_exp().myType,errorMsg, ctx);
 		super.enterUnaryNot_Exp(ctx);
 	}
-
-	Type exprCompareTypes(Type expectedType, Type givenType1, Type givenType2,ParserRuleContext ctx, List<String> fields) {
-		if (givenType1 == Type.ERROR || givenType2 == Type.ERROR) {
-			return Type.ERROR;
-		}
-		if (expectedType == givenType1) {
-			if (expectedType == givenType2) {
-				return expectedType;
-			} else {
-				print.err(String.format(print.errMsgs.get(fields.get(0)), fields.get(1), expectedType, givenType2),ctx);
-				return Type.ERROR;
-			}
-		} else {
-			print.err(String.format(print.errMsgs.get(fields.get(0)), fields.get(1), expectedType, givenType1),ctx);
-			return Type.ERROR;
-		}
-	}
-	Type exprCompareTypes(Type expectedType, Type givenType, String errMsg, ParserRuleContext ctx) {
-		if (expectedType == givenType && givenType != Type.ERROR) {
-			return expectedType;
-		} else {
-			print.err(errMsg, ctx);
-			return Type.ERROR;
-		}
-	}
 	
-	
+    /*
+    Function Name: exitUnaryMethod_Exp
+    Description: Passing up the type for the functions that need it.
+    */
 	@Override
 	public void exitUnaryMethod_Exp(UnaryMethod_ExpContext ctx) {
 		if (ctx.method_exp().myType != null) {
@@ -506,11 +636,16 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.DEBUG("exitUnaryMethod_Exp: Type is null");
+			ctx.myType = Type.ERROR;
+			print.err("exitUnaryMethod_Exp: No type to pass up the tree",ctx);
 		}
 		super.exitUnaryMethod_Exp(ctx);
 	}
 
+    /*
+    Function Name: exitMethodExpr_Cont
+    Description: Passing up the type for the functions that need it.
+    */
 	@Override
 	public void exitMethodExpr_Cont(MethodExpr_ContContext ctx) {
 		ctx.myType = ctx.expr_cont().myType;
@@ -519,14 +654,17 @@ public class SemanticChecker extends FloydBaseListener {
 		}
 		else
 		{
-			print.DEBUG("exitMethodExpr_Cont: Type is null");
+			ctx.myType = Type.ERROR;
+			print.err("exitMethodExpr_Cont: No type to pass up the tree",ctx);
 		}
 		
 		super.exitMethodExpr_Cont(ctx);
 	}
 	
-	
-	
+    /*
+    Function Name: exitExprCont_New
+    Description: Makes sure the LHS type is a user defined class type, otherwise it's an error.
+    */
 @Override
 	public void exitExprCont_New(ExprCont_NewContext ctx) {
 	if (Type.getTypeForName(ctx.typ.getText()) != null ) {
@@ -541,11 +679,16 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 
 
-@Override
+	/*
+	Function Name: exitExprCont_Null
+	Description: A little tricky to do with the listener approach, so I have to loop up the to get the LHS and
+	check it's a user defined class type.
+	*/
+	@Override
 	public void exitExprCont_Null(ExprCont_NullContext ctx) {
 	   Assignment_stmtContext nullAssign = null;
 	   RelationalEQ_ExpContext equalityTest = null;
-		ParserRuleContext foo = ctx;
+	   ParserRuleContext foo = ctx;
 		while (foo != null) {
 			if (foo.getParent() instanceof Assignment_stmtContext) {
 				nullAssign = (Assignment_stmtContext)foo.getParent();
@@ -564,10 +707,9 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = Type.ERROR;
 			print.err(String.format("Attempting to assign null to %s. Null can only be assigned to class types.", typerino),ctx);
 			return;
-			//it's not null and it's a class type, we're gucci.
-			//making the type the LHS type so assignment stmt doesn't throw an error. No further checks
-			//are necessary here, those must be made during runtime
+
 			} else {
+				//it's not null and it's a class type, so we're set.
 				ctx.myType = typerino;
 				return;
 			}
@@ -588,7 +730,11 @@ public class SemanticChecker extends FloydBaseListener {
 			print.err("Null failed. Could not find LHS",ctx);
 
 	}
-//FIXME(My me semantic check may be waaay wrong. ask just in case)
+	/*
+	Function Name: exitExprCont_ME
+	Description: Annoying like new because I had to loop up the tree to get the type and make sure it was
+	a user defined class type.
+	*/
 	@Override
 	public void exitExprCont_ME(ExprCont_MEContext ctx) {
 		Assignment_stmtContext meAssign = null;
@@ -607,6 +753,7 @@ public class SemanticChecker extends FloydBaseListener {
 			foo = foo.getParent();
 		}
 		
+		//type for assignment statements
 		if (meAssign != null) {
 			if (symTable.lookup(meAssign.IDENTIFIER().getText()) != null) {
 			ctx.myType = symTable.lookup(meAssign.IDENTIFIER().getText()).getDecl().type;
@@ -624,19 +771,28 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 			}
 		}
+		//if I make it here, then I never found the LHS type.
 		ctx.myType = Type.ERROR;
 		
 		print.err("Me failed. No valid type found.",ctx);
 		super.exitExprCont_ME(ctx);
 	}
 
-	
+	/*
+	Function Name: exitExprCont_Strlit
+	Description: Just passes up the string type for the functions that need it up the tree.
+	*/
 	@Override
 	public void exitExprCont_Strlit(ExprCont_StrlitContext ctx) {
 		ctx.myType = Type.STRING;
 		super.enterExprCont_Strlit(ctx);
 	}
 	
+	/*
+	Function Name: exitCall_stmt
+	Description: Decorates the tree with the class name and symbol to be used in CodeGen. Checks that the function
+	is either in a class declaration or currently in the symbol table.
+	*/
 	@Override
 	public void exitCall_stmt(Call_stmtContext ctx) {
 
@@ -644,9 +800,12 @@ public class SemanticChecker extends FloydBaseListener {
 		ctx.className = currentClass;
 		List<VarDeclaration> info = new ArrayList<VarDeclaration>();
 		int paramNum = 0;
+		//setting the parameter number if there are any
 		if (ctx.expression_list() != null) {
 			paramNum = ctx.expression_list().expression().size();
 		}
+		//checking an object or type exists. If so, then it's a blank.function() kind of call.
+		//If the type is the same as the current class name, then I need to look in the symbol table for the function definition.
 		if (ctx.t1 != null && !(symTable.lookup(ctx.t1.getText()).getDecl().type.getClassDecl().name.equals(currentClass))) {
 			Symbol foo = symTable.lookup(ctx.t1.getText());
 			ctx.sym = foo;
@@ -656,7 +815,8 @@ public class SemanticChecker extends FloydBaseListener {
 				return;
 			}
 				
-
+				//checking inside of the class declaration to make sure the parameter number is correct
+				//and that each parameter type matches
 				if (foo.getDecl().type.getClassDecl().methods.containsKey(ctx.IDENTIFIER().getText())) {
 					MethodDeclaration meth = foo.getDecl().type.getClassDecl().methods.get(ctx.IDENTIFIER().getText());
 					if (meth.parameters.size() != paramNum) {
@@ -693,7 +853,8 @@ public class SemanticChecker extends FloydBaseListener {
 		} 
 		
 		
-		
+		//If I make it this far, then it's just a function call, with: functionCall()
+		//I do the same type and parameter number checks.
 		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER().getText()).getDecl();
 		info = mDecl.getParameters();
 		if (symTable.lookup(ctx.IDENTIFIER().getText()) != null) {
@@ -731,6 +892,12 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitCall_stmt(ctx);
 	}
 	
+	
+	/*
+	Function Name: exitExprCont_IDExpr
+	Description: Expression call statement check is done here. Same checks as done up above on the
+	call_stmt function. I have to check if it's just a regular function call, or if theres an obj/type associated with it.
+	*/
 	@Override
 	public void exitExprCont_IDExpr(ExprCont_IDExprContext ctx) {
 		int paramNum = 0;
@@ -800,6 +967,7 @@ public class SemanticChecker extends FloydBaseListener {
 					/*
 					 * 
 					 * recursion case
+					 * If I don't do this, then I wont have the types during a recursion call. 
 					 */
 					if (info.get(i).type == null) {
 						VarDeclaration moo = info.get(i);
@@ -826,6 +994,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitExprCont_IDExpr(ctx);
 	}
 
+	/*
+	Function Name: exitExprCont_Intlit
+	Description: Passing the type up the tree.
+	*/
 	@Override
 	public void exitExprCont_Intlit(ExprCont_IntlitContext ctx) {
 		ctx.myType = Type.INT;
@@ -833,28 +1005,34 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 	
 	
-	
+	/*
+	Function Name: exitExprCont_True
+	Description: Passing the type up the tree.
+	*/
 	@Override
 	public void exitExprCont_True(ExprCont_TrueContext ctx) {
 		ctx.myType = Type.BOOLEAN;
 		super.exitExprCont_True(ctx);
 	}
-
+	/*
+	Function Name: exitExprCont_False
+	Description: Passing the type up the tree.
+	*/
 	@Override
 	public void exitExprCont_False(ExprCont_FalseContext ctx) {
 		ctx.myType = Type.BOOLEAN;
 		super.exitExprCont_False(ctx);
 	}
 	
-	
+	/*
+	Function Name: exitExprCont_ID
+	Description: Passing the type up the tree. Need to look up in the symbol table first, of course.
+	*/
 	@Override
 	public void exitExprCont_ID(ExprCont_IDContext ctx) {
 		
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
 		if (sym != null) {
-			if (sym.getDecl() instanceof VarDeclaration) {
-				VarDeclaration test = (VarDeclaration) sym.getDecl();
-			}
 			ctx.sym = sym;
 			ctx.myType = sym.getDecl().type;
 		}
@@ -867,21 +1045,38 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitExprCont_ID(ctx);
 	}
 
+	/*
+	Function Name: exitTypeInt
+	Description: Passing the type up the tree.
+	*/
 	@Override
 	public void exitTypeInt(TypeIntContext ctx) {
 		ctx.myType = Type.INT;
 	}
+	
+	/*
+	Function Name: exitTypeString
+	Description: Passing the type up the tree.
+	*/
 	@Override
 	public void exitTypeString(TypeStringContext ctx) {
 		ctx.myType = Type.STRING;
 		super.enterTypeString(ctx);
 	}
+	/*
+	Function Name: exitTypeBool
+	Description: Passing the type up the tree.
+	*/
 	@Override
 	public void exitTypeBool(TypeBoolContext ctx) {
 		ctx.myType = Type.BOOLEAN;
 		super.enterTypeBool(ctx);
 	}
-
+	
+	/*
+	Function Name: exitTypeID
+	Description: Passing the type up the tree.
+	*/
 	@Override
 	public void exitTypeID(TypeIDContext ctx) {
 		Symbol sym = symTable.lookup(ctx.IDENTIFIER().getText());
@@ -889,11 +1084,17 @@ public class SemanticChecker extends FloydBaseListener {
 			ctx.myType = sym.getDecl().type;
 		}
 		else {
+			print.err(String.format(print.errMsgs.get("UndefinedVar"), 
+					ctx.IDENTIFIER().getText()),ctx);
 			ctx.myType = Type.ERROR;
 		}
 		super.exitTypeID(ctx);
 	}
 
+	/*
+	Function Name: exitArgument_decl
+	Description: Checking the parameter type the user is passing in. 
+	*/
 	@Override
 	public void exitArgument_decl(Argument_declContext ctx) {
 		if (doesTypeExist(ctx.type().myType)) {
@@ -904,6 +1105,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.exitArgument_decl(ctx);
 	}
 
+	/*
+	Function Name: exitArgument_decl_list
+	Description: Parameter types get set here. They're also pushed into the symbol table.
+	*/
 	@Override
 	public void exitArgument_decl_list(Argument_decl_listContext ctx) {
 		int offset = 12;
@@ -919,33 +1124,35 @@ public class SemanticChecker extends FloydBaseListener {
 	}
 	
 	
-
+	/*
+	Function Name: exitMethod_decl
+	Description: Decorating this node with the class name for use in code gen. Adding the parameters to the 
+	method and ending the scope to clean the locals off the symbol table.
+	*/
 	@Override
 	public void exitMethod_decl(Method_declContext ctx) {
-		int paramOffset = 8;
 		ctx.className = currentClass;
 		MethodDeclaration mDecl = (MethodDeclaration) symTable.lookup(ctx.IDENTIFIER(0).getText()).getDecl();
-		//giving offsets to all parameters. (POSITIVE)
 		if (ctx.argument_decl_list() != null) {
 			mDecl.clearParameters();
 			for (int i = 0; i < ctx.argument_decl_list().argument_decl().size(); i++) {
 				mDecl.appendParameter(ctx.argument_decl_list().argument_decl(i).type().myType,ctx.argument_decl_list().argument_decl(i).IDENTIFIER().getText());
-				paramOffset += 4;
 			}
 		}
 		ctx.params = ctx.var_decl().size();
 		
 	
-		
 		symTable.endScope();
 		super.exitMethod_decl(ctx);
 	}
 
+	/*
+	Function Name: enterMethod_decl
+	Description: Checking the type of the function so it can be pushed correctly onto the stack. Set the local offset
+	to -8 so that it isn't giving offsets based on the last method declaration.
+	*/
 	@Override
 	public void enterMethod_decl(Method_declContext ctx) {
-		//dumb way of doing it since it doesn't include user defined types, but
-		//it'll work for now
-		//List<Type> types = Arrays.asList(Type.INT, Type.BOOLEAN, Type.STRING, Type.READER, Type.VOID, Type.WRITER);
 		List<Type> types = Arrays.asList(Type.INT, Type.BOOLEAN, Type.STRING, Type.VOID);
 		Type t = Type.VOID;
 		
@@ -972,20 +1179,13 @@ public class SemanticChecker extends FloydBaseListener {
 		symTable.setLocalOffset(-8);
 		super.enterMethod_decl(ctx);
 	}
-	
-	
 
-	@Override
-	public void enterStart(StartContext ctx) {
-
-		super.enterStart(ctx);
-	}
-
-	@Override
-	public void exitStart(StartContext ctx) {
-		super.exitStart(ctx);
-	}
-
+	/*
+	Function Name: enterClass_
+	Description:Need to push in the "in" and "out" variables as soon as the class shows up
+	so that there are no issues with calling those functions. Setting th einstance variable offset to 8 so we don't
+	give offsets based on the last class.
+	*/
 	@Override
 	public void enterClass_(Class_Context ctx) {
 		//instance variable offset set to 8;
@@ -1010,7 +1210,10 @@ public class SemanticChecker extends FloydBaseListener {
 		super.enterClass_(ctx);
 	}
 
-	
+	/*
+	Function Name: exitClass_
+	Description:Ending the scope to clear off all the methods/instance parameters, because we're done processing the class.
+	*/
 	@Override
 	public void exitClass_(Class_Context ctx) {
 		//Perform semantic processing on instance variable and method declarations (these symbols go in the new scope)
@@ -1035,7 +1238,11 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		super.exitClass_(ctx);
 	}
-
+	/*
+	Function Name: exitMethodDot_Exp
+	Description:If there's a variable on the LHS of the dot, then the symbol gets passed along. Otherwise just the function type.
+	
+	*/
 	@Override
 	public void exitMethodDot_Exp(MethodDot_ExpContext ctx) {
 		
@@ -1048,15 +1255,5 @@ public class SemanticChecker extends FloydBaseListener {
 		
 		super.exitMethodDot_Exp(ctx);
 	}
-	@Override
-	public void enterMethodDot_Exp(MethodDot_ExpContext ctx) {
-	
-		//returns
-		//symTable.printSymTable();
-		super.enterMethodDot_Exp(ctx);
-	}
-
-	
-	
-
+		
 }

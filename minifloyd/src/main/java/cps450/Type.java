@@ -1,3 +1,9 @@
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: Type.java
+Description: Type class to be used both in semantic checking and code generation
+*/
 package cps450;
 
 import java.util.ArrayList;
@@ -21,14 +27,25 @@ public class Type {
 	    this.name = name;
 	}
 	
+	/*
+	Function Name: getClassDecl
+	Description: Accessor method for classDEcl
+	*/
 	public ClassDeclaration getClassDecl() {
 		return classDecl;
 	}
-
+	/*
+	Function Name: setClassDecl
+	Description: Mutator method for classDEcl
+	*/
 	public void setClassDecl(ClassDeclaration classDecl) {
 		this.classDecl = classDecl;
 	}
-
+	
+	/*
+	Function Name: CreateType
+	Description: Creates a user defined type for the corresponding class
+	*/
 	public static Type createType(ClassDeclaration decl) {
 		//This method should create a new Type instance that stores a reference to decl in classDecl. 
 		//Store the Type instance in the types map using the class name as the key.
@@ -44,22 +61,17 @@ public class Type {
 		return newType;
 	}
 	
+	/*
+	Function Name: ClassDeclaration
+	Description: Return the Type instance from the types map, or null if no class with the given name has been defined.
+	*/
 	public static Type getTypeForName(String className) {
-		//Return the Type instance from the types map, or null if no class with the given name has been defined.
 		if (className.equals("String")) {
 			return Type.STRING;
 		} else if (className.equals("string")) {
 			return Type.STRING;
 		}
 		return types.get(className);
-	}
-	@Override
-	public boolean equals(Object obj) {
-		//System.out.println("obj: " + obj + " this is: " + this);
-		if (obj == Type.ERROR) {
-			return true;
-		}
-		return super.equals(obj);
 	}
 
 	@Override
@@ -68,12 +80,4 @@ public class Type {
 	}
 	
 
-
-	
-	
-
-	
-	
-	//reader
-	//writer
 }

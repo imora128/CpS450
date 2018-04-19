@@ -1,3 +1,9 @@
+/*
+Name: Italo Moraes (IMORA128)
+Class: CpS 450
+Filename: MyError.java
+Description: Class to facilitate printing errors and keeping track of number of semantic errors.
+*/
 package cps450;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -19,19 +25,30 @@ public class MyError {
 	Option opt;
 	HashMap<String, String> errMsgs = new HashMap<String, String>();
 	
+	/*
+	Function Name: DEBUG
+	Description: Nice colorful print for debugging purposes.
+	*/
 	void DEBUG(String msg) {
 		if (debugMode) {
 		System.err.println(ANSI_GREEN + msg + ANSI_RESET);
 		}
 	}
 	
+	/*
+	Function Name: err
+	Description: Used for semantic error messages. Increments semantic errors in the Option object.
+	*/
 	void err(String msg, ParserRuleContext ctx) {
 		System.err.println( String.format(ANSI_RED + "%s:%d,%d:%s", opt.fileName.get(0),
 				ctx.start.getLine(), ctx.start.getCharPositionInLine(), msg) + ANSI_RESET);
 		opt.semanticErrors++;
 	}
 	
-
+	/*
+	Function Name: MyError
+	Description: Hashmap of predefined error messages to make printing common errors.
+	*/
 	MyError(Boolean bool) {
 		debugMode = bool;
 		errMsgs.put("Unsupported","Unsupported feature: %s");
