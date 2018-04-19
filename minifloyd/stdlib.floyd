@@ -3,14 +3,14 @@
 ~ An implementation of the Floyd Predefined classes
 ~ ---------------------------------------------------------
 
-class floyd is
+class Oyd is
 
   toString(): string is
   begin
     toString := "none"
   end toString
 
-end floyd
+end Oyd
 
 ~ ********************************************
 ~  CharNode is used internally by the String class
@@ -115,7 +115,6 @@ class String is
     newstr: String
     curNode: CharNode
   begin
-  ~leprint()
     ~ first, make a copy of this String
     newstr := copy()    
         
@@ -171,7 +170,7 @@ class String is
     curNode: CharNode
   begin
     curNode := charlist
-    loop while (index > 0) and not (curNode = null)
+    loop while index > 0 and not (curNode = null)
       index := index - 1
       curNode := curNode.getNext()
     end loop

@@ -74,7 +74,7 @@ class List is
     curNode: ListNode
   begin
     curNode := head
-    loop while (index > 0) and not (curNode = null)
+    loop while index > 0 and not (curNode = null)
       index := index - 1
       curNode := curNode.getNext()
     end loop
@@ -108,7 +108,7 @@ class List is
   begin
     prevNode := null
     curNode := head
-    loop while (index > 0) and not (curNode = null)
+    loop while index > 0 and not (curNode = null)
       index := index - 1
       prevNode := curNode
       curNode := curNode.getNext()
@@ -130,7 +130,7 @@ class List is
     curNode: ListNode
   begin
     curNode := head
-    loop while (index > 0) and not (curNode = null)
+    loop while index > 0 and not (curNode = null)
       index := index - 1
       curNode := curNode.getNext()
     end loop
